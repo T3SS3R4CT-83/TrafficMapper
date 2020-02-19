@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\asserts\HungarianAlgorithm.hpp" />
+    <ClInclude Include="Source\classes\Detection.hpp" />
+    <ClInclude Include="Source\includes\TrafficMapper\Asserts\HungarianAlgorithm" />
+    <ClInclude Include="Source\includes\TrafficMapper\Modules\FrameProvider" />
+    <ClInclude Include="Source\includes\TrafficMapper\Modules\GateModel" />
+    <ClInclude Include="Source\includes\TrafficMapper\Modules\TrafficTracker" />
+    <ClInclude Include="Source\includes\TrafficMapper\Modules\VideoFilter" />
+    <ClInclude Include="Source\modules\FrameProvider.hpp" />
+    <QtMoc Include="Source\modules\VideoFilter.hpp" />
+    <QtMoc Include="Source\modules\TrafficTracker.hpp" />
+    <QtMoc Include="Source\modules\GateModel.hpp" />
+    <QtMoc Include="Source\classes\Vehicle.hpp" />
+    <QtMoc Include="Source\classes\Gate.hpp" />
+    <ClInclude Include="Source\includes\TrafficMapper\Classes\Detection" />
+    <ClInclude Include="Source\includes\TrafficMapper\Classes\Gate" />
+    <ClInclude Include="Source\includes\TrafficMapper\Classes\Vehicle" />
+    <ClInclude Include="Source\includes\TrafficMapper\Globals" />
+    <QtMoc Include="Source\Globals.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\asserts\HungarianAlgorithm.cpp" />
+    <ClCompile Include="Source\classes\Detection.cpp" />
+    <ClCompile Include="Source\classes\Gate.cpp" />
+    <ClCompile Include="Source\classes\Vehicle.cpp" />
+    <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\Globals.cpp" />
+    <ClCompile Include="Source\modules\FrameProvider.cpp" />
+    <ClCompile Include="Source\modules\GateModel.cpp" />
+    <ClCompile Include="Source\modules\TrafficTracker.cpp" />
+    <ClCompile Include="Source\modules\VideoFilter.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
+    <None Include="Resources\qml\components\GateList.qml" />
+    <None Include="Resources\qml\components\MainMenu.qml" />
+    <None Include="Resources\qml\components\VideoPlayer.qml" />
+    <None Include="Resources\qml\dialogs\DlgOpenCache.qml" />
+    <None Include="Resources\qml\dialogs\DlgOpenVideo.qml" />
+    <None Include="Resources\qml\dialogs\DlgSaveCache.qml" />
+    <None Include="Resources\qml\dialogs\GateProperties.qml" />
+    <None Include="Resources\qml\dialogs\ProgressWindow.qml" />
+    <None Include="Resources\qml\main.qml" />
+    <None Include="Resources\svg\media-pause.svg" />
+    <None Include="Resources\svg\media-play.svg" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="Resources\resources.qrc" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{A03CD1D0-963A-4124-BBBE-1575A1377690}</ProjectGuid>
+    <Keyword>QtVS_v302</Keyword>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(ProjectDir)Source\includes;$(ProjectDir)Include\OpenCV\include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)Build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>Build\$(Platform)\$(Configuration)\</IntDir>
+    <LibraryPath>$(ProjectDir)Include\OpenCV\x64\vc16\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(ProjectDir)Source\includes;$(ProjectDir)Include\OpenCV\include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)Build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>Build\$(Platform)\$(Configuration)\</IntDir>
+    <LibraryPath>$(ProjectDir)Include\OpenCV\x64\vc16\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>charts;core;multimedia;qml;quick;quickcontrols2</QtModules>
+    <QtQMLDebugEnable>true</QtQMLDebugEnable>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>charts;core;multimedia;qml;quick;quickcontrols2</QtModules>
+    <QtQMLDebugEnable>true</QtQMLDebugEnable>
+  </PropertyGroup>
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
+    <Import Project="$(QtMsBuild)\qt.props" />
+  </ImportGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>Disabled</Optimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opencv_core420d.lib;opencv_dnn420d.lib;opencv_tracking420d.lib;opencv_videoio420d.lib;opencv_imgproc420d.lib;opencv_imgcodecs420d.lib;opencv_highgui420d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)Include\OpenCV\x64\vc16\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat />
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalDependencies>opencv_core420.lib;opencv_dnn420.lib;opencv_tracking420.lib;opencv_videoio420.lib;opencv_imgproc420.lib;opencv_imgcodecs420.lib;opencv_highgui420.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
+    <Import Project="$(QtMsBuild)\qt.targets" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

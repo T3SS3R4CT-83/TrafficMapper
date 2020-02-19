@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/main.qml</file>
+        <file>qml/components/GateList.qml</file>
+        <file>qml/components/MainMenu.qml</file>
+        <file>qml/components/VideoPlayer.qml</file>
+        <file>qml/dialogs/DlgOpenCache.qml</file>
+        <file>qml/dialogs/DlgOpenVideo.qml</file>
+        <file>qml/dialogs/DlgSaveCache.qml</file>
+        <file>qml/dialogs/GateProperties.qml</file>
+        <file>qml/dialogs/ProgressWindow.qml</file>
+        <file>svg/media-pause.svg</file>
+        <file>svg/media-play.svg</file>
+    </qresource>
+</RCC>
