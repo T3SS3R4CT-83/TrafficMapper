@@ -22,6 +22,14 @@ int main(int argc, char *argv[])
     qmlRegisterType<TrafficTracker>("com.elte.t3ss3r4ct", 1, 0, "TrafficTracker");
     qmlRegisterType<VideoFilter>("com.elte.t3ss3r4ct", 1, 0, "VideoFilter");
 
+    qmlRegisterSingletonType<GlobalMeta>("com.elte.t3ss3r4ct", 1, 0, "GlobalMeta",
+        [](QQmlEngine* engine, QJSEngine* scriptEngine) -> QObject* {
+            Q_UNUSED(engine)
+            Q_UNUSED(scriptEngine)
+
+            return GlobalMeta::getInstance();
+        });
+
     GateModel gateModel;
     TrafficTracker tracker;
     VideoFilter videoFilter;
@@ -46,14 +54,6 @@ int main(int argc, char *argv[])
     if (qmlOpenVideoDialog != nullptr)
         QObject::connect(qmlOpenVideoDialog, SIGNAL(videoFileOpened(QUrl)),
                          &tracker, SLOT(onVideoFileOpened(QUrl)));
-
-    qmlRegisterSingletonType<GlobalMeta>("com.elte.t3ss3r4ct", 1, 0, "GlobalMeta", [](QQmlEngine* engine, QJSEngine* scriptEngine) -> QObject* {
-        Q_UNUSED(engine)
-        Q_UNUSED(scriptEngine)
-
-        GlobalMeta* example = GlobalMeta::getInstance();
-        return example;
-    });
 
     return app.exec();
 }

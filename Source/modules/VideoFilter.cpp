@@ -61,15 +61,6 @@ QVideoFrame VideoFilterRunnable::run(QVideoFrame *input, const QVideoSurfaceForm
 					m_painter.drawPoint(vehicle->position(frameIdx));
 				}
 
-				//if (showDetections) {
-				//	Detection bbox = vehicle->detection(frameIdx);
-				//	if (bbox.vehicleClass())
-				//		m_painter.setPen(m_pen_detection);
-				//	else
-				//		m_painter.setPen(m_pen_tracking);
-				//	m_painter.drawRect(QRect(bbox.x, bbox.y, bbox.width, bbox.height));
-				//}
-
 				if (showLabels) {
 					static QFontMetrics fm(m_painterFont);
 					QRect labelBackground = fm.tightBoundingRect(vehicle->className());

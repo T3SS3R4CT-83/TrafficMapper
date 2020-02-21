@@ -176,6 +176,9 @@
       <Filter>Resource Files\SVG</Filter>
     </None>
     <None Include="cpp.hint" />
+    <None Include="Resources\qml\components\PlaybackOptions.qml">
+      <Filter>QML files\Components</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="Resources\resources.qrc">

@@ -24,12 +24,19 @@ Window {
         y: 35
     }
 
-    GateList {
-        id: gateList
+    PlaybackOptions {
+        id: playbackOptions
         x: videoPlayer.width + 20
         y: 35
         width: mainWindow.width - videoPlayer.width - 30
-        height: videoPlayer.height
+    }
+
+    GateList {
+        id: gateList
+        x: videoPlayer.width + 20
+        y: 45 + playbackOptions.height
+        width: mainWindow.width - videoPlayer.width - 30
+        height: videoPlayer.height - playbackOptions.height - 10
     }
 
     ProgressWindow {

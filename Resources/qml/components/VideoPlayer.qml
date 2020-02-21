@@ -13,10 +13,10 @@ Item {
     height: 480
 
     property bool isVideoLoaded: false
+    property Gate currentGateItem: null
 
     QtObject {
         id: internals
-        property Gate currentGateItem: null
     }
 
     Connections {
@@ -57,11 +57,11 @@ Item {
 
                 onPressed: {
                     if (gateList.isGatePlacingEnabled) {
-                        internals.currentGateItem = Qt.createQmlObject('import com.elte.t3ss3r4ct 1.0; Gate {}', gateContainer)
+                        currentGateItem = Qt.createQmlObject('import com.elte.t3ss3r4ct 1.0; Gate {}', gateContainer)
 
-                        internals.currentGateItem.anchors.fill = gateContainer
-                        internals.currentGateItem.startPos = Qt.point(mouseX, mouseY)
-                        internals.currentGateItem.endPos = Qt.point(mouseX, mouseY)
+                        currentGateItem.anchors.fill = gateContainer
+                        currentGateItem.startPos = Qt.point(mouseX, mouseY)
+                        currentGateItem.endPos = Qt.point(mouseX, mouseY)
 //                        internals.currentGateItem.anchors.fill = gateContainer
 //                        internals.currentGateItem.startPos = Qt.point(mouseX, mouseY)
 //                        internals.currentGateItem.endPos = Qt.point(mouseX, mouseY)
@@ -70,11 +70,11 @@ Item {
                 }
                 onPositionChanged: {
                     if (gateList.isGatePlacingEnabled)
-                        internals.currentGateItem.endPos = Qt.point(mouseX,mouseY)
+                        currentGateItem.endPos = Qt.point(mouseX,mouseY)
                 }
                 onReleased: {
                     if (gateList.isGatePlacingEnabled) {
-                        internals.currentGateItem.endPos = Qt.point(mouseX,mouseY)
+                        currentGateItem.endPos = Qt.point(mouseX,mouseY)
                         gatePropertiesDialog.open()
                         gateList.isGatePlacingEnabled = false
                     }

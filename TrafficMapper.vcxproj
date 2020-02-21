@@ -46,6 +46,7 @@
     <None Include="cpp.hint" />
     <None Include="Resources\qml\components\GateList.qml" />
     <None Include="Resources\qml\components\MainMenu.qml" />
+    <None Include="Resources\qml\components\PlaybackOptions.qml" />
     <None Include="Resources\qml\components\VideoPlayer.qml" />
     <None Include="Resources\qml\dialogs\DlgOpenCache.qml" />
     <None Include="Resources\qml\dialogs\DlgOpenVideo.qml" />
