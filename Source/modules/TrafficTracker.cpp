@@ -270,7 +270,8 @@ inline std::vector<Detection> TrafficTracker::getRawFrameDetections(const cv::Ma
 			cv::Point classIdPoint;
 			double confidence;
 			cv::minMaxLoc(scores, 0, &confidence, 0, &classIdPoint);
-			if (Settings::DETECTOR_CLASSES.count(classIdPoint.x) > 0)
+			const VehicleType vType = VehicleType(classIdPoint.x);
+			if (Settings::DETECTOR_CLASSES.count(vType) > 0)
 			{
 				const int centerX	= static_cast<int>(data[0] * videoWidth);
 				const int centerY	= static_cast<int>(data[1] * videoHeight);
@@ -279,7 +280,7 @@ inline std::vector<Detection> TrafficTracker::getRawFrameDetections(const cv::Ma
 				const int x			= static_cast<int>(centerX - width * 0.5f);
 				const int y			= static_cast<int>(centerY - height * 0.5f);
 
-				frameDetections.push_back(Detection(x, y, width, height, classIdPoint.x, confidence));
+				frameDetections.push_back(Detection(x, y, width, height, vType, confidence));
 			}
 		}
 	}

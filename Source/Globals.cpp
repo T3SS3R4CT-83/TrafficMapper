@@ -3,6 +3,22 @@
 
 #include <opencv2/tracking/tracker.hpp>
 
+std::istream& operator>>(std::istream& _is, VehicleType& _vType)
+{
+    std::string value;
+    _is >> value;
+    _vType = VehicleType(std::stoi(value));
+
+    return _is;
+}
+
+std::ostream& operator<<(std::ostream& _is, const VehicleType& _vType)
+{
+    _is << static_cast<int>(_vType);
+
+    return _is;
+}
+
 namespace Settings
 {
 // YOLOv3_SPP (mAP: 60.6 - FLOPS: 141.45 Bn - FPS: 20)
@@ -40,12 +56,13 @@ namespace Settings
     //cv::dnn::Target DETECTOR_TARGET = cv::dnn::Target::DNN_TARGET_OPENCL_FP16;
 
     const int DETECTOR_CLIP_TRESHOLD = 30;
-    const std::unordered_map<int, std::string> DETECTOR_CLASSES = {
-		{ 1, "bicycle" },
-		{ 2, "car" },
-		{ 3, "motorcycle" },
-		{ 5, "bus" },
-		{ 7, "truck" },
+    const std::unordered_map<VehicleType, QString> DETECTOR_CLASSES = {
+		{ VehicleType::undefined,   QStringLiteral("undefined") },
+		{ VehicleType::BICYCLE,     QStringLiteral("bicycle") },
+		{ VehicleType::CAR,         QStringLiteral("car") },
+		{ VehicleType::MOTORCYCLE,  QStringLiteral("motorcycle") },
+		{ VehicleType::BUS,         QStringLiteral("bus") },
+		{ VehicleType::TRUCK,       QStringLiteral("truck") },
 	};
 
     //cv::Ptr<cv::TrackerGOTURN> (*TRACKER_ALGORITHM)() = &cv::TrackerGOTURN::create;

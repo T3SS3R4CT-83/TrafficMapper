@@ -5,15 +5,17 @@
 //#include <QPen>
 #include <QPoint>
 
+#include <TrafficMapper/Globals>
+
 class Detection : public cv::Rect2d
 {
 public:
 	Detection();
-	Detection(int _x, int _y, int _width, int _height, int _vehicleClass, float _confidence);
+	Detection(int _x, int _y, int _width, int _height, VehicleType _vehicleClass, float _confidence);
 	//Detection(const Detection &old);
-	Detection(const cv::Rect2d &old, int vehicleClass = 0, float confidence = 0.f);
+	Detection(const cv::Rect2d &old, VehicleType vehicleClass = VehicleType::undefined, float confidence = 0.f);
 
-	int classID() const;
+	VehicleType classID() const;
 	float confidence() const;
 
 	Detection &operator=(const cv::Rect2d &old);
@@ -22,7 +24,7 @@ public:
 	friend std::istream &operator>>(std::istream &is, Detection &det);
 	
 
-	int vehicleClass() const;
+	VehicleType vehicleClass() const;
 //	float confidence() const;
 //	void setConfidence(float confidence);
 	QPoint getCenter() const;
@@ -33,7 +35,7 @@ public:
 	static float iou(const cv::Rect2d &lhs, const cv::Rect2d &rhs);
 
 protected:
-    int m_vehicleClass;
+    VehicleType m_vehicleClass;
     float m_confidence;
 
 private:

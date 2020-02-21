@@ -22,7 +22,6 @@ class TrafficTracker : public QObject
 
     GateModel *m_gateModel_ptr;
 
-
 	std::unordered_map<int, std::vector<Detection>> m_detections;
 	std::vector<Vehicle *> m_vehicles;
 	std::unordered_map<int, std::vector<Vehicle *>> m_trajectories;

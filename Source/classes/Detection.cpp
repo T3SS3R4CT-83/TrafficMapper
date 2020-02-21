@@ -9,7 +9,7 @@ Detection::Detection()
 	m_deletable = false;
 }
 
-Detection::Detection(int _x, int _y, int _width, int _height, int _vehicleClass, float _confidence)
+Detection::Detection(int _x, int _y, int _width, int _height, VehicleType _vehicleClass, float _confidence)
 	: cv::Rect2d(_x, _y, _width, _height), m_vehicleClass(_vehicleClass), m_confidence(_confidence) { Detection(); }
 
 //Detection::Detection(int x, int y, int width, int height, int vehicleClass, float confidence)
@@ -18,12 +18,12 @@ Detection::Detection(int _x, int _y, int _width, int _height, int _vehicleClass,
 //Detection::Detection(const Detection &old)
 //	: cv::Rect2d(old), m_vehicleClass(old.m_vehicleClass), m_confidence(old.m_confidence) { }
 
-Detection::Detection(const cv::Rect2d &old, int vehicleClass, float confidence)
+Detection::Detection(const cv::Rect2d &old, VehicleType vehicleClass, float confidence)
 	: cv::Rect2d(old), m_vehicleClass(vehicleClass), m_confidence(confidence) { Detection(); }
 
 
 
-int Detection::classID() const
+VehicleType Detection::classID() const
 {
 	return m_vehicleClass;
 }
@@ -64,7 +64,7 @@ float Detection::iou(const cv::Rect2d &lhs, const cv::Rect2d &rhs)
 	return area_int / (area_rhs + area_lhs - area_int);
 }
 
-int Detection::vehicleClass() const
+VehicleType Detection::vehicleClass() const
 {
 	return m_vehicleClass;
 }

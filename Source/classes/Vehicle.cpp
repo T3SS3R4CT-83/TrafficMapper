@@ -139,7 +139,7 @@ QPoint Vehicle::position(const int frameIdx) const
 QString Vehicle::className() const
 {
 	try {
-		return QString(Settings::DETECTOR_CLASSES.at(m_vehicleClass).c_str());
+		return Settings::DETECTOR_CLASSES.at(m_vehicleClass);
 	}
 	catch (const std::out_of_range & ex) {
 		return QString("undefined");
@@ -224,8 +224,8 @@ const void Vehicle::updatePosition(const cv::Mat &frame, const int frameIdx, con
 
 void Vehicle::calcVehicleType()
 {
-	std::map<float, int> avgConfidences;
-	std::unordered_map<int, std::vector<float>> classConfidences;
+	std::map<float, VehicleType> avgConfidences;
+	std::unordered_map<VehicleType, std::vector<float>> classConfidences;
 
 	for (auto a : m_detections)
 		classConfidences[a.second.vehicleClass()].push_back(a.second.confidence());

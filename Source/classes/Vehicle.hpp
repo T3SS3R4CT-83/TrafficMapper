@@ -28,7 +28,7 @@ class Vehicle : public QObject
 	bool m_isActive;
 	int m_timeSinceLastHit;
 	int m_lastTrackedFrameIdx;
-	int m_vehicleClass;
+	VehicleType m_vehicleClass;
 
 public:
 	Vehicle(const cv::Mat &frame, const int frameIdx, Detection &detection);

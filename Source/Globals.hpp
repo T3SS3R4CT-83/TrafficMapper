@@ -6,6 +6,17 @@
 #include <QObject>
 #include <QString>
 
+enum class VehicleType {
+    undefined = -1,
+    BICYCLE = 1,
+    CAR = 2,
+    MOTORCYCLE = 3,
+    BUS = 5,
+    TRUCK = 7
+};
+std::istream& operator>>(std::istream& _is, VehicleType& _vType);
+std::ostream& operator<<(std::ostream& _is, const VehicleType& _vType);
+
 namespace Settings
 {
     extern const char * DETECTOR_CONFIG_PATH;
@@ -19,7 +30,7 @@ namespace Settings
 	extern cv::dnn::Target DETECTOR_TARGET;
     
     extern const int DETECTOR_CLIP_TRESHOLD;
-	extern const std::unordered_map<int, std::string> DETECTOR_CLASSES;
+	extern const std::unordered_map<VehicleType, QString> DETECTOR_CLASSES;
 
     //extern cv::Ptr<cv::TrackerGOTURN> (*TRACKER_ALGORITHM)();
     //extern cv::Ptr<cv::TrackerKCF> (*TRACKER_ALGORITHM)();
