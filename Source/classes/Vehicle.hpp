@@ -41,8 +41,8 @@ public:
 	bool isActive() const;
 //	bool isValid() const;
 	
-	//const bool trackPosition(const cv::Mat &frame, const cv::Mat &prevFrame, const int frameIdx);
-	const bool trackPosition(FrameProvider& video, const int frameIdx);
+	const bool trackPosition(const cv::Mat &_frame, const cv::Mat &_prevFrame, const int _frameIdx);
+	//const bool trackPosition(FrameProvider& video, const int frameIdx);
 	const void updatePosition(const cv::Mat &frame, const int frameIdx, const Detection &detection);
 
 	void calcVehicleType();

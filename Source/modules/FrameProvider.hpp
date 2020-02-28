@@ -20,9 +20,9 @@ class FrameProviderThread : public QThread
 public:
     FrameProviderThread(FrameProvider *parent = nullptr);
 
-    void run() override;
+    void setFirstFrame(const int _frameIdx);
 
-    void setFrameIdx(int _frameIdx);
+    void run() override;
 };
 
 
@@ -36,14 +36,11 @@ class FrameProvider : public QObject
     QWaitCondition m_frameBufferNotEmpty;
     QWaitCondition m_frameBufferNotFull;
 
-    int m_nextFrameIdx;
-    cv::Mat m_prevFrame;
-
     friend class FrameProviderThread;
 
 public:
-    FrameProvider(const int _firstFrameIdx = -1);
+    FrameProvider(const int _firstFrameIdx = 0);
     ~FrameProvider();
 
-    void getNextFrame(cv::Mat &_frame, int _frameIdx = -2);
+    void getNextFrame(cv::Mat &_frame);
 };

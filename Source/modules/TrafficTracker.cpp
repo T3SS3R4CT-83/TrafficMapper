@@ -6,10 +6,8 @@
 #include <iomanip>
 #include <iostream>
 
-//#include <QDebug>
 #include <QtConcurrent/QtConcurrent>
 #include <QMutexLocker>
-//#include <QUrl>
 
 #include <TrafficMapper/Globals>
 #include <TrafficMapper/Asserts/HungarianAlgorithm>
@@ -18,12 +16,8 @@
 
 #include <opencv2/core/mat.hpp>
 #include <opencv2/imgcodecs.hpp>
-#include <opencv2/highgui.hpp>  // TODO: Remove later
+#include <opencv2/highgui.hpp>
 
-//#include <opencv2/core/mat.hpp>
-//#include <opencv2/imgcodecs.hpp>
-//#include <opencv2/videoio.hpp>
-//#include <opencv2/dnn/dnn.hpp>
 
 
 TrafficTracker::TrafficTracker()
@@ -102,13 +96,12 @@ void TrafficTracker::analizeVideo()
 	{
 //		emit analysisStarted();
 
-		cv::Mat frame;
-		std::vector<Vehicle *> m_activeTrackings;
-
-		const int allFrameNr = GlobalMeta::getInstance()->VIDEO_FRAMECOUNT();
-
+		cv::Mat frame, prevFrame;
+		std::vector<Vehicle *> activeTrackings;
 		FrameProvider video;
 		cv::dnn::Net net = initNeuralNet();
+
+		const int allFrameNr = GlobalMeta::getInstance()->VIDEO_FRAMECOUNT();
 		
 		for (int frameIdx(0); frameIdx < allFrameNr; ++frameIdx)
 		{
@@ -117,13 +110,16 @@ void TrafficTracker::analizeVideo()
 
 			// Update the "Progress Window".
 			emit progressUpdated(frameIdx, allFrameNr);
+
+			video.getNextFrame(frame);
 			
+			// Trying to read cached detection data of the frame.
+			// If cannot, use DNN to get vehicle detections.
 			std::vector<Detection> frameDetections;
 			try {
 				frameDetections = m_detections.at(frameIdx);
 			}
 			catch (std::out_of_range & ex) {
-				video.getNextFrame(frame, frameIdx);
 				frameDetections = getRawFrameDetections(frame, net);
 				filterFrameDetections(frameDetections);
 			}
@@ -134,7 +130,7 @@ void TrafficTracker::analizeVideo()
 				std::vector<std::vector<double>> iouMatrix;
 				std::vector<Detection> prevDetections;
 					
-				for (auto vehicle : m_activeTrackings)
+				for (auto vehicle : activeTrackings)
 					prevDetections.push_back(vehicle->detection(frameIdx - 1));
 
 				const int trackingNumber = prevDetections.size();
@@ -155,27 +151,27 @@ void TrafficTracker::analizeVideo()
 				for (int i(0); i < trackingNumber; ++i) {
 					// Assign matches to trackers
 					if (assignment[i] != -1 && iouMatrix[i][assignment[i]] <= Settings::TRACKER_IOU_TRESHOLD) {
-						m_activeTrackings[i]->updatePosition(frame, frameIdx, frameDetections[assignment[i]]);
-						m_trajectories[frameIdx].push_back(m_activeTrackings[i]);
-						//m_gateList->onVehiclePositionUpdated(m_activeTrackings[i], frameIdx);
+						activeTrackings[i]->updatePosition(frame, frameIdx, frameDetections[assignment[i]]);
+						m_trajectories[frameIdx].push_back(activeTrackings[i]);
+						//m_gateList->onVehiclePositionUpdated(activeTrackings[i], frameIdx);
 					}
 					// Deal with "unmatched trackers"
-					else if (m_activeTrackings[i]->trackPosition(video, frameIdx)) {
-						m_trajectories[frameIdx].push_back(m_activeTrackings[i]);
-						//m_gateList->onVehiclePositionUpdated(m_activeTrackings[i], frameIdx);
+					else if (activeTrackings[i]->trackPosition(frame, prevFrame, frameIdx)) {
+						m_trajectories[frameIdx].push_back(activeTrackings[i]);
+						//m_gateList->onVehiclePositionUpdated(activeTrackings[i], frameIdx);
 					}
 				}
 
 				// Removing finished trackings from activeTrackings
-				m_activeTrackings.erase(
+				activeTrackings.erase(
 					std::remove_if(
-						m_activeTrackings.begin(),
-						m_activeTrackings.end(),
+						activeTrackings.begin(),
+						activeTrackings.end(),
 						[](const Vehicle *vehicle) {
 							return !vehicle->isActive();
 						}
 					),
-					m_activeTrackings.end()
+					activeTrackings.end()
 				);
 
 				// Populate "unmatched detections"
@@ -187,10 +183,12 @@ void TrafficTracker::analizeVideo()
 				for (int detectionIdx : unmatchedDets) {
 					Vehicle *newVehicle = new Vehicle(frame, frameIdx, frameDetections[detectionIdx]);
 					m_vehicles.push_back(newVehicle);
-					m_activeTrackings.push_back(newVehicle);
+					activeTrackings.push_back(newVehicle);
 					m_trajectories[frameIdx].push_back(newVehicle);
 				}
 			}
+
+			prevFrame = frame;
 		}
 
 		//m_vehicles.erase(
@@ -397,6 +395,7 @@ void TrafficTracker::exportFrames()
 				cv::rectangle(frame, det, cv::Scalar(255, 0, 0), 2);
 			}
 
+			// TODO: Remove later
 			cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE); // Create a window for display.
 			cv::imshow("Display window", frame);
 			cv::waitKey(0);

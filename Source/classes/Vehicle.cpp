@@ -175,20 +175,17 @@ inline void Vehicle::initTracker(const cv::Mat &frame, const cv::Rect2d &detecti
 	//m_isTracking = true;
 }
 
-//const bool Vehicle::trackPosition(const cv::Mat &frame, const cv::Mat &prevFrame, const int frameIdx)
-const bool Vehicle::trackPosition(FrameProvider &video, const int frameIdx)
+const bool Vehicle::trackPosition(const cv::Mat &_frame, const cv::Mat &_prevFrame, const int _frameIdx)
+//const bool Vehicle::trackPosition(FrameProvider &video, const int frameIdx)
 {
 	cv::Rect2d newTrack;
 	cv::Mat frame;
 	
 	if (m_tracker.empty()) {
-		video.getNextFrame(frame, frameIdx - 1);
-		initTracker(frame, m_detections[frameIdx - 1]);
+		initTracker(_prevFrame, m_detections[_frameIdx - 1]);
 	}
 
-	video.getNextFrame(frame, frameIdx);
-
-	if (m_tracker->update(frame, newTrack)) {
+	if (m_tracker->update(_frame, newTrack)) {
 		//if (newTrack.x < 10
 		//	|| newTrack.y < 10
 		//	|| newTrack.x + newTrack.width > GlobalMeta::getInstance()->VIDEO_WIDTH() - 10
@@ -198,8 +195,8 @@ const bool Vehicle::trackPosition(FrameProvider &video, const int frameIdx)
 		//	return false;
 		//}
 
-		m_detections[frameIdx] = Detection(newTrack);
-		kalmanUpdate(frameIdx);
+		m_detections[_frameIdx] = Detection(newTrack);
+		kalmanUpdate(_frameIdx);
 		if (++m_timeSinceLastHit == Settings::TRACKER_VISUAL_TRACKING_LENGTH)
 			deactivate();
 		return true;
