@@ -224,8 +224,9 @@ void Vehicle::calcVehicleType()
 	std::map<float, VehicleType> avgConfidences;
 	std::unordered_map<VehicleType, std::vector<float>> classConfidences;
 
-	for (auto a : m_detections)
-		classConfidences[a.second.vehicleClass()].push_back(a.second.confidence());
+	for (auto detection : m_detections)
+		if (detection.second.vehicleClass() != VehicleType::undefined)
+			classConfidences[detection.second.vehicleClass()].push_back(detection.second.confidence());
 
 	for (auto classConf : classConfidences) {
 		const float avgConf = std::accumulate(classConf.second.begin(), classConf.second.end(), avgConf) / classConf.second.size();
