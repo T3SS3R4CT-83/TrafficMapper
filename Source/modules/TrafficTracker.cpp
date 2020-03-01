@@ -70,8 +70,6 @@ void TrafficTracker::extractDetectionData(QUrl _cacheFileUrl)
 			video.getNextFrame(frame);
 			if (frame.empty()) break;
 
-//			//if (frameIdx <= 19645) continue;
-
 			std::vector<Detection> frameDetections = getRawFrameDetections(frame, net);
 			file << frameIdx << " " << frameDetections.size() << "\n";
 			for (auto detection : frameDetections) {
@@ -214,7 +212,7 @@ void TrafficTracker::analizeVideo()
 
 void TrafficTracker::terminate()
 {
-	QMutexLocker locker(&m_runningMutex);
+//	QMutexLocker locker(&m_runningMutex);
 	m_isRunning = false;
 }
 

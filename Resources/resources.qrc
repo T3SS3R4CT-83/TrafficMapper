@@ -12,5 +12,6 @@
         <file>svg/media-pause.svg</file>
         <file>svg/media-play.svg</file>
         <file>qml/components/PlaybackOptions.qml</file>
+        <file>img/placeholder.png</file>
     </qresource>
 </RCC>

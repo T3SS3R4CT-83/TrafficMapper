@@ -26,9 +26,7 @@ Item {
 
     Connections {
         target: tracker
-        onProgressUpdated: {
-            sliderBg.width = (slider.width - 2) * _currentFrameIdx / _allFrameNr
-        }
+        onProgressUpdated: sliderBg.width = (slider.width - 2) * _currentFrameIdx / _allFrameNr
     }
 
     Rectangle {
@@ -38,7 +36,12 @@ Item {
         y: 0
         width: parent.width
         height: 440
-        color: "#222222"
+       // color: "#222222"
+        
+        Image {
+            anchors.fill: parent
+            source: "qrc:/img/placeholder.png"
+        }
 
         VideoOutput {
             id: videoOutput
