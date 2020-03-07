@@ -83,10 +83,35 @@ Item {
     }
 
     Button {
+        id: btnMute
+        width: 30
+        height: 30
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        icon.source: "qrc:/svg/sound-on.svg"
+
+        background: Rectangle {
+            border.color: "#777777"
+            color: "transparent"
+        }
+
+        onClicked: {
+            if (mediaPlayer.muted) {
+                mediaPlayer.muted = false
+                btnMute.icon.source = "qrc:/svg/sound-on.svg"
+            } else {
+                mediaPlayer.muted = true
+                btnMute.icon.source = "qrc:/svg/sound-mute.svg"
+            }
+        }
+    }
+
+    Button {
         id: btnPlay
         width: 30
         height: 30
         anchors.left: parent.left
+        anchors.leftMargin: 40
         anchors.bottom: parent.bottom
         icon.source: "qrc:/svg/media-play.svg"
 
@@ -105,10 +130,10 @@ Item {
 
     ProgressBar {
         id: slider
-        width: parent.width - 130
+        width: parent.width - 170
         height: 10
         anchors.left: parent.left
-        anchors.leftMargin: 40
+        anchors.leftMargin: 80
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 10
         value: mediaPlayer.position / mediaPlayer.duration
@@ -167,11 +192,6 @@ Item {
         muted: false
         notifyInterval: 10
 
-//        property bool showDetections: false
-//        property bool showPaths: true
-//        property bool showLabels: true
-//        property bool showPositions: true
-
         onPlaying: {
             btnPlay.icon.source = "qrc:/svg/media-pause.svg"
         }
@@ -214,6 +234,10 @@ Item {
         GlobalMeta.VIDEO_FRAMECOUNT = GlobalMeta.VIDEO_LENGTH * GlobalMeta.VIDEO_FPS * 0.001
 
         videoPlayer.isVideoLoaded = true
+
+        mainWindow.title = "TrafficMapper v1.0 - " + path
+
+        printVideoMetaData()
     }
 
     function unsetVideo() {
@@ -225,6 +249,8 @@ Item {
         GlobalMeta.VIDEO_FRAMECOUNT = 0
 
         videoPlayer.isVideoLoaded = false
+
+        mainWindow.title = "TrafficMapper v1.0"
     }
 
     function getPlayTime() {
@@ -234,6 +260,14 @@ Item {
         return position.getMinutes() + ":" + ("0" + position.getSeconds()).slice(-2) + " / " + duration.getMinutes() + ":" + ("0" + duration.getSeconds()).slice(-2)
     }
 
-    function createGateItem(parentItem, mouseX, mouseY) {
+    function printVideoMetaData() {
+        console.log()
+        console.log("============================================================")
+        console.log("                     VIDEO META DATA                        ")
+        console.log("------------------------------------------------------------")
+        console.log("Video resolution: " + GlobalMeta.VIDEO_WIDTH + " x " + GlobalMeta.VIDEO_HEIGHT)
+        console.log("Video length:     " + GlobalMeta.VIDEO_LENGTH + " ms (" + GlobalMeta.VIDEO_FRAMECOUNT + " frame | " + GlobalMeta.VIDEO_FPS.toFixed(2) + " frame/s)")
+        console.log("============================================================")
+        console.log()
     }
 }

@@ -57,6 +57,8 @@
     <None Include="Resources\qml\main.qml" />
     <None Include="Resources\svg\media-pause.svg" />
     <None Include="Resources\svg\media-play.svg" />
+    <None Include="Resources\svg\sound-mute.svg" />
+    <None Include="Resources\svg\sound-on.svg" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="Resources\resources.qrc" />
