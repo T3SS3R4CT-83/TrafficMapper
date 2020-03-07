@@ -2,7 +2,11 @@
 
 #include <opencv2/tracking/kalman_filters.hpp>
 
+#include <QLineF>
+
 #include <TrafficMapper/Globals>
+
+
 
 class AcceleratedModel : public cv::tracking::UkfSystemModel
 {
@@ -136,6 +140,11 @@ QPoint Vehicle::position(const int frameIdx) const
 	}
 }
 
+VehicleType Vehicle::vehicleClass()
+{
+	return m_vehicleClass;
+}
+
 QString Vehicle::className() const
 {
 	try {
@@ -229,7 +238,7 @@ void Vehicle::calcVehicleType()
 			classConfidences[detection.second.vehicleClass()].push_back(detection.second.confidence());
 
 	for (auto classConf : classConfidences) {
-		const float avgConf = std::accumulate(classConf.second.begin(), classConf.second.end(), avgConf) / classConf.second.size();
+		float avgConf = std::accumulate(classConf.second.begin(), classConf.second.end(), avgConf) / classConf.second.size();
 		avgConfidences[avgConf] = classConf.first;
 	}
 
@@ -255,12 +264,23 @@ std::vector<QPoint> Vehicle::getAllPositions() const
 	return positions;
 }
 
-//std::map<int, QPoint> Vehicle::getVehiclePath()
-//{
-//	return m_positions;
-//}
+QLineF Vehicle::getPathSegment(const int _frameIdx)
+{
+	try {
+		return QLineF(m_positions[_frameIdx - 1], m_positions[_frameIdx]);
+	}
+	catch (const std::out_of_range & ex) {
+		return QLineF();
+	}
 
-inline void Vehicle::kalmanUpdate(const int frameIdx)
+}
+
+std::vector<std::pair<int, QLineF>> Vehicle::getVehiclePath()
+{
+	return m_path;
+}
+
+inline void Vehicle::kalmanUpdate(int frameIdx)
 {
 	m_kalmanFilter->predict();
 
@@ -275,4 +295,6 @@ inline void Vehicle::kalmanUpdate(const int frameIdx)
 	float x = state.at<float>(0);
 
 	m_positions[frameIdx] = QPoint(state.at<float>(0), state.at<float>(1));
+	if (m_positions.size() > 1)
+		m_path.push_back(std::make_pair(frameIdx, QLineF(m_positions[frameIdx - 1], m_positions[frameIdx])));
 }

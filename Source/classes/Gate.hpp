@@ -1,9 +1,13 @@
 #pragma once
 
+#include <vector>
+
 #include <QQuickPaintedItem>
 #include <QLineF>
 
-//#include "Vehicle.h"
+#include <TrafficMapper/Globals>
+
+class Vehicle;
 
 class Gate : public QQuickPaintedItem
 {
@@ -20,9 +24,11 @@ class Gate : public QQuickPaintedItem
 	int m_counter;
 	QString m_name;
 
-//	std::map<int, std::vector<Vehicle*>> m_vehicleCounter;
-//	std::map<int, int> m_historyCounter;
-//	std::map<std::string, std::vector<int>> m_stat;
+	std::unordered_map<VehicleType, std::vector<int>> m_statistics;
+	std::vector<int> m_counterTimeline;
+
+	//std::map<int, std::vector<Vehicle*>> m_vehicleCounter;
+	//std::map<std::string, std::vector<int>> m_stat;
 
 public:
     Gate(QQuickItem* parent = nullptr);
@@ -40,9 +46,10 @@ public:
 	void setCounter(int counter);
 
 //	void initGate();
-//	void checkVehiclePass(Vehicle *vehicle, int frameIdx, QLineF path);
-//	void buildGateHistory();
-//	void onFrameDisplayed(int frameIdx);
+	//void checkVehiclePass(Vehicle* _vehicle, const int _frameIdx);
+	void checkVehiclePass(Vehicle *vehicle);
+	void buildGateStats();
+	void onFrameDisplayed(int frameIdx);
 //	QMap<QString, QList<int>> prepGateStat(int windowSize);
 
 private:

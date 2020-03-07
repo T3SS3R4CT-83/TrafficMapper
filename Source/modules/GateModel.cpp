@@ -1,6 +1,7 @@
 #include "GateModel.hpp"
 
 #include <TrafficMapper/Classes/Gate>
+#include <TrafficMapper/Classes/Vehicle>
 
 GateModel::GateModel(QObject *parent) : QAbstractListModel(parent) { }
 
@@ -9,7 +10,7 @@ int GateModel::rowCount(const QModelIndex &parent) const
 	if (parent.isValid())
 		return 0;
 
-	return m_items.size();
+	return m_gateList.size();
 }
 
 QVariant GateModel::data(const QModelIndex &index, int role) const
@@ -17,7 +18,7 @@ QVariant GateModel::data(const QModelIndex &index, int role) const
 	if (!index.isValid())
 		return QVariant();
 
-	const Gate *item = m_items.at(index.row());
+	const Gate *item = m_gateList.at(index.row());
 
 	switch (role)
 	{
@@ -38,9 +39,9 @@ bool GateModel::setData(const QModelIndex &index, const QVariant &value, int rol
 {
 	const int rowIdx = index.row();
 	
-	if (rowIdx < 0 || rowIdx >= m_items.size()) return false;
+	if (rowIdx < 0 || rowIdx >= m_gateList.size()) return false;
 
-	Gate *item = m_items.at(rowIdx);
+	Gate *item = m_gateList.at(rowIdx);
 
 	switch (role)
 	{
@@ -100,76 +101,86 @@ QHash<int, QByteArray> GateModel::roleNames() const
 
 void GateModel::insertData(Gate *newGate)
 {
-	const int index = m_items.size();
+	const int index = m_gateList.size();
 
 	emit beginInsertRows(QModelIndex(), index, index);
-	m_items.push_back(newGate);
+	m_gateList.push_back(newGate);
 	emit endInsertRows();
 }
 
 void GateModel::removeData(int index)
 {
-	const int itemCount = m_items.size();
+	const int itemCount = m_gateList.size();
 
 	if (index < 0 || index >= itemCount) return;
 
 	emit beginRemoveRows(QModelIndex(), index, index);
-	delete m_items[index];
-	m_items.erase(m_items.begin() + index);
+	delete m_gateList[index];
+	m_gateList.erase(m_gateList.begin() + index);
 	emit endRemoveRows();
 }
 
 void GateModel::clearData()
 {
-	const int itemCount = m_items.size();
+	const int itemCount = m_gateList.size();
 
 	if (itemCount) {
 		emit beginRemoveRows(QModelIndex(), 0, itemCount - 1);
-		for (int i(0); i < m_items.size(); ++i) {
-			delete m_items[i];
+		for (int i(0); i < m_gateList.size(); ++i) {
+			delete m_gateList[i];
 		}
-		m_items.clear();
+		m_gateList.clear();
 		emit endRemoveRows();
 	}
 }
 
 //QMap<QString, QList<int>> GateModel::getGateStat(int gateIdx, int windowSize)
 //{
-//	return m_items[gateIdx]->prepGateStat(windowSize);
+//	return m_gateList[gateIdx]->prepGateStat(windowSize);
 //}
 
-//void GateModel::onFrameDisplayed(int frameIdx)
+void GateModel::onFrameDisplayed(int frameIdx)
+{
+	for (auto gate : m_gateList)
+		gate->onFrameDisplayed(frameIdx);
+}
+
+std::vector<Gate*> GateModel::getGates() const
+{
+	return m_gateList;
+}
+
+//void GateModel::onVehiclePositionUpdated(Vehicle * _vehicle, int _frameIdx)
 //{
-//	for (auto gate : m_items)
-//		gate->onFrameDisplayed(frameIdx);
+//	for (auto gate : m_gateList)
+//		gate->checkVehiclePass(_vehicle, _frameIdx);
 //}
 
-//void GateModel::onVehiclePositionUpdated(Vehicle *vehicle, int frameIdx)
-//{
-//	//for (auto gate : m_items)
-//	//	gate->checkVehiclePass(vehicle, frameIdx);
-//}
+void GateModel::checkVehicle(Vehicle *vehicle)
+{
+	for (auto gate : m_gateList)
+	{
+		gate->checkVehiclePass(vehicle);
+	}
 
-//void GateModel::checkVehicle(Vehicle *vehicle)
-//{
-//	std::map<int, QPoint> vehiclePath = vehicle->getVehiclePath();
+	//std::map<int, QPoint> vehiclePath = vehicle->getVehiclePath();
 
-//	for (auto position = std::next(vehiclePath.begin()); position != vehiclePath.end(); ++position) {
-//		QLine vehiclePath(std::prev(position)->second, position->second);
-//		for (auto gate : m_items)
-//			gate->checkVehiclePass(vehicle, position->first, vehiclePath);
-//	}
-//}
+	//for (auto position = std::next(vehiclePath.begin()); position != vehiclePath.end(); ++position) {
+	//	QLine vehiclePath(std::prev(position)->second, position->second);
+	//	for (auto gate : m_gateList)
+	//		gate->checkVehiclePass(vehicle, position->first, vehiclePath);
+	//}
+}
 
-//void GateModel::buildGateHistory()
-//{
-//	for (auto gate : m_items)
-//		gate->buildGateHistory();
-//}
+void GateModel::buildGateStats()
+{
+	for (auto gate : m_gateList)
+		gate->buildGateStats();
+}
 
 //void GateModel::onAnalisisStart()
 //{
-//	for (auto &gate : m_items) {
+//	for (auto &gate : m_gateList) {
 //		gate->initGate();
 //	}
 //}

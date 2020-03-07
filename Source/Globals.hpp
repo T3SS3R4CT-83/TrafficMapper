@@ -6,6 +6,20 @@
 #include <QObject>
 #include <QString>
 
+
+// YOLOv3_SPP (mAP: 60.6 - FLOPS: 141.45 Bn - FPS: 20)
+// YOLOv3_608 (mAP: 57.9 - FLOPS: 140.69 Bn - FPS: 20)
+// YOLOv3_416 (mAP: 55.3 - FLOPS:  65.86 Bn - FPS: 35)
+// YOLOv3_320 (mAP: 51.5 - FLOPS:  38.97 Bn - FPS: 45)
+#define YOLOv3_608
+
+// TRACKER_GOTURN
+// TRACKER_KCF
+// TRACKER_CSRT
+// TRACKER_MOSSE
+#define TRACKER_MOSSE
+
+
 enum class VehicleType {
     undefined = -1,
     BICYCLE = 1,
@@ -32,10 +46,19 @@ namespace Settings
     extern const int DETECTOR_CLIP_TRESHOLD;
 	extern const std::unordered_map<VehicleType, QString> DETECTOR_CLASSES;
 
-    //extern cv::Ptr<cv::TrackerGOTURN> (*TRACKER_ALGORITHM)();
-    //extern cv::Ptr<cv::TrackerKCF> (*TRACKER_ALGORITHM)();
-    //extern cv::Ptr<cv::TrackerCSRT> (*TRACKER_ALGORITHM)();
+#ifdef TRACKER_GOTURN
+    extern cv::Ptr<cv::TrackerGOTURN> (*TRACKER_ALGORITHM)();
+#endif // !TRACKER_GOTURN
+#ifdef TRACKER_KCF
+    extern cv::Ptr<cv::TrackerKCF> (*TRACKER_ALGORITHM)();
+#endif // !TRACKER_KCF
+#ifdef TRACKER_CSRT
+    extern cv::Ptr<cv::TrackerCSRT> (*TRACKER_ALGORITHM)();
+#endif // !TRACKER_CSRT
+#ifdef TRACKER_MOSSE
     extern cv::Ptr<cv::TrackerMOSSE> (*TRACKER_ALGORITHM)();
+#endif // !TRACKER_MOSSE
+
 	extern const int TRACKER_VISUAL_TRACKING_LENGTH;
 	extern const float TRACKER_IOU_TRESHOLD;
 

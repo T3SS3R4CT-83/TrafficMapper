@@ -22,6 +22,8 @@ class TrafficTracker : public QObject
 
     GateModel *m_gateModel_ptr;
 
+	std::unordered_map<const Gate*, std::unordered_map<VehicleType, std::vector<int>>> m_statistics;
+
 	std::unordered_map<int, std::vector<Detection>> m_detections;
 	std::vector<Vehicle *> m_vehicles;
 	std::unordered_map<int, std::vector<Vehicle *>> m_trajectories;
@@ -45,6 +47,11 @@ public:
 
 	std::vector<Vehicle *> getVehiclesOnFrame(const int frameIdx);
 	std::vector<Detection> getDetections(const int frameIdx) const;
+
+	Q_INVOKABLE QStringList getAxisX();
+	Q_INVOKABLE QList<QVariant> getCarValues();
+
+	void onFrameDisplayed(int _frameIdx);
 
 private:
 //	bool isRunning();

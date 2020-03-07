@@ -93,6 +93,7 @@ QVideoFrame VideoFilterRunnable::run(QVideoFrame *input, const QVideoSurfaceForm
 		m_painter.end();
 
 		emit frameDisplayed(frameIdx);
+		m_tracker_ptr->onFrameDisplayed(frameIdx);
 	}
 
 	input->unmap();

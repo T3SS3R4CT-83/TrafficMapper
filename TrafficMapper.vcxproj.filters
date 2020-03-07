@@ -179,6 +179,9 @@
     <None Include="Resources\qml\components\PlaybackOptions.qml">
       <Filter>QML files\Components</Filter>
     </None>
+    <None Include="Resources\qml\dialogs\StatWindow.qml">
+      <Filter>QML files\Dialogs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="Resources\resources.qrc">

@@ -13,6 +13,7 @@
 #include <TrafficMapper/Asserts/HungarianAlgorithm>
 #include <TrafficMapper/Modules/FrameProvider>
 #include <TrafficMapper/Classes/Vehicle>
+#include <TrafficMapper/Classes/Gate>
 
 #include <opencv2/core/mat.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -151,12 +152,12 @@ void TrafficTracker::analizeVideo()
 					if (assignment[i] != -1 && iouMatrix[i][assignment[i]] <= Settings::TRACKER_IOU_TRESHOLD) {
 						activeTrackings[i]->updatePosition(frame, frameIdx, frameDetections[assignment[i]]);
 						m_trajectories[frameIdx].push_back(activeTrackings[i]);
-						//m_gateList->onVehiclePositionUpdated(activeTrackings[i], frameIdx);
+						//m_gateModel_ptr->onVehiclePositionUpdated(activeTrackings[i], frameIdx);
 					}
 					// Deal with "unmatched trackers"
 					else if (activeTrackings[i]->trackPosition(frame, prevFrame, frameIdx)) {
 						m_trajectories[frameIdx].push_back(activeTrackings[i]);
-						//m_gateList->onVehiclePositionUpdated(activeTrackings[i], frameIdx);
+						//m_gateModel_ptr->onVehiclePositionUpdated(activeTrackings[i], frameIdx);
 					}
 				}
 
@@ -203,8 +204,34 @@ void TrafficTracker::analizeVideo()
 		for (auto vehicle : m_vehicles) {
 			//m_gateList->checkVehicle(vehicle);
 			vehicle->calcVehicleType();
+			m_gateModel_ptr->checkVehicle(vehicle);
 		}
-		//m_gateList->buildGateHistory();
+		m_gateModel_ptr->buildGateStats();
+
+
+
+		//auto gateList = m_gateModel_ptr->getGates();
+		//for (auto gate_ptr : gateList)
+		//{
+		//	m_statistics[gate_ptr][VehicleType::BICYCLE].resize(allFrameNr, 0);
+		//	m_statistics[gate_ptr][VehicleType::BUS].resize(allFrameNr, 0);
+		//	m_statistics[gate_ptr][VehicleType::CAR].resize(allFrameNr, 0);
+		//	m_statistics[gate_ptr][VehicleType::MOTORCYCLE].resize(allFrameNr, 0);
+		//	m_statistics[gate_ptr][VehicleType::TRUCK].resize(allFrameNr, 0);
+		//}
+
+		//for (auto gateStat : m_statistics)
+		//{
+		//	const Gate* gate_ptr = gateStat.first;
+		//	const auto gateData = gateStat.second;
+
+		//	for (auto vehicle : m_vehicles)
+		//	{
+		//		if (int i = gate_ptr->checkVehiclePass(vehicle) >= 0)
+		//			m_statistics[gate_ptr][vehicle->vehicleClass()][i];
+		//	}
+		//}
+
 
 		emit processTerminated();
 	});
@@ -415,4 +442,19 @@ std::vector<Detection> TrafficTracker::getDetections(const int frameIdx) const
 	catch (const out_of_range & ex) {
 		return std::vector<Detection>();
 	}
+}
+
+QStringList TrafficTracker::getAxisX()
+{
+	return QStringList() << "2013" << "2014" << "2015" << "2016" << "2017" << "2018" << "2019";
+}
+
+QList<QVariant> TrafficTracker::getCarValues()
+{
+	return QList<QVariant>() << 1 << 1 << 1 << 1 << 1 << 1;
+}
+
+void TrafficTracker::onFrameDisplayed(int _frameIdx)
+{
+	m_gateModel_ptr->onFrameDisplayed(_frameIdx);
 }

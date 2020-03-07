@@ -13,5 +13,6 @@
         <file>svg/media-play.svg</file>
         <file>qml/components/PlaybackOptions.qml</file>
         <file>img/placeholder.png</file>
+        <file>qml/dialogs/StatWindow.qml</file>
     </qresource>
 </RCC>

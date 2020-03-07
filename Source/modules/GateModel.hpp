@@ -5,12 +5,13 @@
 #include <QAbstractListModel>
 
 class Gate;
+class Vehicle;
 
 class GateModel : public QAbstractListModel
 {
 	Q_OBJECT
 
-	std::vector<Gate*> m_items;
+	std::vector<Gate*> m_gateList;
 
 public:
     GateModel(QObject *parent = nullptr);
@@ -35,11 +36,15 @@ public:
 	Q_INVOKABLE void clearData();
 //	Q_INVOKABLE QMap<QString, QList<int>> getGateStat(int gateIdx, int windowSize);
 
-//	void onVehiclePositionUpdated(Vehicle *vehicle, int frameIdx);
-//	void checkVehicle(Vehicle *vehicle);
-//	void buildGateHistory();
+
+	std::vector<Gate*> getGates() const;
+
+
+//	void onVehiclePositionUpdated(Vehicle * _vehicle, int _frameIdx);
+	void checkVehicle(Vehicle *vehicle);
+	void buildGateStats();
 
 public slots:
 //	void onAnalisisStart();
-//	void onFrameDisplayed(int frameIdx);
+	void onFrameDisplayed(int frameIdx);
 };

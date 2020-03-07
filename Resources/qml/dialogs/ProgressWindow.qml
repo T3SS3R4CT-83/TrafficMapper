@@ -9,7 +9,8 @@ Dialog {
     width: 600
     height: 170
     title: ""
-    standardButtons: StandardButton.Cancel
+//    standardButtons: StandardButton.Cancel
+    standardButtons: Dialog.NoButton
     visible: false
 
     Connections {
@@ -59,10 +60,22 @@ Dialog {
         value: 0
     }
 
-
-
-    onRejected: {
-        progressMessage.text = "Cancelling process..."
-        tracker.terminate()
+    Button {
+        id: btnCancel
+        text: "Cancel"
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        anchors.bottomMargin: 20
+        anchors.rightMargin: 20
+        onClicked: {
+            progressMessage.text = "Cancelling process..."
+            tracker.terminate()
+        }
     }
+
+
+//    onRejected: {
+//        progressMessage.text = "Cancelling process..."
+//        tracker.terminate()
+//    }
 }

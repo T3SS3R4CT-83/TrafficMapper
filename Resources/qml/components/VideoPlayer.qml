@@ -65,10 +65,6 @@ Item {
                         currentGateItem.anchors.fill = gateContainer
                         currentGateItem.startPos = Qt.point(mouseX, mouseY)
                         currentGateItem.endPos = Qt.point(mouseX, mouseY)
-//                        internals.currentGateItem.anchors.fill = gateContainer
-//                        internals.currentGateItem.startPos = Qt.point(mouseX, mouseY)
-//                        internals.currentGateItem.endPos = Qt.point(mouseX, mouseY)
-
                     }
                 }
                 onPositionChanged: {

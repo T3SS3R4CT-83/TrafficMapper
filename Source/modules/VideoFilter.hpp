@@ -54,5 +54,5 @@ private:
 	virtual QVideoFilterRunnable *createFilterRunnable() override;
 
 signals:
-//	void frameDisplayed(int frameIdx);
+	void frameDisplayed(int frameIdx);
 };

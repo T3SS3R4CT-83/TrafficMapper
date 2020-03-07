@@ -53,6 +53,7 @@
     <None Include="Resources\qml\dialogs\DlgSaveCache.qml" />
     <None Include="Resources\qml\dialogs\GateProperties.qml" />
     <None Include="Resources\qml\dialogs\ProgressWindow.qml" />
+    <None Include="Resources\qml\dialogs\StatWindow.qml" />
     <None Include="Resources\qml\main.qml" />
     <None Include="Resources\svg\media-pause.svg" />
     <None Include="Resources\svg\media-play.svg" />

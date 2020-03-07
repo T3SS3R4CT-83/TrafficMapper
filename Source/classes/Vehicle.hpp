@@ -14,6 +14,7 @@
 #include <TrafficMapper/Modules/FrameProvider>
 
 class QPoint;
+class QLineF;
 
 class Vehicle : public QObject
 {
@@ -21,6 +22,7 @@ class Vehicle : public QObject
 
 	std::map<int, Detection> m_detections;
 	std::map<int, QPoint> m_positions;
+	std::vector<std::pair<int, QLineF>> m_path;
 
 	cv::Ptr<cv::Tracker> m_tracker;
 	cv::Ptr<cv::tracking::UnscentedKalmanFilter> m_kalmanFilter;
@@ -36,6 +38,7 @@ public:
 	Detection detection(const int frameIdx) const;
 //	void setDetection(const int frameIdx, const Detection &detection);
 	QPoint position(const int frameIdx) const;
+	VehicleType vehicleClass();
 	QString className() const;
 //	int classID() const;
 	bool isActive() const;
@@ -47,10 +50,12 @@ public:
 
 	void calcVehicleType();
 	std::vector<QPoint> getAllPositions() const;
-//	std::map<int, QPoint> getVehiclePath();
+	QLineF getPathSegment(const int _frameIdx);
+	std::vector<std::pair<int, QLineF>> getVehiclePath();
+
 
 private:
-	inline void kalmanUpdate(const int frameIdx);
+	inline void kalmanUpdate(int frameIdx);
 	inline void initTracker(const cv::Mat &frame, const cv::Rect2d &detection);
 	inline void deactivate();
 };

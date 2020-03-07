@@ -21,17 +21,11 @@ std::ostream& operator<<(std::ostream& _is, const VehicleType& _vType)
 
 namespace Settings
 {
-// YOLOv3_SPP (mAP: 60.6 - FLOPS: 141.45 Bn - FPS: 20)
-// YOLOv3_608 (mAP: 57.9 - FLOPS: 140.69 Bn - FPS: 20)
-// YOLOv3_416 (mAP: 55.3 - FLOPS:  65.86 Bn - FPS: 35)
-// YOLOv3_320 (mAP: 51.5 - FLOPS:  38.97 Bn - FPS: 45)
-#define YOLOv3_608
-
 #ifdef YOLOv3_SPP
     const char * DETECTOR_CONFIG_PATH       = "T:\\Models\\yolov3-spp.cfg";
     const char * DETECTOR_WEIGHTS_PATH      = "T:\\Models\\yolov3-spp.weights";
     const cv::Size DETECTOR_DNN_BLOB_SIZE   = cv::Size(416, 416);
-#endif // YOLOv3_SPP
+#endif // !YOLOv3_SPP
 #ifdef YOLOv3_608
     const char * DETECTOR_CONFIG_PATH       = "T:\\Models\\yolov3.cfg";
     const char * DETECTOR_WEIGHTS_PATH      = "T:\\Models\\yolov3.weights";
@@ -65,10 +59,19 @@ namespace Settings
 		{ VehicleType::TRUCK,       QStringLiteral("truck") },
 	};
 
-    //cv::Ptr<cv::TrackerGOTURN> (*TRACKER_ALGORITHM)() = &cv::TrackerGOTURN::create;
-    //cv::Ptr<cv::TrackerKCF> (*TRACKER_ALGORITHM)() = &cv::TrackerKCF::create;    // Higher accuracy
-    //cv::Ptr<cv::TrackerCSRT> (*TRACKER_ALGORITHM)() = &cv::TrackerCSRT::create;     // Balanced between accuracy and speed
+#ifdef TRACKER_GOTURN
+    cv::Ptr<cv::TrackerGOTURN> (*TRACKER_ALGORITHM)() = &cv::TrackerGOTURN::create;
+#endif // !TRACKER_GOTURN
+#ifdef TRACKER_KCF
+    cv::Ptr<cv::TrackerKCF> (*TRACKER_ALGORITHM)() = &cv::TrackerKCF::create;    // Higher accuracy
+#endif // !TRACKER_KCF
+#ifdef TRACKER_CSRT
+    cv::Ptr<cv::TrackerCSRT> (*TRACKER_ALGORITHM)() = &cv::TrackerCSRT::create;     // Balanced between accuracy and speed
+#endif // !TRACKER_CSRT
+#ifdef TRACKER_MOSSE
     cv::Ptr<cv::TrackerMOSSE> (*TRACKER_ALGORITHM)() = &cv::TrackerMOSSE::create;  // Faster speed
+#endif // !TRACKER_MOSSE
+
     const int TRACKER_VISUAL_TRACKING_LENGTH = 80;
     const float TRACKER_IOU_TRESHOLD = -0.4f;
 

@@ -5,10 +5,20 @@
 #include <QBrush>
 #include <QMap>
 
-//#include "SettingsAndMeta.hpp"
+#include <TrafficMapper/Classes/Vehicle>
 
 Gate::Gate(QQuickItem* parent) : QQuickPaintedItem(parent)
 {
+	const int frameNr = GlobalMeta::getInstance()->VIDEO_FRAMECOUNT();
+
+	m_statistics[VehicleType::BICYCLE].resize(frameNr, 0);
+	m_statistics[VehicleType::BUS].resize(frameNr, 0);
+	m_statistics[VehicleType::CAR].resize(frameNr, 0);
+	m_statistics[VehicleType::MOTORCYCLE].resize(frameNr, 0);
+	m_statistics[VehicleType::TRUCK].resize(frameNr, 0);
+	m_statistics[VehicleType::undefined].resize(frameNr, 0);
+
+	m_counterTimeline.resize(frameNr, 0);
     m_counter = 0;
 //	m_isDrawing = true;
 }
@@ -38,7 +48,11 @@ QPoint Gate::startPos() const
 
 void Gate::setStartPos(QPoint pos)
 {
+	const float scale_X = GlobalMeta::getInstance()->VIDEO_WIDTH() / 782.f;
+	const float scale_Y = GlobalMeta::getInstance()->VIDEO_HEIGHT() / 480.f;
+
 	m_startPos = pos;
+	m_gateLine.setP1(QPointF(pos.x() * scale_X, pos.y() * scale_Y));
 	update();
 }
 
@@ -49,7 +63,11 @@ QPoint Gate::endPos() const
 
 void Gate::setEndPos(QPoint pos)
 {
+	const float scale_X = GlobalMeta::getInstance()->VIDEO_WIDTH() / 782.f;
+	const float scale_Y = GlobalMeta::getInstance()->VIDEO_HEIGHT() / 480.f;
+
 	m_endPos = pos;
+	m_gateLine.setP2(QPointF(pos.x() * scale_X, pos.y() * scale_Y));
 	update();
 }
 
@@ -77,36 +95,44 @@ void Gate::setCounter(int counter)
 
 
 
-//void Gate::checkVehiclePass(Vehicle *vehicle, int frameIdx, QLineF path)
+//void Gate::checkVehiclePass(Vehicle* _vehicle, const int _frameIdx)
 //{
-//	//if (m_historyCounter.count(frameIdx) == 0)
-//	//	m_historyCounter[frameIdx] = 0;
-
-//	if (m_gateLine.intersect(path, nullptr) == QLineF::BoundedIntersection) {
-//		m_vehicleCounter[frameIdx].push_back(vehicle);
-//		m_historyCounter[frameIdx]++;
-//		m_stat[vehicle->className().toStdString()][frameIdx]++;
+//	if (m_gateLine.intersect(_vehicle->getPathSegment(_frameIdx), nullptr) == QLineF::BoundedIntersection)
+//	{
+//		++m_counterTimeline[_frameIdx];
+//		++m_statistics[_vehicle->vehicleClass()][_frameIdx];
 //	}
 //}
+void Gate::checkVehiclePass(Vehicle *vehicle)
+{
+	for (auto pathSegment : vehicle->getVehiclePath())
+	{
+		if (m_gateLine.intersect(pathSegment.second, nullptr) == QLineF::BoundedIntersection) {
+			++m_counterTimeline[pathSegment.first];
+			++m_statistics[vehicle->vehicleClass()][pathSegment.first];
+			return;
+		}
+	}
+}
 
-//void Gate::buildGateHistory()
-//{
-//	for (int i(1); i <= m_historyCounter.rbegin()->first; ++i)
-//		m_historyCounter[i] = m_historyCounter[i - 1] + m_historyCounter[i];
-//}
+void Gate::buildGateStats()
+{
+	for (size_t i(1); i < m_counterTimeline.size(); ++i)
+		m_counterTimeline[i] = m_counterTimeline[i - 1] + m_counterTimeline[i];
+}
 
 //void Gate::initGate()
 //{
-//	m_stat.clear();
+//	m_statistics.clear();
 //	m_vehicleCounter.clear();
 //	m_historyCounter.clear();
 //	for (int i(0); i < GlobalMeta::VIDEO_LENGTH; ++i)
 //		m_historyCounter[i] = 0;
 //	for (auto pair : Settings::DETECTOR_CLASSES) {
-//		m_stat[pair.second].reserve(GlobalMeta::VIDEO_LENGTH);
+//		m_statistics[pair.second].reserve(GlobalMeta::VIDEO_LENGTH);
 //		std::fill(
-//			std::begin(m_stat[pair.second]),
-//			std::end(m_stat[pair.second]),
+//			std::begin(m_statistics[pair.second]),
+//			std::end(m_statistics[pair.second]),
 //			0
 //		);
 //	}
@@ -134,22 +160,24 @@ void Gate::paint(QPainter* painter)
 	painter->setFont(font);
 	painter->setOpacity(1.0);
 
-	QPoint labelCenter = m_startPos - (m_startPos - m_endPos) * 0.5f;
-	QPoint offset(30, 10);
-	QRect counterPos(labelCenter - offset, labelCenter + offset);
+	QPointF labelCenter = m_startPos - (m_startPos - m_endPos) * 0.5f;
+	QPointF offset(30, 10);
+	QRectF counterPos(labelCenter - offset, labelCenter + offset);
 
 	painter->drawText(counterPos, Qt::AlignCenter, QString::number(m_counter));
 }
 
-//void Gate::onFrameDisplayed(int frameIdx)
-//{
-//	try {
-//		setCounter(m_historyCounter.at(frameIdx));
-//	}
-//	catch (const std::out_of_range & ex) {
-//		setCounter(9999);
-//	}
-//}
+void Gate::onFrameDisplayed(int frameIdx)
+{
+	m_counter = m_counterTimeline[frameIdx];
+	update();
+	//try {
+	//	setCounter(m_historyCounter.at(frameIdx));
+	//}
+	//catch (const std::out_of_range & ex) {
+	//	setCounter(9999);
+	//}
+}
 
 //QMap<QString, QList<int>> Gate::prepGateStat(int windowSize)
 //{
@@ -168,7 +196,7 @@ void Gate::paint(QPainter* painter)
 //		for (int i(0); i < windowNum; ++i) {
 //			int sum = 0;
 //			for (int j(0); j < windowSize; ++j) {
-//				sum += m_stat[name.toStdString()][i * windowSize + j];
+//				sum += m_statistics[name.toStdString()][i * windowSize + j];
 //			}
 //			stat[name][i] = sum;
 //		}

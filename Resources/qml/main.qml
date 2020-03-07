@@ -39,6 +39,10 @@ Window {
         height: videoPlayer.height - playbackOptions.height - 10
     }
 
+    StatWindow {
+        id: statWindow
+    }
+
     ProgressWindow {
         id: progressWindow
     }
@@ -58,4 +62,6 @@ Window {
     DlgOpenCache {
         id: dlgOpenCache
     }
+
+    Component.onCompleted: statWindow.visible = true
 }

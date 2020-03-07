@@ -37,6 +37,9 @@ int main(int argc, char *argv[])
     tracker.setGateModel(&gateModel);
     videoFilter.setTracker(&tracker);
 
+    //QObject::connect(&videoFilter, &VideoFilter::frameDisplayed,
+    //    &gateModel, &GateModel::onFrameDisplayed);
+
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty(QStringLiteral("gateModel"), &gateModel);
     engine.rootContext()->setContextProperty(QStringLiteral("tracker"), &tracker);
