@@ -8,7 +8,6 @@ FrameProviderThread::FrameProviderThread(FrameProvider *parent)
     : QThread(parent), m_provider_ptr(parent)
 {
     m_video = cv::VideoCapture(GlobalMeta::getInstance()->VIDEO_URL().toStdString());
-    qDebug() << "  Frame number: " << m_video.get(cv::CAP_PROP_FRAME_COUNT);
 }
 
 void FrameProviderThread::setFirstFrame(const int _frameIdx)

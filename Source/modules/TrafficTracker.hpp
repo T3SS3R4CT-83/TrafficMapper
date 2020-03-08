@@ -59,6 +59,8 @@ private:
 	inline std::vector<Detection> getRawFrameDetections(const cv::Mat& _frame, cv::dnn::Net &_net);
 	inline void filterFrameDetections(std::vector<Detection>& _frameDetections);
 
+	inline void prepIOUmatrix(std::vector<std::vector<double>>& iouMatrix, const int & _tNum, const int & _dNum, std::vector<Detection>& prevDetections, std::vector<Detection>& frameDetections);
+
 signals:
 	void processTerminated();
 	void progressUpdated(int _currentFrameIdx, int _allFrameNr);

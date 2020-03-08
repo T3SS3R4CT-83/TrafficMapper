@@ -15,10 +15,6 @@ Item {
     property bool isVideoLoaded: false
     property Gate currentGateItem: null
 
-    QtObject {
-        id: internals
-    }
-
     Connections {
         target: dlgOpenVideo
         onVideoFileOpened: mediaPlayer.source = fileUrl
@@ -28,6 +24,20 @@ Item {
         target: tracker
         onProgressUpdated: sliderBg.width = (slider.width - 2) * _currentFrameIdx / _allFrameNr
     }
+
+    Keys.onLeftPressed: {
+        mediaPlayer.pause()
+        var frameTime = 1000 / GlobalMeta.VIDEO_FPS
+        if (mediaPlayer.position > 0)
+            mediaPlayer.seek(mediaPlayer.position - frameTime)
+    }
+    Keys.onRightPressed: {
+        mediaPlayer.pause()
+        var frameTime = 1000 / GlobalMeta.VIDEO_FPS
+        if (mediaPlayer.position < mediaPlayer.duration - frameTime)
+            mediaPlayer.seek(mediaPlayer.position + frameTime)
+    }
+    Keys.onSpacePressed: switchPlayState()
 
     Rectangle {
         id: videoWrapper
@@ -120,12 +130,7 @@ Item {
             color: "transparent"
         }
 
-        onClicked: {
-            if (mediaPlayer.playbackState == MediaPlayer.PlayingState)
-                mediaPlayer.pause()
-            else
-                mediaPlayer.play()
-        }
+        onClicked: switchPlayState()
     }
 
     ProgressBar {
@@ -251,6 +256,13 @@ Item {
         videoPlayer.isVideoLoaded = false
 
         mainWindow.title = "TrafficMapper v1.0"
+    }
+
+    function switchPlayState() {
+        if (mediaPlayer.playbackState == MediaPlayer.PlayingState)
+            mediaPlayer.pause()
+        else
+            mediaPlayer.play()
     }
 
     function getPlayTime() {

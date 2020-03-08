@@ -16,6 +16,8 @@ int main(int argc, char *argv[])
     QQuickStyle::setStyle("Fusion");
 
     QApplication app(argc, argv);
+    app.setOrganizationName("ELTE - IK");
+    app.setOrganizationDomain("www.inf.elte.hu");
 
     qmlRegisterType<Gate>("com.elte.t3ss3r4ct", 1, 0, "Gate");
     qmlRegisterType<GateModel>("com.elte.t3ss3r4ct", 1, 0, "GateModel");

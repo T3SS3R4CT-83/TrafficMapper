@@ -132,16 +132,11 @@ void TrafficTracker::analizeVideo()
 				for (auto vehicle : activeTrackings)
 					prevDetections.push_back(vehicle->detection(frameIdx - 1));
 
-				const int trackingNumber = prevDetections.size();
+				const int trackingNumber = activeTrackings.size();
 				const int detectionNumber = frameDetections.size();
 				
-//				// Preparing IOU matrix
-				iouMatrix.resize(trackingNumber);
-				for (int i(0); i < iouMatrix.size(); ++i)
-					iouMatrix[i].resize(detectionNumber);
-				for (int vehicleIdx(0); vehicleIdx < trackingNumber; ++vehicleIdx)
-					for (int detectionIdx(0); detectionIdx < detectionNumber; ++detectionIdx)
-						iouMatrix[vehicleIdx][detectionIdx] = -1 * Detection::iou(prevDetections[vehicleIdx], frameDetections[detectionIdx]);
+				// Preparing IOU matrix
+				prepIOUmatrix(iouMatrix, trackingNumber, detectionNumber, prevDetections, frameDetections);
 
 				// Running "Hungarian algorithm" on IOU matrix
 				if (trackingNumber && detectionNumber)
@@ -208,33 +203,23 @@ void TrafficTracker::analizeVideo()
 		}
 		m_gateModel_ptr->buildGateStats();
 
-
-
-		//auto gateList = m_gateModel_ptr->getGates();
-		//for (auto gate_ptr : gateList)
-		//{
-		//	m_statistics[gate_ptr][VehicleType::BICYCLE].resize(allFrameNr, 0);
-		//	m_statistics[gate_ptr][VehicleType::BUS].resize(allFrameNr, 0);
-		//	m_statistics[gate_ptr][VehicleType::CAR].resize(allFrameNr, 0);
-		//	m_statistics[gate_ptr][VehicleType::MOTORCYCLE].resize(allFrameNr, 0);
-		//	m_statistics[gate_ptr][VehicleType::TRUCK].resize(allFrameNr, 0);
-		//}
-
-		//for (auto gateStat : m_statistics)
-		//{
-		//	const Gate* gate_ptr = gateStat.first;
-		//	const auto gateData = gateStat.second;
-
-		//	for (auto vehicle : m_vehicles)
-		//	{
-		//		if (int i = gate_ptr->checkVehiclePass(vehicle) >= 0)
-		//			m_statistics[gate_ptr][vehicle->vehicleClass()][i];
-		//	}
-		//}
-
-
 		emit processTerminated();
 	});
+}
+
+inline void TrafficTracker::prepIOUmatrix(
+	std::vector<std::vector<double>>& _iouMatrix,
+	const int& _tNum, const int& _dNum,
+	std::vector<Detection>& _prevDetections,
+	std::vector<Detection>& _frameDetections)
+{
+	_iouMatrix.resize(_tNum);
+	for (int vehicleIdx(0); vehicleIdx < _tNum; ++vehicleIdx)
+	{
+		_iouMatrix[vehicleIdx].resize(_dNum);
+		for (int detectionIdx(0); detectionIdx < _dNum; ++detectionIdx)
+			_iouMatrix[vehicleIdx][detectionIdx] = -1 * Detection::iou(_prevDetections[vehicleIdx], _frameDetections[detectionIdx]);
+	}
 }
 
 void TrafficTracker::terminate()

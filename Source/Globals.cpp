@@ -73,7 +73,7 @@ namespace Settings
 #endif // !TRACKER_MOSSE
 
     const int TRACKER_VISUAL_TRACKING_LENGTH = 80;
-    const float TRACKER_IOU_TRESHOLD = -0.4f;
+    const float TRACKER_IOU_TRESHOLD = -0.3f;
 
     const int FRAME_BUFFER_SIZE = 2;
 };
