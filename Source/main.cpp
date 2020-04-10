@@ -16,6 +16,8 @@ int main(int argc, char *argv[])
     QQuickStyle::setStyle("Fusion");
 
     QApplication app(argc, argv);
+    app.setApplicationName("TrafficMapper");
+    app.setApplicationVersion("1.0");
     app.setOrganizationName("ELTE - IK");
     app.setOrganizationDomain("www.inf.elte.hu");
 
@@ -39,8 +41,8 @@ int main(int argc, char *argv[])
     tracker.setGateModel(&gateModel);
     videoFilter.setTracker(&tracker);
 
-    //QObject::connect(&videoFilter, &VideoFilter::frameDisplayed,
-    //    &gateModel, &GateModel::onFrameDisplayed);
+    QObject::connect(&videoFilter, &VideoFilter::frameDisplayed,
+        &gateModel, &GateModel::onFrameDisplayed);
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty(QStringLiteral("gateModel"), &gateModel);

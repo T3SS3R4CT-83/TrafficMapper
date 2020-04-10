@@ -72,8 +72,8 @@ namespace Settings
     cv::Ptr<cv::TrackerMOSSE> (*TRACKER_ALGORITHM)() = &cv::TrackerMOSSE::create;  // Faster speed
 #endif // !TRACKER_MOSSE
 
-    const int TRACKER_VISUAL_TRACKING_LENGTH = 80;
-    const float TRACKER_IOU_TRESHOLD = -0.3f;
+    const int TRACKER_VISUAL_TRACKING_LENGTH = 30;
+    const float TRACKER_IOU_TRESHOLD = -0.5f;
 
     const int FRAME_BUFFER_SIZE = 2;
 };
@@ -142,5 +142,4 @@ GlobalMeta* GlobalMeta::getInstance()
 GlobalMeta::GlobalMeta(QObject* parent)
     : m_VIDEO_URL(""), m_VIDEO_WIDTH(0), m_VIDEO_HEIGHT(0), m_VIDEO_FPS(0), m_VIDEO_LENGTH(0), m_VIDEO_FRAMECOUNT(0),
     m_PLAYER_SHOW_DETECTIONS(true), m_PLAYER_SHOW_PATHS(true), m_PLAYER_SHOW_LABELS(true), m_PLAYER_SHOW_POSITIONS(true)
-
 { }

@@ -58,15 +58,16 @@ public:
 
 
 
-Vehicle::Vehicle(const cv::Mat &_frame, const int _frameIdx, Detection &_detection)
+Vehicle::Vehicle(const int _frameIdx, const Detection &_detection)
 {
 	m_detections[_frameIdx] = _detection;
 	m_positions[_frameIdx] = _detection.getCenter();
-	m_isActive = true;
+	m_vehicleClass = VehicleType::undefined;
+	m_isTracked = true;
 	m_timeSinceLastHit = 0;
 
-	const float deltaTime = 1 / 30.f;
-	//const float deltaTime = 1.f;
+	//const float deltaTime = 1 / 30.f;
+	const float deltaTime = 0.2f;
 
 	int MP = 2;
 	int DP = 6;
@@ -115,6 +116,8 @@ Vehicle::Vehicle(const cv::Mat &_frame, const int _frameIdx, Detection &_detecti
 	m_kalmanFilter = cv::tracking::createUnscentedKalmanFilter(params);
 }
 
+
+
 Detection Vehicle::detection(const int frameIdx) const
 {
 	try {
@@ -123,6 +126,11 @@ Detection Vehicle::detection(const int frameIdx) const
 	catch (const std::out_of_range & ex) {
 		return Detection();
 	}
+}
+
+Detection Vehicle::getLastDetection() const
+{
+	return m_detections.rbegin()->second;
 }
 
 //void Vehicle::setDetection(const int frameIdx, const Detection &detection)
@@ -155,20 +163,20 @@ QString Vehicle::className() const
 	}
 }
 
-//int Vehicle::classID() const
+//int Vehicle::vehicleType() const
 //{
-//	return m_vehicleClass;
+//	return m_vehicleType;
 //}
 
-bool Vehicle::isActive() const
+bool Vehicle::isTracked() const
 {
-	return m_isActive;
+	return m_isTracked;
 }
 
 inline void Vehicle::deactivate()
 {
 	m_tracker.release();
-	m_isActive = false;
+	m_isTracked = false;
 }
 
 //bool Vehicle::isValid() const
@@ -216,7 +224,7 @@ const bool Vehicle::trackPosition(const cv::Mat &_frame, const cv::Mat &_prevFra
 	}
 }
 
-const void Vehicle::updatePosition(const cv::Mat &frame, const int frameIdx, const Detection &detection)
+const void Vehicle::updatePosition(const int frameIdx, const Detection &detection)
 {
 	if (!m_tracker.empty()) {
 		m_tracker.release();
@@ -230,31 +238,36 @@ const void Vehicle::updatePosition(const cv::Mat &frame, const int frameIdx, con
 
 void Vehicle::calcVehicleType()
 {
-	std::map<float, VehicleType> avgConfidences;
-	std::unordered_map<VehicleType, std::vector<float>> classConfidences;
+	std::unordered_map<VehicleType, float> sumConf{
+		{VehicleType::CAR, 0},
+		{VehicleType::BUS, 0},
+		{VehicleType::TRUCK, 0},
+		{VehicleType::MOTORCYCLE, 0},
+		{VehicleType::BICYCLE, 0}
+	};
 
 	for (auto detection : m_detections)
-		if (detection.second.vehicleClass() != VehicleType::undefined)
-			classConfidences[detection.second.vehicleClass()].push_back(detection.second.confidence());
+	{
+		VehicleType vehicleType = detection.second.vehicleType();
+		float confidence = detection.second.confidence();
 
-	for (auto classConf : classConfidences) {
-		float avgConf = std::accumulate(classConf.second.begin(), classConf.second.end(), avgConf) / classConf.second.size();
-		avgConfidences[avgConf] = classConf.first;
+		if (vehicleType != VehicleType::undefined)
+		{
+			sumConf[vehicleType] += confidence;
+		}
 	}
 
-	m_vehicleClass = avgConfidences.rbegin()->second;
+	auto max_element = std::max_element(std::begin(sumConf), std::end(sumConf),
+		[](const decltype(sumConf)::value_type &p1, const decltype(sumConf)::value_type &p2) {
+			return p1.second < p2.second;
+		});
+
+	m_vehicleClass = max_element->first;
 }
 
 std::vector<QPoint> Vehicle::getAllPositions() const
 {
 	std::vector<QPoint> positions;
-	//std::vector<QPoint> positions(m_positions.size());
-
-	//for (int i(0); i < m_positions.size(); ++i)
-	//{
-	//	positions[i] = m_positions.at(i);
-	//}
-
 	std::transform(
 		m_positions.begin(),
 		m_positions.end(),

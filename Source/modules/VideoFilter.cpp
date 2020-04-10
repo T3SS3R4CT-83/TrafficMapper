@@ -15,13 +15,18 @@ VideoFilterRunnable::VideoFilterRunnable(TrafficTracker *tracker)
 
 	m_pen_detection.setColor(QColor("blue"));
 	m_pen_detection.setWidth(3);
+
 	m_pen_tracking.setColor(QColor("green"));
 	m_pen_tracking.setWidth(3);
+	
 	m_pen_position.setColor(QColor("#CD2222"));
 	m_pen_position.setWidth(m_globals_ptr->VIDEO_HEIGHT() * 0.01f);
+	
 	m_pen_label.setColor("white");
+	
 	m_pen_trajectory.setColor(QColor(255,255,255,150));
 	m_pen_trajectory.setWidth(3);
+	
 	m_painterFont = QFont("Arial", m_globals_ptr->VIDEO_HEIGHT() / 46, 700);
 }
 
@@ -84,8 +89,28 @@ QVideoFrame VideoFilterRunnable::run(QVideoFrame *input, const QVideoSurfaceForm
 			}
 
 			if (showDetections) {
-				m_painter.setPen(m_pen_detection);
 				for (auto detection : m_tracker_ptr->getDetections(frameIdx)) {
+					switch (detection.vehicleType()) {
+					case VehicleType::CAR:
+						m_pen_detection.setColor(QColor("blue"));
+						break;
+					case VehicleType::BUS:
+						m_pen_detection.setColor(QColor("yellow"));
+						break;
+					case VehicleType::TRUCK:
+						m_pen_detection.setColor(QColor("red"));
+						break;
+					case VehicleType::MOTORCYCLE:
+						m_pen_detection.setColor(QColor("purple"));
+						break;
+					case VehicleType::BICYCLE:
+						m_pen_detection.setColor(QColor("green"));
+						break;
+					default:
+						m_pen_detection.setColor(QColor("white"));
+						break;
+					}
+					m_painter.setPen(m_pen_detection);
 					m_painter.drawRect(detection.x, detection.y, detection.width, detection.height);
 				}
 			}

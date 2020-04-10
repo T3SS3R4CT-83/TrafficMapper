@@ -22,11 +22,11 @@
 
 enum class VehicleType {
     undefined = -1,
-    BICYCLE = 1,
-    CAR = 2,
+    CAR = 0,
+    BUS = 1,
+    TRUCK = 2,
     MOTORCYCLE = 3,
-    BUS = 5,
-    TRUCK = 7
+    BICYCLE = 4
 };
 std::istream& operator>>(std::istream& _is, VehicleType& _vType);
 std::ostream& operator<<(std::ostream& _is, const VehicleType& _vType);
@@ -127,3 +127,29 @@ private:
 signals:
     void propertyChanged();
 };
+
+
+
+#include <tuple>
+
+template <typename T,
+    typename TIter = decltype(std::begin(std::declval<T>())),
+    typename = decltype(std::end(std::declval<T>()))>
+    constexpr auto enumerate(T&& iterable)
+{
+    struct iterator
+    {
+        size_t i;
+        TIter iter;
+        bool operator != (const iterator& other) const { return iter != other.iter; }
+        void operator ++ () { ++i; ++iter; }
+        auto operator * () const { return std::tie(i, *iter); }
+    };
+    struct iterable_wrapper
+    {
+        T iterable;
+        auto begin() { return iterator{ 0, std::begin(iterable) }; }
+        auto end() { return iterator{ 0, std::end(iterable) }; }
+    };
+    return iterable_wrapper{ std::forward<T>(iterable) };
+}

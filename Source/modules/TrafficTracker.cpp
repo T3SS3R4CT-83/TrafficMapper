@@ -5,6 +5,7 @@
 #include <unordered_set>
 #include <iomanip>
 #include <iostream>
+#include <algorithm>
 
 #include <QtConcurrent/QtConcurrent>
 #include <QMutexLocker>
@@ -21,11 +22,14 @@
 
 
 
+// ========================================
+//       CONSTRUCTORS & DESTRUCTORS
+// ========================================
+
 TrafficTracker::TrafficTracker()
 {
+	m_gateModel_ptr = nullptr;
 	m_isRunning = false;
-	//m_detections = std::map<int, std::vector<Detection>>();
-	//m_trajectories = std::map<int, std::vector<Vehicle*>>();
 }
 
 TrafficTracker::~TrafficTracker()
@@ -54,7 +58,7 @@ void TrafficTracker::extractDetectionData(QUrl _cacheFileUrl)
 
 		openCacheFile(_cacheFileUrl);
 
-		std::fstream file(_cacheFileUrl.toLocalFile().toStdString(), std::fstream::out | std::fstream::app);
+		std::fstream cacheFile(_cacheFileUrl.toLocalFile().toStdString(), std::fstream::out | std::fstream::app);
 		FrameProvider video(m_detections.size());
         cv::Mat frame;
 		cv::dnn::Net net = initNeuralNet();
@@ -72,13 +76,13 @@ void TrafficTracker::extractDetectionData(QUrl _cacheFileUrl)
 			if (frame.empty()) break;
 
 			std::vector<Detection> frameDetections = getRawFrameDetections(frame, net);
-			file << frameIdx << " " << frameDetections.size() << "\n";
+			cacheFile << frameIdx << " " << frameDetections.size() << "\n";
 			for (auto detection : frameDetections) {
-				file << detection;
+				cacheFile << detection;
 			}
 		}
 
-		file.close();
+		cacheFile.close();
 
 		emit processTerminated();
     });
@@ -93,16 +97,18 @@ void TrafficTracker::analizeVideo()
 
 	QtConcurrent::run([this]()
 	{
-//		emit analysisStarted();
+		//emit analysisStarted();
 
-		cv::Mat frame, prevFrame;
-		std::vector<Vehicle *> activeTrackings;
 		FrameProvider video;
-		cv::dnn::Net net = initNeuralNet();
+		cv::Mat frame, prevFrame;
+
+		std::vector<Vehicle*> activeTracks;
+
+		//cv::dnn::Net net = initNeuralNet();
 
 		const int allFrameNr = GlobalMeta::getInstance()->VIDEO_FRAMECOUNT();
-		
-		for (int frameIdx(0); frameIdx < allFrameNr; ++frameIdx)
+
+		for (size_t frameIdx(0); frameIdx < allFrameNr; ++frameIdx)
 		{
 			// If the user is interrupted the process then exit the cycle.
 			if (!m_isRunning) break;
@@ -111,99 +117,93 @@ void TrafficTracker::analizeVideo()
 			emit progressUpdated(frameIdx, allFrameNr);
 
 			video.getNextFrame(frame);
-			
-			// Trying to read cached detection data of the frame.
+
+			// Trying to read the cached detection data of the frame.
 			// If cannot, use DNN to get vehicle detections.
 			std::vector<Detection> frameDetections;
 			try {
 				frameDetections = m_detections.at(frameIdx);
 			}
-			catch (std::out_of_range & ex) {
-				frameDetections = getRawFrameDetections(frame, net);
-				filterFrameDetections(frameDetections);
+			catch (std::out_of_range& ex) {
+				//frameDetections = getRawFrameDetections(frame, net);
+				//filterFrameDetections(frameDetections);
 			}
 
-			if (frameDetections.size())
+			const int trackingNumber = activeTracks.size();
+			const int detectionNumber = frameDetections.size();
+
+			std::vector<int> assignment;
+			std::vector<std::vector<double>> iouMatrix;
+
+			if (trackingNumber && detectionNumber)
 			{
-				std::vector<int> unmatchedTrackers, assignment;
-				std::vector<std::vector<double>> iouMatrix;
 				std::vector<Detection> prevDetections;
-					
-				for (auto vehicle : activeTrackings)
+
+				for (auto vehicle : activeTracks)
 					prevDetections.push_back(vehicle->detection(frameIdx - 1));
 
-				const int trackingNumber = activeTrackings.size();
-				const int detectionNumber = frameDetections.size();
-				
 				// Preparing IOU matrix
 				prepIOUmatrix(iouMatrix, trackingNumber, detectionNumber, prevDetections, frameDetections);
 
 				// Running "Hungarian algorithm" on IOU matrix
-				if (trackingNumber && detectionNumber)
-					HungarianAlgorithm::Solve(iouMatrix, assignment);
+				HungarianAlgorithm::Solve(iouMatrix, assignment);
+			}
 
-				for (int i(0); i < trackingNumber; ++i) {
-					// Assign matches to trackers
-					if (assignment[i] != -1 && iouMatrix[i][assignment[i]] <= Settings::TRACKER_IOU_TRESHOLD) {
-						activeTrackings[i]->updatePosition(frame, frameIdx, frameDetections[assignment[i]]);
-						m_trajectories[frameIdx].push_back(activeTrackings[i]);
-						//m_gateModel_ptr->onVehiclePositionUpdated(activeTrackings[i], frameIdx);
-					}
-					// Deal with "unmatched trackers"
-					else if (activeTrackings[i]->trackPosition(frame, prevFrame, frameIdx)) {
-						m_trajectories[frameIdx].push_back(activeTrackings[i]);
-						//m_gateModel_ptr->onVehiclePositionUpdated(activeTrackings[i], frameIdx);
-					}
+			for (auto [i, vehicle_ptr] : enumerate(activeTracks))
+			{
+				if (assignment[i] != -1 && iouMatrix[i][assignment[i]] <= Settings::TRACKER_IOU_TRESHOLD) {
+					vehicle_ptr->updatePosition(frameIdx, frameDetections[assignment[i]]);
+					m_trajectories[frameIdx].push_back(vehicle_ptr);
 				}
+				else {
+					vehicle_ptr->m_isTracked = false;
+					assignment[i] = -1;
+					if (vehicle_ptr->trackPosition(frame, prevFrame, frameIdx)) {
+						m_trajectories[frameIdx].push_back(vehicle_ptr);
+					}
+					else {
 
-				// Removing finished trackings from activeTrackings
-				activeTrackings.erase(
-					std::remove_if(
-						activeTrackings.begin(),
-						activeTrackings.end(),
-						[](const Vehicle *vehicle) {
-							return !vehicle->isActive();
-						}
-					),
-					activeTrackings.end()
-				);
-
-				// Populate "unmatched detections"
-				std::unordered_set<int> unmatchedDets;
-				for (int i(0); i < frameDetections.size(); ++i)
-					unmatchedDets.insert(i);
-				for (int i(0); i < assignment.size(); ++i)
-					unmatchedDets.erase(assignment[i]);
-				for (int detectionIdx : unmatchedDets) {
-					Vehicle *newVehicle = new Vehicle(frame, frameIdx, frameDetections[detectionIdx]);
-					m_vehicles.push_back(newVehicle);
-					activeTrackings.push_back(newVehicle);
-					m_trajectories[frameIdx].push_back(newVehicle);
+					}
 				}
 			}
+
+			for (auto [i, detection] : enumerate(frameDetections))
+			{
+				//if (std::none_of(std::begin(assignment), std::end(assignment), i))
+				if (std::find(std::begin(assignment), std::end(assignment), i) == std::end(assignment))
+				{
+					Vehicle* newVehicle = new Vehicle(frameIdx, detection);
+					m_vehicles.push_back(newVehicle);
+					m_trajectories[frameIdx].push_back(newVehicle);
+					activeTracks.push_back(newVehicle);
+				}
+			}
+
+			activeTracks.erase(
+				std::remove_if(
+					activeTracks.begin(),
+					activeTracks.end(),
+					[](Vehicle *vehicle_ptr) {
+						return !vehicle_ptr->isTracked();
+					}
+				),
+				activeTracks.end()
+			);
 
 			prevFrame = frame;
 		}
 
-		//m_vehicles.erase(
-		//	std::remove_if(
-		//		m_vehicles.begin(),
-		//		m_vehicles.end(),
-		//		[](const Vehicle *vehicle) {
-		//			return !vehicle->isValid();
-		//		}
-		//	),
-		//	m_vehicles.end()
-		//);
-
-		for (auto vehicle : m_vehicles) {
-			//m_gateList->checkVehicle(vehicle);
+		for (auto vehicle : m_vehicles)
+		{
 			vehicle->calcVehicleType();
 			m_gateModel_ptr->checkVehicle(vehicle);
 		}
+
 		m_gateModel_ptr->buildGateStats();
 
 		emit processTerminated();
+
+		m_isRunning = false;
 	});
 }
 
@@ -218,7 +218,11 @@ inline void TrafficTracker::prepIOUmatrix(
 	{
 		_iouMatrix[vehicleIdx].resize(_dNum);
 		for (int detectionIdx(0); detectionIdx < _dNum; ++detectionIdx)
-			_iouMatrix[vehicleIdx][detectionIdx] = -1 * Detection::iou(_prevDetections[vehicleIdx], _frameDetections[detectionIdx]);
+		{
+			float iou = -1 * Detection::iou(_prevDetections[vehicleIdx], _frameDetections[detectionIdx]);
+			_iouMatrix[vehicleIdx][detectionIdx] = iou;
+			//_iouMatrix[vehicleIdx][detectionIdx] = (iou <= Settings::TRACKER_IOU_TRESHOLD) ? iou : 0.f;
+		}
 	}
 }
 
@@ -296,56 +300,56 @@ inline std::vector<Detection> TrafficTracker::getRawFrameDetections(const cv::Ma
 	return frameDetections;
 }
 
-inline void TrafficTracker::filterFrameDetections(std::vector<Detection>& _frameDetections)
-{
-	GlobalMeta* globals = GlobalMeta::getInstance();
-
-	// Removing detections which's confidence score is too low or they're too close to the frame border.
-	_frameDetections.erase(
-		std::remove_if(
-			_frameDetections.begin(),
-			_frameDetections.end(),
-			[globals](const Detection detection) {
-				return detection.confidence() < Settings::DETECTOR_CONF_THRESHOLD
-					|| detection.x < Settings::DETECTOR_CLIP_TRESHOLD
-					|| detection.y < Settings::DETECTOR_CLIP_TRESHOLD
-					|| detection.x + detection.width > globals->VIDEO_WIDTH() - Settings::DETECTOR_CLIP_TRESHOLD
-					|| detection.y + detection.height > globals->VIDEO_HEIGHT() - Settings::DETECTOR_CLIP_TRESHOLD;
-			}
-		),
-		_frameDetections.end()
-	);
-
-	// Sort by confidence scores in descending order.
-	std::stable_sort(_frameDetections.begin(), _frameDetections.end(),
-		[](const Detection& det_1, const Detection& det_2) {
-			return det_1.confidence() > det_2.confidence();
-		});
-
-	// Run NMS (Non-Maximum Supression) on the stack and mark the removable items.
-	for (auto it_higher = std::begin(_frameDetections); it_higher < std::end(_frameDetections) - 1; ++it_higher)
-	{
-		if (it_higher->deletable()) continue;
-		for (auto it_lower = it_higher + 1; it_lower != std::end(_frameDetections); ++it_lower)
-		{
-			const float iou = Detection::iou(*it_higher, *it_lower);
-			if (iou > Settings::DETECTOR_NMS_THRESHOLD)
-				it_lower->markToDelete();
-		}
-	}
-
-	// Removing the marked detections.
-	_frameDetections.erase(
-		std::remove_if(
-			_frameDetections.begin(),
-			_frameDetections.end(),
-			[](const Detection detection) {
-				return detection.deletable();
-			}
-		),
-		_frameDetections.end()
-	);
-}
+//inline void TrafficTracker::filterFrameDetections(std::vector<Detection>& _frameDetections)
+//{
+//	GlobalMeta* globals = GlobalMeta::getInstance();
+//
+//	// Removing detections which's confidence score is too low or they're too close to the frame border.
+//	_frameDetections.erase(
+//		std::remove_if(
+//			_frameDetections.begin(),
+//			_frameDetections.end(),
+//			[globals](const Detection detection) {
+//				return detection.confidence() < Settings::DETECTOR_CONF_THRESHOLD
+//					|| detection.x < Settings::DETECTOR_CLIP_TRESHOLD
+//					|| detection.y < Settings::DETECTOR_CLIP_TRESHOLD
+//					|| detection.x + detection.width > globals->VIDEO_WIDTH() - Settings::DETECTOR_CLIP_TRESHOLD
+//					|| detection.y + detection.height > globals->VIDEO_HEIGHT() - Settings::DETECTOR_CLIP_TRESHOLD;
+//			}
+//		),
+//		_frameDetections.end()
+//	);
+//
+//	// Sort by confidence scores in descending order.
+//	std::stable_sort(_frameDetections.begin(), _frameDetections.end(),
+//		[](const Detection& det_1, const Detection& det_2) {
+//			return det_1.confidence() > det_2.confidence();
+//		});
+//
+//	// Run NMS (Non-Maximum Supression) on the stack and mark the removable items.
+//	for (auto it_higher = std::begin(_frameDetections); it_higher < std::end(_frameDetections) - 1; ++it_higher)
+//	{
+//		if (it_higher->deletable()) continue;
+//		for (auto it_lower = it_higher + 1; it_lower != std::end(_frameDetections); ++it_lower)
+//		{
+//			const float iou = Detection::iou(*it_higher, *it_lower);
+//			if (iou > Settings::DETECTOR_NMS_THRESHOLD)
+//				it_lower->markToDelete();
+//		}
+//	}
+//
+//	// Removing the marked detections.
+//	_frameDetections.erase(
+//		std::remove_if(
+//			_frameDetections.begin(),
+//			_frameDetections.end(),
+//			[](const Detection detection) {
+//				return detection.deletable();
+//			}
+//		),
+//		_frameDetections.end()
+//	);
+//}
 
 void TrafficTracker::openCacheFile(QUrl _fileUrl)
 {
@@ -370,7 +374,7 @@ void TrafficTracker::openCacheFile(QUrl _fileUrl)
 			frameDetections.push_back(detection);
 		}
 
-		filterFrameDetections(frameDetections);
+//		filterFrameDetections(frameDetections);
 
 		m_detections[frameIdx] = frameDetections;
 	}
@@ -429,14 +433,102 @@ std::vector<Detection> TrafficTracker::getDetections(const int frameIdx) const
 	}
 }
 
+void TrafficTracker::generateStatistics(Gate* _gate_ptr, const int _interval)
+{
+	const int intNr = std::ceil(GlobalMeta::getInstance()->VIDEO_LENGTH() / _interval * 0.001f);
+	const int intSize = GlobalMeta::getInstance()->VIDEO_FPS() * _interval;
+
+	_gate_ptr = m_gateModel_ptr->getGates()[0];
+	auto stat = _gate_ptr->getStatistics();
+	m_stat_axisY_maxval = 0;
+
+	m_stat_axisX_values.clear();
+	m_stat_vtype_values[VehicleType::BICYCLE].clear();
+	m_stat_vtype_values[VehicleType::BICYCLE].resize(intNr, 0);
+	m_stat_vtype_values[VehicleType::BUS].clear();
+	m_stat_vtype_values[VehicleType::BUS].resize(intNr, 0);
+	m_stat_vtype_values[VehicleType::CAR].clear();
+	m_stat_vtype_values[VehicleType::CAR].resize(intNr, 0);
+	m_stat_vtype_values[VehicleType::MOTORCYCLE].clear();
+	m_stat_vtype_values[VehicleType::MOTORCYCLE].resize(intNr, 0);
+	m_stat_vtype_values[VehicleType::TRUCK].clear();
+	m_stat_vtype_values[VehicleType::TRUCK].resize(intNr, 0);
+
+	for (int i(0); i < GlobalMeta::getInstance()->VIDEO_FRAMECOUNT(); ++i)
+	{
+		m_stat_vtype_values[VehicleType::BICYCLE][i / intSize] += stat[VehicleType::BICYCLE][i];
+		m_stat_vtype_values[VehicleType::BUS][i / intSize] += stat[VehicleType::BUS][i];
+		m_stat_vtype_values[VehicleType::CAR][i / intSize] += stat[VehicleType::CAR][i];
+		m_stat_vtype_values[VehicleType::MOTORCYCLE][i / intSize] += stat[VehicleType::MOTORCYCLE][i];
+		m_stat_vtype_values[VehicleType::TRUCK][i / intSize] += stat[VehicleType::TRUCK][i];
+	}
+
+	for (int i(0); i < intNr; ++i)
+	{
+		int val = 0;
+
+		val += m_stat_vtype_values[VehicleType::BICYCLE][i];
+		val += m_stat_vtype_values[VehicleType::BUS][i];
+		val += m_stat_vtype_values[VehicleType::CAR][i];
+		val += m_stat_vtype_values[VehicleType::MOTORCYCLE][i];
+		val += m_stat_vtype_values[VehicleType::TRUCK][i];
+
+		if (val > m_stat_axisY_maxval) m_stat_axisY_maxval = val;
+	}
+
+	for (int i(1); i <= intNr; ++i)
+	{
+		const int minutes = i * _interval / 60;
+		const int seconds = i * _interval % 60;
+
+		m_stat_axisX_values << QString("%1:%2").arg(minutes).arg(seconds);
+	}
+}
+
 QStringList TrafficTracker::getAxisX()
 {
-	return QStringList() << "2013" << "2014" << "2015" << "2016" << "2017" << "2018" << "2019";
+	return m_stat_axisX_values;
+}
+
+int TrafficTracker::getAxisY()
+{
+	return m_stat_axisY_maxval;
 }
 
 QList<QVariant> TrafficTracker::getCarValues()
 {
-	return QList<QVariant>() << 1 << 1 << 1 << 1 << 1 << 1;
+	QList<QVariant> values;
+
+	for (int i(0); i < m_stat_vtype_values[VehicleType::CAR].size(); ++i)
+	{
+		values << m_stat_vtype_values[VehicleType::CAR][i];
+	}
+
+	return values;
+}
+
+QList<QVariant> TrafficTracker::getTruckValues()
+{
+	QList<QVariant> values;
+
+	for (int i(0); i < m_stat_vtype_values[VehicleType::TRUCK].size(); ++i)
+	{
+		values << m_stat_vtype_values[VehicleType::TRUCK][i];
+	}
+
+	return values;
+}
+
+QList<QVariant> TrafficTracker::getBusValues()
+{
+	QList<QVariant> values;
+
+	for (int i(0); i < m_stat_vtype_values[VehicleType::BUS].size(); ++i)
+	{
+		values << m_stat_vtype_values[VehicleType::BUS][i];
+	}
+
+	return values;
 }
 
 void TrafficTracker::onFrameDisplayed(int _frameIdx)

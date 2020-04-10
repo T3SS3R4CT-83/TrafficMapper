@@ -45,6 +45,8 @@ public:
 	int counter() const;
 	void setCounter(int counter);
 
+	std::unordered_map<VehicleType, std::vector<int>> getStatistics() const;
+
 //	void initGate();
 	//void checkVehiclePass(Vehicle* _vehicle, const int _frameIdx);
 	void checkVehiclePass(Vehicle *vehicle);

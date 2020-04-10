@@ -3,29 +3,59 @@
 #include <algorithm>
 
 
+// ========================================
+//             CONSTRUCTORS
+// ========================================
 
 Detection::Detection()
+	: cv::Rect2d()
 {
-	m_deletable = false;
+	m_vehicleType = VehicleType::undefined;
+	m_confidence = 0;
 }
 
-Detection::Detection(int _x, int _y, int _width, int _height, VehicleType _vehicleClass, float _confidence)
-	: cv::Rect2d(_x, _y, _width, _height), m_vehicleClass(_vehicleClass), m_confidence(_confidence) { Detection(); }
+Detection::Detection(const int _x, const int _y, const int _width, const int _height, const VehicleType _vehicleType, const float _confidence)
+	: cv::Rect2d(_x, _y, _width, _height), m_vehicleType(_vehicleType), m_confidence(_confidence) { }
 
-//Detection::Detection(int x, int y, int width, int height, int vehicleClass, float confidence)
-//	: cv::Rect2d(x, y, width, height), m_vehicleClass(vehicleClass), m_confidence(confidence) { }
-
-//Detection::Detection(const Detection &old)
-//	: cv::Rect2d(old), m_vehicleClass(old.m_vehicleClass), m_confidence(old.m_confidence) { }
-
-Detection::Detection(const cv::Rect2d &old, VehicleType vehicleClass, float confidence)
-	: cv::Rect2d(old), m_vehicleClass(vehicleClass), m_confidence(confidence) { Detection(); }
+Detection::Detection(const cv::Rect2d & _old, const VehicleType _vehicleClass, const float _confidence)
+	: cv::Rect2d(_old), m_vehicleType(_vehicleClass), m_confidence(_confidence) { }
 
 
 
-VehicleType Detection::classID() const
+// ========================================
+//               OPERATORS
+// ========================================
+
+Detection &Detection::operator=(const cv::Rect2d &_old)
 {
-	return m_vehicleClass;
+	Detection detection(_old);
+
+	return detection;
+}
+
+std::ostream &operator<<(std::ostream &_os, const Detection &_det)
+{
+	_os << _det.m_vehicleType << " " << _det.m_confidence << " " << _det.x << " " << _det.y << " " << _det.width << " " << _det.height << '\n';
+	
+	return _os;
+}
+
+std::istream &operator>>(std::istream &_is, Detection &_det)
+{
+	_is >> _det.m_vehicleType >> _det.m_confidence >> _det.x >> _det.y >> _det.width >> _det.height;
+
+	return _is;
+}
+
+
+
+// ========================================
+//           GETTERS & SETTERS
+// ========================================
+
+VehicleType Detection::vehicleType() const
+{
+	return m_vehicleType;
 }
 
 float Detection::confidence() const
@@ -33,20 +63,22 @@ float Detection::confidence() const
 	return m_confidence;
 }
 
-Detection &Detection::operator=(const cv::Rect2d &old)
-{
-	Detection detection(old);
 
-	return detection;
+
+// ========================================
+//            PUBLIC FUNCTIONS
+// ========================================
+
+QPoint Detection::getCenter() const
+{
+	return QPoint(x + width * 0.5f, y + height * 0.5f);
 }
 
-//bool Detection::operator==(const Detection &rhs) const
-//{
-//	if (this->x == rhs.x && this->y == rhs.y && this->width == rhs.width && this->height == rhs.height)
-//		return true;
-//	else
-//		return false;
-//}
+
+
+// ========================================
+//            STATIC FUNCTIONS
+// ========================================
 
 float Detection::iou(const cv::Rect2d &lhs, const cv::Rect2d &rhs)
 {
@@ -62,48 +94,4 @@ float Detection::iou(const cv::Rect2d &lhs, const cv::Rect2d &rhs)
 	const float area_rhs = rhs.area();
 
 	return area_int / (area_rhs + area_lhs - area_int);
-}
-
-VehicleType Detection::vehicleClass() const
-{
-	return m_vehicleClass;
-}
-
-//float Detection::confidence() const
-//{
-//	return m_confidence;
-//}
-
-//void Detection::setConfidence(float confidence)
-//{
-//	m_confidence = confidence;
-//}
-
-QPoint Detection::getCenter() const
-{
-	return QPoint(x + width * 0.5f, y + height * 0.5f);
-}
-
-bool Detection::deletable() const
-{
-	return m_deletable;
-}
-
-void Detection::markToDelete()
-{
-	m_deletable = true;
-}
-
-std::ostream &operator<<(std::ostream &os, const Detection &det)
-{
-	os << det.x << " " << det.y << " " << det.width << " " << det.height << " " << det.m_vehicleClass << " " << det.m_confidence << '\n';
-	
-	return os;
-}
-
-std::istream &operator>>(std::istream &is, Detection &det)
-{
-	is >> det.x >> det.y >> det.width >> det.height >> det.m_vehicleClass >> det.m_confidence;
-
-	return is;
 }

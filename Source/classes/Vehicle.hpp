@@ -23,30 +23,31 @@ class Vehicle : public QObject
 	std::map<int, Detection> m_detections;
 	std::map<int, QPoint> m_positions;
 	std::vector<std::pair<int, QLineF>> m_path;
+	VehicleType m_vehicleClass;
 
 	cv::Ptr<cv::Tracker> m_tracker;
 	cv::Ptr<cv::tracking::UnscentedKalmanFilter> m_kalmanFilter;
 
-	bool m_isActive;
 	int m_timeSinceLastHit;
 	int m_lastTrackedFrameIdx;
-	VehicleType m_vehicleClass;
 
 public:
-	Vehicle(const cv::Mat &frame, const int frameIdx, Detection &detection);
+	bool m_isTracked;
+	Vehicle(const int frameIdx, const Detection &detection);
 
 	Detection detection(const int frameIdx) const;
+	Detection getLastDetection() const;
 //	void setDetection(const int frameIdx, const Detection &detection);
 	QPoint position(const int frameIdx) const;
 	VehicleType vehicleClass();
 	QString className() const;
-//	int classID() const;
-	bool isActive() const;
+//	int vehicleType() const;
+	bool isTracked() const;
 //	bool isValid() const;
 	
 	const bool trackPosition(const cv::Mat &_frame, const cv::Mat &_prevFrame, const int _frameIdx);
 	//const bool trackPosition(FrameProvider& video, const int frameIdx);
-	const void updatePosition(const cv::Mat &frame, const int frameIdx, const Detection &detection);
+	const void updatePosition(const int frameIdx, const Detection &detection);
 
 	void calcVehicleType();
 	std::vector<QPoint> getAllPositions() const;
@@ -55,7 +56,7 @@ public:
 
 
 private:
-	inline void kalmanUpdate(int frameIdx);
-	inline void initTracker(const cv::Mat &frame, const cv::Rect2d &detection);
 	inline void deactivate();
+	inline void initTracker(const cv::Mat &frame, const cv::Rect2d &detection);
+	inline void kalmanUpdate(int frameIdx);
 };

@@ -12,42 +12,77 @@ Dialog {
     width: 800
     height: 600
     title: "Traffic statistics"
-    standardButtons: StandardButton.NoButton
+//    standardButtons: Dialog.NoButton
     visible: false
 
-    ChartView {
-        title: "Bar series"
-        anchors.fill: parent
-        legend.alignment: Qt.AlignBottom
-        antialiasing: true
+    contentItem: Rectangle {
 
-        StackedBarSeries {
-            id: mySeries
-            axisX: BarCategoryAxis {
-                id: x_axis
-                categories: ["2007", "2008", "2009", "2010", "2011", "2012" ]
+        ChartView {
+            title: "Bar series"
+            anchors.fill: parent
+            anchors.bottomMargin: 50
+            legend.alignment: Qt.AlignBottom
+            antialiasing: true
+
+            StackedBarSeries {
+                id: mySeries
+                axisX: BarCategoryAxis {
+                    id: x_axis
+                    categories: ["2007", "2008", "2009", "2010", "2011", "2012" ]
+                }
+                axisY: ValueAxis {
+                    id: y_axis
+                }
+                BarSet {
+                    id: lblBus
+                    label: "Buses"
+                    values: [2, 2, 3, 4, 5, 6]
+                }
+                BarSet {
+                    id: lblCars
+                    label: "Cars"
+                    values: [2, 2, 3, 4, 5, 6]
+                }
+                BarSet {
+                    id: lblTruck
+                    label: "Trucks"
+                    values: [2, 2, 3, 4, 5, 6]
+                }
             }
-            axisY: ValueAxis {
-                id: y_axis
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                }
             }
-            BarSet {
-                id: lblCars
-                label: "Cars"
-                values: [2, 2, 3, 4, 5, 6]
+        }
+
+        ComboBox {
+            textRole: "key"
+            model: ListModel {
+                id: intervalOptions
+                ListElement { key: "10 seconds"; value: 10 }
+                ListElement { key: "30 seconds"; value: 30 }
+                ListElement { key: "1 minute"; value: 60 }
             }
-            BarSet { label: "Susan"; values: [5, 1, 2, 4, 1, 7] }
-            BarSet { label: "James"; values: [3, 5, 8, 13, 5, 8] }
+            onActivated: initGraph(intervalOptions.get(currentIndex).value)
+        }
+
+        Button {
+            text: "Update"
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            onClicked: {
+            }
         }
     }
 
-    Button {
-        text: "Update"
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        onClicked: {
-            x_axis.categories = tracker.getAxisX()
-            y_axis.max = 30
-            lblCars.values = tracker.getCarValues()
-        }
+    function initGraph(interval) {
+        tracker.generateStatistics(null, interval)
+        x_axis.categories = tracker.getAxisX()
+        y_axis.max = tracker.getAxisY()
+        lblBus.values = tracker.getBusValues()
+        lblCars.values = tracker.getCarValues()
+        lblTruck.values = tracker.getTruckValues()
     }
 }

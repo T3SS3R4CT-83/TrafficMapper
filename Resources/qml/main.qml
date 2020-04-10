@@ -62,6 +62,4 @@ Window {
     DlgOpenCache {
         id: dlgOpenCache
     }
-
-    Component.onCompleted: statWindow.visible = true
 }

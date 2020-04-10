@@ -30,12 +30,14 @@ Item {
         var frameTime = 1000 / GlobalMeta.VIDEO_FPS
         if (mediaPlayer.position > 0)
             mediaPlayer.seek(mediaPlayer.position - frameTime)
+        console.log(mediaPlayer.position / frameTime)
     }
     Keys.onRightPressed: {
         mediaPlayer.pause()
         var frameTime = 1000 / GlobalMeta.VIDEO_FPS
         if (mediaPlayer.position < mediaPlayer.duration - frameTime)
             mediaPlayer.seek(mediaPlayer.position + frameTime)
+        console.log(mediaPlayer.position / frameTime)
     }
     Keys.onSpacePressed: switchPlayState()
 

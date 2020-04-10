@@ -93,6 +93,11 @@ void Gate::setCounter(int counter)
 	update();
 }
 
+std::unordered_map<VehicleType, std::vector<int>> Gate::getStatistics() const
+{
+	return m_statistics;
+}
+
 
 
 //void Gate::checkVehiclePass(Vehicle* _vehicle, const int _frameIdx)

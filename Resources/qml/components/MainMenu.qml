@@ -38,13 +38,13 @@ MenuBar {
     Menu {
         title: "Traffic analysis"
 
-        MenuItem {
-            text: "Extract detection data"
-            enabled: videoPlayer.isVideoLoaded
-            onTriggered: dlgSaveCache.open()
-        }
+//        MenuItem {
+//            text: "Extract detection data"
+//            enabled: videoPlayer.isVideoLoaded
+//            onTriggered: dlgSaveCache.open()
+//        }
 
-        MenuSeparator {}
+//        MenuSeparator {}
 
         MenuItem {
             text: "Analize traffic video"
@@ -53,6 +53,15 @@ MenuBar {
                 progressWindow.initAndOpen("Analysing traffic video", "Processing frames:")
                 tracker.analizeVideo()
             }
+        }
+    }
+
+    Menu {
+        title: "Statistics"
+
+        MenuItem {
+            text: "Open stat window"
+            onTriggered: statWindow.open()
         }
     }
 

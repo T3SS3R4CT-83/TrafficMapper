@@ -9,35 +9,23 @@
 
 class Detection : public cv::Rect2d
 {
-public:
-	Detection();
-	Detection(int _x, int _y, int _width, int _height, VehicleType _vehicleClass, float _confidence);
-	//Detection(const Detection &old);
-	Detection(const cv::Rect2d &old, VehicleType vehicleClass = VehicleType::undefined, float confidence = 0.f);
-
-	VehicleType classID() const;
-	float confidence() const;
-
-	Detection &operator=(const cv::Rect2d &old);
-//	bool operator==(const Detection &rhs) const;
-	friend std::ostream &operator<<(std::ostream &os, const Detection &det);
-	friend std::istream &operator>>(std::istream &is, Detection &det);
-	
-
-	VehicleType vehicleClass() const;
-//	float confidence() const;
-//	void setConfidence(float confidence);
-	QPoint getCenter() const;
-
-	bool deletable() const;
-	void markToDelete();
-
-	static float iou(const cv::Rect2d &lhs, const cv::Rect2d &rhs);
-
 protected:
-    VehicleType m_vehicleClass;
+    VehicleType m_vehicleType;
     float m_confidence;
 
-private:
-	bool m_deletable;
+public:
+	Detection();
+	Detection(const int _x, const int _y, const int _width, const int _height, const VehicleType _vehicleType = VehicleType::undefined, const float _confidence = 0.f);
+	Detection(const cv::Rect2d & _old, const VehicleType _vehicleClass = VehicleType::undefined, const float _confidence = 0.f);
+
+	Detection &operator=(const cv::Rect2d &_old);
+	friend std::ostream &operator<<(std::ostream &_os, const Detection &_det);
+	friend std::istream &operator>>(std::istream &_is, Detection &_det);
+
+	VehicleType vehicleType() const;
+	float confidence() const;
+	
+	QPoint getCenter() const;
+
+	static float iou(const cv::Rect2d &lhs, const cv::Rect2d &rhs);
 };
