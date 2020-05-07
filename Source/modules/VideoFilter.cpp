@@ -5,6 +5,7 @@
 #include <QQmlProperty>
 
 #include <TrafficMapper/Globals>
+#include <TrafficMapper/Modules/TrafficTracker>
 #include <TrafficMapper/Classes/Detection>
 #include <TrafficMapper/Classes/Vehicle>
 

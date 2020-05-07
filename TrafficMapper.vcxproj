@@ -19,6 +19,7 @@
     <ClInclude Include="Source\includes\TrafficMapper\Modules\TrafficTracker" />
     <ClInclude Include="Source\includes\TrafficMapper\Modules\VideoFilter" />
     <ClInclude Include="Source\modules\FrameProvider.hpp" />
+    <QtMoc Include="Source\modules\StatModel.hpp" />
     <QtMoc Include="Source\modules\VideoFilter.hpp" />
     <QtMoc Include="Source\modules\TrafficTracker.hpp" />
     <QtMoc Include="Source\modules\GateModel.hpp" />
@@ -39,6 +40,7 @@
     <ClCompile Include="Source\Globals.cpp" />
     <ClCompile Include="Source\modules\FrameProvider.cpp" />
     <ClCompile Include="Source\modules\GateModel.cpp" />
+    <ClCompile Include="Source\modules\StatModel.cpp" />
     <ClCompile Include="Source\modules\TrafficTracker.cpp" />
     <ClCompile Include="Source\modules\VideoFilter.cpp" />
   </ItemGroup>
@@ -62,6 +64,9 @@
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="Resources\resources.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Source\includes\TrafficMapper\Modules\StatModel" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A03CD1D0-963A-4124-BBBE-1575A1377690}</ProjectGuid>

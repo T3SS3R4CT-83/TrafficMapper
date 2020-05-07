@@ -5,7 +5,6 @@
 #include <QBrush>
 #include <QMap>
 
-#include <TrafficMapper/Classes/Vehicle>
 
 Gate::Gate(QQuickItem* parent) : QQuickPaintedItem(parent)
 {
@@ -108,19 +107,21 @@ std::unordered_map<VehicleType, std::vector<int>> Gate::getStatistics() const
 //		++m_statistics[_vehicle->vehicleClass()][_frameIdx];
 //	}
 //}
-void Gate::checkVehiclePass(Vehicle *vehicle)
+int Gate::checkVehiclePass(Vehicle *vehicle)
 {
 	for (auto pathSegment : vehicle->getVehiclePath())
 	{
 		if (m_gateLine.intersect(pathSegment.second, nullptr) == QLineF::BoundedIntersection) {
 			++m_counterTimeline[pathSegment.first];
 			++m_statistics[vehicle->vehicleClass()][pathSegment.first];
-			return;
+			return pathSegment.first;
 		}
 	}
+
+	return -1;
 }
 
-void Gate::buildGateStats()
+void Gate::buildGateTimeline()
 {
 	for (size_t i(1); i < m_counterTimeline.size(); ++i)
 		m_counterTimeline[i] = m_counterTimeline[i - 1] + m_counterTimeline[i];

@@ -7,6 +7,7 @@
 #include <TrafficMapper/Modules/TrafficTracker>
 #include <TrafficMapper/Modules/VideoFilter>
 #include <TrafficMapper/Modules/GateModel>
+#include <TrafficMapper/Modules/StatModel>
 #include <TrafficMapper/Classes/Gate>
 #include <TrafficMapper/Globals>
 
@@ -37,15 +38,23 @@ int main(int argc, char *argv[])
     GateModel gateModel;
     TrafficTracker tracker;
     VideoFilter videoFilter;
+    StatModel statModel;
 
     tracker.setGateModel(&gateModel);
+    tracker.setStatModel(&statModel);
+    statModel.setGateModel(&gateModel);
     videoFilter.setTracker(&tracker);
 
     QObject::connect(&videoFilter, &VideoFilter::frameDisplayed,
-        &gateModel, &GateModel::onFrameDisplayed);
+                     &gateModel, &GateModel::onFrameDisplayed);
+    QObject::connect(&gateModel, &GateModel::vehiclePassed,
+                     &statModel, &StatModel::onGatePass);
+    QObject::connect(&tracker, &TrafficTracker::analysisStarted,
+                     &statModel, &StatModel::initModel);
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty(QStringLiteral("gateModel"), &gateModel);
+    engine.rootContext()->setContextProperty(QStringLiteral("statModel"), &statModel);
     engine.rootContext()->setContextProperty(QStringLiteral("tracker"), &tracker);
     engine.rootContext()->setContextProperty(QStringLiteral("videoFilter"), &videoFilter);
 
@@ -59,8 +68,10 @@ int main(int argc, char *argv[])
 
     QObject *qmlOpenVideoDialog = engine.rootObjects()[0]->findChild<QObject *>("dlgOpenVideo");
     if (qmlOpenVideoDialog != nullptr)
+    {
         QObject::connect(qmlOpenVideoDialog, SIGNAL(videoFileOpened(QUrl)),
                          &tracker, SLOT(onVideoFileOpened(QUrl)));
+    }
 
     return app.exec();
 }

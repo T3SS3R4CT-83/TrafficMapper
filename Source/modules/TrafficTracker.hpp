@@ -1,26 +1,29 @@
 #pragma once
 
-//#include <memory>
 
 #include <opencv2/dnn/dnn.hpp>
-//#include <opencv2/tracking/tracker.hpp>
 
 #include <QObject>
 #include <QUrl>
 #include <QMutex>
-//#include <QWaitCondition>
+#include <QVariant>
 
-#include <TrafficMapper/Classes/Detection>
-#include <TrafficMapper/Modules/GateModel>
 
 class Vehicle;
-//class QUrl;
+class Gate;
+class Detection;
+class GateModel;
+class StatModel;
+
+enum class VehicleType : int;
+
 
 class TrafficTracker : public QObject
 {
 	Q_OBJECT
 
     GateModel *m_gateModel_ptr;
+	StatModel *m_statModel_ptr;
 
 	std::unordered_map<int, std::vector<Detection>> m_detections;
 	std::vector<Vehicle *> m_vehicles;
@@ -38,12 +41,16 @@ public:
 	TrafficTracker();
 	~TrafficTracker();
 
-    void setGateModel(GateModel *_gateModel);
+    void setGateModel(GateModel *_gateModel_ptr);
+    void setStatModel(StatModel *_statModel_ptr);
 
     Q_INVOKABLE void extractDetectionData(QUrl _cacheFileUrl);
 	Q_INVOKABLE void analizeVideo();
 
 	Q_INVOKABLE void terminate();
+
+	//Q_INVOKABLE void setVideo(QUrl fileUrl);
+	//Q_INVOKABLE void unSetVideo();
 
 	Q_INVOKABLE void openCacheFile(QUrl _fileUrl);
 	Q_INVOKABLE void exportFrames();
@@ -71,5 +78,5 @@ private:
 signals:
 	void processTerminated();
 	void progressUpdated(int _currentFrameIdx, int _allFrameNr);
-//	void analysisStarted();
+	void analysisStarted();
 };

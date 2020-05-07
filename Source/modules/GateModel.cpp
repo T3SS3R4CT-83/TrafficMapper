@@ -99,6 +99,11 @@ QHash<int, QByteArray> GateModel::roleNames() const
 	return names;
 }
 
+Gate* GateModel::getData(const int idx) const
+{
+	return m_gateList[idx];
+}
+
 void GateModel::insertData(Gate *newGate)
 {
 	const int index = m_gateList.size();
@@ -134,11 +139,6 @@ void GateModel::clearData()
 	}
 }
 
-//QMap<QString, QList<int>> GateModel::getGateStat(int gateIdx, int windowSize)
-//{
-//	return m_gateList[gateIdx]->prepGateStat(windowSize);
-//}
-
 void GateModel::onFrameDisplayed(int frameIdx)
 {
 	for (auto gate : m_gateList)
@@ -150,37 +150,18 @@ std::vector<Gate*> GateModel::getGates() const
 	return m_gateList;
 }
 
-//void GateModel::onVehiclePositionUpdated(Vehicle * _vehicle, int _frameIdx)
-//{
-//	for (auto gate : m_gateList)
-//		gate->checkVehiclePass(_vehicle, _frameIdx);
-//}
-
 void GateModel::checkVehicle(Vehicle *vehicle)
 {
 	for (auto gate : m_gateList)
 	{
-		gate->checkVehiclePass(vehicle);
+		int frameIdx = gate->checkVehiclePass(vehicle);
+		if (frameIdx > 0)
+			emit vehiclePassed(vehicle, gate, frameIdx);
 	}
-
-	//std::map<int, QPoint> vehiclePath = vehicle->getVehiclePath();
-
-	//for (auto position = std::next(vehiclePath.begin()); position != vehiclePath.end(); ++position) {
-	//	QLine vehiclePath(std::prev(position)->second, position->second);
-	//	for (auto gate : m_gateList)
-	//		gate->checkVehiclePass(vehicle, position->first, vehiclePath);
-	//}
 }
 
 void GateModel::buildGateStats()
 {
 	for (auto gate : m_gateList)
-		gate->buildGateStats();
+		gate->buildGateTimeline();
 }
-
-//void GateModel::onAnalisisStart()
-//{
-//	for (auto &gate : m_gateList) {
-//		gate->initGate();
-//	}
-//}

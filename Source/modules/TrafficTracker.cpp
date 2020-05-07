@@ -10,15 +10,16 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QMutexLocker>
 
-#include <TrafficMapper/Globals>
-#include <TrafficMapper/Asserts/HungarianAlgorithm>
-#include <TrafficMapper/Modules/FrameProvider>
-#include <TrafficMapper/Classes/Vehicle>
-#include <TrafficMapper/Classes/Gate>
-
 #include <opencv2/core/mat.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
+
+#include <TrafficMapper/Globals>
+#include <TrafficMapper/Asserts/HungarianAlgorithm>
+#include <TrafficMapper/Modules/FrameProvider>
+#include <TrafficMapper/Modules/GateModel>
+#include <TrafficMapper/Classes/Vehicle>
+#include <TrafficMapper/Classes/Gate>
 
 
 
@@ -40,9 +41,14 @@ TrafficTracker::~TrafficTracker()
 
 
 
-void TrafficTracker::setGateModel(GateModel *_gateModel)
+void TrafficTracker::setGateModel(GateModel *_gateModel_ptr)
 {
-    m_gateModel_ptr = _gateModel;
+    m_gateModel_ptr = _gateModel_ptr;
+}
+
+void TrafficTracker::setStatModel(StatModel* _statModel_ptr)
+{
+	m_statModel_ptr = _statModel_ptr;
 }
 
 void TrafficTracker::extractDetectionData(QUrl _cacheFileUrl)
@@ -97,7 +103,7 @@ void TrafficTracker::analizeVideo()
 
 	QtConcurrent::run([this]()
 	{
-		//emit analysisStarted();
+		emit analysisStarted();
 
 		FrameProvider video;
 		cv::Mat frame, prevFrame;
@@ -110,7 +116,7 @@ void TrafficTracker::analizeVideo()
 
 		for (size_t frameIdx(0); frameIdx < allFrameNr; ++frameIdx)
 		{
-			// If the user is interrupted the process then exit the cycle.
+			// If the user interrupted the process then exit the cycle.
 			if (!m_isRunning) break;
 
 			// Update the "Progress Window".
@@ -161,9 +167,6 @@ void TrafficTracker::analizeVideo()
 					if (vehicle_ptr->trackPosition(frame, prevFrame, frameIdx)) {
 						m_trajectories[frameIdx].push_back(vehicle_ptr);
 					}
-					else {
-
-					}
 				}
 			}
 
@@ -206,6 +209,8 @@ void TrafficTracker::analizeVideo()
 		m_isRunning = false;
 	});
 }
+
+
 
 inline void TrafficTracker::prepIOUmatrix(
 	std::vector<std::vector<double>>& _iouMatrix,
@@ -438,6 +443,7 @@ void TrafficTracker::generateStatistics(Gate* _gate_ptr, const int _interval)
 	const int intNr = std::ceil(GlobalMeta::getInstance()->VIDEO_LENGTH() / _interval * 0.001f);
 	const int intSize = GlobalMeta::getInstance()->VIDEO_FPS() * _interval;
 
+	// TODO: Remove later
 	_gate_ptr = m_gateModel_ptr->getGates()[0];
 	auto stat = _gate_ptr->getStatistics();
 	m_stat_axisY_maxval = 0;

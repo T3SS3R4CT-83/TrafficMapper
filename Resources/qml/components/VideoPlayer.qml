@@ -230,7 +230,7 @@ Item {
         mediaPlayer.play()
         mediaPlayer.pause()
 
-        var path = mediaPlayer.source.toString().replace(/^(file:\/{3})|(qrc:\/{2})|(http:\/{2})/,"")
+        var path = mediaPlayer.source.toString().replace(/^(file:\/{3})|(qrc:\/{2})|(http:\/{2})/, "")
         path = decodeURIComponent(path);
 
         GlobalMeta.VIDEO_URL = path
@@ -238,7 +238,7 @@ Item {
         GlobalMeta.VIDEO_HEIGHT = mediaPlayer.metaData.resolution.height
         GlobalMeta.VIDEO_FPS = mediaPlayer.metaData.videoFrameRate
         GlobalMeta.VIDEO_LENGTH = mediaPlayer.metaData.duration
-        GlobalMeta.VIDEO_FRAMECOUNT = GlobalMeta.VIDEO_LENGTH * GlobalMeta.VIDEO_FPS * 0.001
+        GlobalMeta.VIDEO_FRAMECOUNT = Math.floor(GlobalMeta.VIDEO_LENGTH * 0.001 * GlobalMeta.VIDEO_FPS)
 
         videoPlayer.isVideoLoaded = true
 

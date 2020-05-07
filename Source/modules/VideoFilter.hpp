@@ -9,8 +9,9 @@
 #include <QFont>
 #include <QBrush>
 
-#include "TrafficTracker.hpp"
+//#include "TrafficTracker.hpp"
 
+class TrafficTracker;
 class VideoFilter;
 class GlobalMeta;
 

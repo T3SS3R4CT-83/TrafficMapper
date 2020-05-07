@@ -120,6 +120,9 @@
     <ClCompile Include="Source\modules\VideoFilter.cpp">
       <Filter>Source Files\Modules</Filter>
     </ClCompile>
+    <ClCompile Include="Source\modules\StatModel.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Source\classes\Gate.hpp">
@@ -138,6 +141,9 @@
       <Filter>Source Files\Modules</Filter>
     </QtMoc>
     <QtMoc Include="Source\modules\VideoFilter.hpp">
+      <Filter>Source Files\Modules</Filter>
+    </QtMoc>
+    <QtMoc Include="Source\modules\StatModel.hpp">
       <Filter>Source Files\Modules</Filter>
     </QtMoc>
   </ItemGroup>
@@ -193,5 +199,10 @@
     <QtRcc Include="Resources\resources.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Source\includes\TrafficMapper\Modules\StatModel">
+      <Filter>Header Files\Modules</Filter>
+    </Text>
   </ItemGroup>
 </Project>

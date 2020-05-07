@@ -6,8 +6,11 @@
 #include <QLineF>
 
 #include <TrafficMapper/Globals>
+#include <TrafficMapper/Classes/Vehicle>
+
 
 class Vehicle;
+
 
 class Gate : public QQuickPaintedItem
 {
@@ -49,8 +52,8 @@ public:
 
 //	void initGate();
 	//void checkVehiclePass(Vehicle* _vehicle, const int _frameIdx);
-	void checkVehiclePass(Vehicle *vehicle);
-	void buildGateStats();
+	int checkVehiclePass(Vehicle *vehicle);
+	void buildGateTimeline();
 	void onFrameDisplayed(int frameIdx);
 //	QMap<QString, QList<int>> prepGateStat(int windowSize);
 
