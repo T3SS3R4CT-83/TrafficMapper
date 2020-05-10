@@ -9,6 +9,20 @@ MenuBar {
     anchors.left: parent.left
     anchors.right: parent.right
 
+    background: Rectangle {
+        gradient: Gradient {
+            GradientStop { position: 0; color: "#FFFFFF" }
+            GradientStop { position: 1; color: "#DDDDDD" }
+        }
+
+        Rectangle {
+            width: parent.width
+            height: 1
+            anchors.bottom: parent.bottom
+            color: "#CCCCCC"
+        }
+    }
+
     Menu {
         title: "File"
 
