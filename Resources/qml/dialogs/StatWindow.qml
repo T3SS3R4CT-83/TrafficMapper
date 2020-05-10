@@ -9,11 +9,10 @@ import com.elte.t3ss3r4ct 1.0
 Dialog {
 
     id: statWindow
-    width: 800
-    height: 480
+    width: 1000
+    height: 600
     title: "Traffic statistics"
-//    standardButtons: Dialog.NoButton
-    visible: true
+    visible: false
 
     contentItem: Rectangle {
 
@@ -57,22 +56,64 @@ Dialog {
                 ListElement { key: "30 seconds"; value: 30 }
                 ListElement { key: "1 minute"; value: 60 }
             }
-            onActivated: updateGraph(gateModel.getData(cbGate.currentIndex), intervalOptions.get(currentIndex).value)
+            onActivated: {
+                if (intervalOptions.get(currentIndex).value == 10) {
+                    x_axis.labelsFont.pointSize = 6
+                    x_axis.labelsAngle = -90
+                } else {
+                    x_axis.labelsFont.pointSize = 8
+                    x_axis.labelsAngle = 0
+                }
+                updateGraph(gateModel.getData(cbGate.currentIndex), intervalOptions.get(currentIndex).value)
+            }
+        }
+
+        CheckBox {
+            id: cbShowLabels
+            x: 470
+            y: 10
+            height: 26
+            checked: true
+            text: "Show bar labels"
+        }
+
+        Button {
+            anchors.top: parent.top
+            anchors.right: parent.right
+            anchors.topMargin: 10
+            anchors.rightMargin: 20
+            text: "Save chart..."
+
+            onClicked: dlgSaveChart.open()
         }
 
         ChartView {
             id: chartView
-            title: "Bar series"
             anchors.fill: parent
             anchors.topMargin: 40
-            legend.alignment: Qt.AlignBottom
             antialiasing: true
+            legend.alignment: Qt.AlignBottom
+            legend.font.pointSize: 10
+            legend.font.bold: true
+            title: "Bar series"
+            titleFont.pointSize: 11
+            titleFont.bold: true
+            titleFont.letterSpacing: 2
 
             StackedBarSeries {
                 id: mySeries
+                labelsVisible: cbShowLabels.checked
+
+//                axisX: BarCategoryAxis { categories: ["2007", "2008", "2009", "2010", "2011", "2012" ] }
+//                BarSet { label: "Bob"; values: [2, 2, 3, 4, 5, 6] }
+//                BarSet { label: "Susan"; values: [5, 1, 2, 4, 1, 7] }
+//                BarSet { label: "James"; values: [3, 5, 8, 13, 5, 8] }
+
+
                 axisX: BarCategoryAxis {
                     id: x_axis
                     categories: statModel.axis_X_labels
+                    labelsAngle: -90
                 }
                 axisY: ValueAxis {
                     id: y_axis
@@ -88,16 +129,10 @@ Dialog {
                     rowCount: 1
                 }
             }
-
-//            MouseArea {
-//                anchors.fill: parent
-//                onClicked: {
-//                    console.log(statModel.rowCount())
-//                    modelMapper.rowCount = 5
-//                }
-//            }
         }
     }
+
+    DlgSaveChart { id: dlgSaveChart }
 
     function updateGraph(gate, interval) {
         statModel.updateStat(gate, interval)

@@ -16,5 +16,6 @@
         <file>qml/dialogs/StatWindow.qml</file>
         <file>svg/sound-mute.svg</file>
         <file>svg/sound-on.svg</file>
+        <file>qml/dialogs/DlgSaveChart.qml</file>
     </qresource>
 </RCC>

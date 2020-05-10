@@ -194,6 +194,9 @@
     <None Include="Resources\svg\sound-on.svg">
       <Filter>Resource Files\SVG</Filter>
     </None>
+    <None Include="Resources\qml\dialogs\DlgSaveChart.qml">
+      <Filter>QML files\Dialogs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="Resources\resources.qrc">
