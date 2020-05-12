@@ -1,6 +1,6 @@
 #include "VideoFilter.hpp"
 
-#include <QDebug>
+
 #include <QMap>
 #include <QQmlProperty>
 
@@ -9,7 +9,8 @@
 #include <TrafficMapper/Classes/Detection>
 #include <TrafficMapper/Classes/Vehicle>
 
-VideoFilterRunnable::VideoFilterRunnable(TrafficTracker *tracker)
+
+VideoFilterRunnable::VideoFilterRunnable(TrafficTracker * tracker)
 {
 	m_tracker_ptr = tracker;
 	m_globals_ptr = GlobalMeta::getInstance();
@@ -19,19 +20,19 @@ VideoFilterRunnable::VideoFilterRunnable(TrafficTracker *tracker)
 
 	m_pen_tracking.setColor(QColor("green"));
 	m_pen_tracking.setWidth(3);
-	
+
 	m_pen_position.setColor(QColor("#CD2222"));
 	m_pen_position.setWidth(m_globals_ptr->VIDEO_HEIGHT() * 0.01f);
-	
+
 	m_pen_label.setColor("white");
-	
-	m_pen_trajectory.setColor(QColor(255,255,255,150));
+
+	m_pen_trajectory.setColor(QColor(255, 255, 255, 150));
 	m_pen_trajectory.setWidth(3);
-	
+
 	m_painterFont = QFont("Arial", m_globals_ptr->VIDEO_HEIGHT() / 46, 700);
 }
 
-QVideoFrame VideoFilterRunnable::run(QVideoFrame *input, const QVideoSurfaceFormat &surfaceFormat, RunFlags flags)
+QVideoFrame VideoFilterRunnable::run(QVideoFrame * input, const QVideoSurfaceFormat & surfaceFormat, RunFlags flags)
 {
 	if (input->map(QAbstractVideoBuffer::ReadOnly))
 	{
@@ -43,11 +44,11 @@ QVideoFrame VideoFilterRunnable::run(QVideoFrame *input, const QVideoSurfaceForm
 			QVideoFrame::imageFormatFromPixelFormat(input->pixelFormat())
 		);
 
-		const int frameIdx			= std::round(input->startTime() * 0.000001 * m_globals_ptr->VIDEO_FPS());
-		const bool showDetections	= m_globals_ptr->PLAYER_SHOW_DETECTIONS();
-		const bool showPaths		= m_globals_ptr->PLAYER_SHOW_PATHS();
-		const bool showLabels		= m_globals_ptr->PLAYER_SHOW_LABELS();
-		const bool showPositions	= m_globals_ptr->PLAYER_SHOW_POSITIONS();
+		const int frameIdx = std::round(input->startTime() * 0.000001 * m_globals_ptr->VIDEO_FPS());
+		const bool showDetections = m_globals_ptr->PLAYER_SHOW_DETECTIONS();
+		const bool showPaths = m_globals_ptr->PLAYER_SHOW_PATHS();
+		const bool showLabels = m_globals_ptr->PLAYER_SHOW_LABELS();
+		const bool showPositions = m_globals_ptr->PLAYER_SHOW_POSITIONS();
 
 		std::vector<Vehicle *> vehicles = m_tracker_ptr->getVehiclesOnFrame(frameIdx);
 
@@ -55,22 +56,25 @@ QVideoFrame VideoFilterRunnable::run(QVideoFrame *input, const QVideoSurfaceForm
 		{
 			for (auto vehicle : vehicles)
 			{
-				if (showPaths) {
+				if (showPaths)
+				{
 					m_painter.setPen(m_pen_trajectory);
 					std::vector<QPoint> vehiclePositions = vehicle->getAllPositions();
 					for (int i(0); i < vehiclePositions.size() - 1; ++i)
 						m_painter.drawLine(vehiclePositions[i], vehiclePositions[i + 1]);
 				}
 
-				if (showPositions) {
+				if (showPositions)
+				{
 					m_painter.setPen(m_pen_position);
 					m_painter.drawPoint(vehicle->position(frameIdx));
 				}
 
-				if (showLabels) {
+				if (showLabels)
+				{
 					static QFontMetrics fm(m_painterFont);
 					QRect labelBackground = fm.tightBoundingRect(vehicle->className());
-					
+
 					static int marginSize = m_globals_ptr->VIDEO_HEIGHT() * 0.005f;
 					static QMargins margin(marginSize, marginSize, marginSize, marginSize);
 					labelBackground += margin;
@@ -89,9 +93,12 @@ QVideoFrame VideoFilterRunnable::run(QVideoFrame *input, const QVideoSurfaceForm
 				}
 			}
 
-			if (showDetections) {
-				for (auto detection : m_tracker_ptr->getDetections(frameIdx)) {
-					switch (detection.vehicleType()) {
+			if (showDetections)
+			{
+				for (auto detection : m_tracker_ptr->getDetections(frameIdx))
+				{
+					switch (detection.vehicleType())
+					{
 					case VehicleType::CAR:
 						m_pen_detection.setColor(QColor("blue"));
 						break;
@@ -129,14 +136,20 @@ QVideoFrame VideoFilterRunnable::run(QVideoFrame *input, const QVideoSurfaceForm
 
 
 
-void VideoFilter::setTracker(TrafficTracker *tracker)
+VideoFilter::VideoFilter(QObject * parent)
+	: QAbstractVideoFilter(parent)
+{
+	m_tracker_ptr = nullptr;
+}
+
+void VideoFilter::setTracker(TrafficTracker * tracker)
 {
 	m_tracker_ptr = tracker;
 }
 
-QVideoFilterRunnable *VideoFilter::createFilterRunnable()
+QVideoFilterRunnable * VideoFilter::createFilterRunnable()
 {
-	VideoFilterRunnable *filter = new VideoFilterRunnable(m_tracker_ptr);
+	VideoFilterRunnable * filter = new VideoFilterRunnable(m_tracker_ptr);
 
 	//connect(filter, &VideoFilterRunnable::frameDisplayed,
 	//	this, &VideoFilter::frameDisplayed);

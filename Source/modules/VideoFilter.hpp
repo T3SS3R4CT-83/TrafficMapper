@@ -1,19 +1,13 @@
 #pragma once
 
-#include <QAbstractVideoFilter>
-#include <QVideoFilterRunnable>
-#include <QQuickPaintedItem>
-#include <QMediaPlayer>
-#include <QPainter>
-#include <QPen>
-#include <QFont>
-#include <QBrush>
 
-//#include "TrafficTracker.hpp"
+#include <QVideoFilterRunnable>
+#include <QPainter>
+
 
 class TrafficTracker;
-class VideoFilter;
 class GlobalMeta;
+
 
 class VideoFilterRunnable : public QObject, public QVideoFilterRunnable
 {
@@ -27,13 +21,13 @@ class VideoFilterRunnable : public QObject, public QVideoFilterRunnable
 	QPainter m_painter;
 	QFont m_painterFont;
 
-	TrafficTracker* m_tracker_ptr;
-	GlobalMeta* m_globals_ptr;
+	TrafficTracker * m_tracker_ptr;
+	GlobalMeta * m_globals_ptr;
 
 public:
-	VideoFilterRunnable(TrafficTracker *tracker);
+	VideoFilterRunnable(TrafficTracker * tracker);
 
-	QVideoFrame run(QVideoFrame *input, const QVideoSurfaceFormat &surfaceFormat, RunFlags flags);
+	QVideoFrame run(QVideoFrame * input, const QVideoSurfaceFormat & surfaceFormat, RunFlags flags);
 
 signals:
 	void frameDisplayed(int frameIdx);
@@ -45,14 +39,16 @@ class VideoFilter :	public QAbstractVideoFilter
 {
 	Q_OBJECT
 
-	TrafficTracker *m_tracker_ptr;
+	TrafficTracker * m_tracker_ptr;
 
 public:
-	void setTracker(TrafficTracker *tracker);
+	VideoFilter(QObject * parent = nullptr);
+
+	void setTracker(TrafficTracker * tracker);
 
 private:
 	// Inherited via QAbstractVideoFilter
-	virtual QVideoFilterRunnable *createFilterRunnable() override;
+	virtual QVideoFilterRunnable * createFilterRunnable() override;
 
 signals:
 	void frameDisplayed(int frameIdx);

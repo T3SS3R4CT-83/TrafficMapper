@@ -14,9 +14,7 @@ Item {
         anchors.bottomMargin: 40
         title: "Gates"
         background: Rectangle {
-//            y: control.topPadding - control.padding
             width: parent.width
-//            height: parent.height - control.topPadding + control.padding
             border.color: "#777777"
             color: "transparent"
         }
@@ -40,14 +38,6 @@ Item {
                 elide: Text.ElideRight
                 renderType: Text.NativeRendering
             }
-
-//            Rectangle {
-//                anchors.bottom: parent.bottom
-//                anchors.horizontalCenter: parent.horizontalCenter
-//                width: parent.width - 20
-//                height: 1
-//                color: "#444444"
-//            }
         }
 
         ListView {
@@ -95,7 +85,6 @@ Item {
             border.color: isGatePlacingEnabled ? "#CD5555" : "#777777"
             color: isGatePlacingEnabled ? "#FFD1D1" : "#FFFFFF"
         }
-
         contentItem: Text {
             text: "ADD GATE"
             font.pointSize: 8
@@ -106,9 +95,7 @@ Item {
             renderType: Text.NativeRendering
         }
 
-        onClicked: {
-            isGatePlacingEnabled = !isGatePlacingEnabled
-        }
+        onClicked: isGatePlacingEnabled = !isGatePlacingEnabled
     }
 
     Button {
@@ -120,6 +107,7 @@ Item {
         text: "DELETE GATE"
         font.pointSize: 8
         enabled: gateList.count > 0
+
         background: Rectangle {
             border.color: enabled ? "#777777" : "#CCCCCC"
             color: "transparent"
@@ -127,15 +115,13 @@ Item {
         contentItem: Text {
             text: "DELETE GATE"
             font.pointSize: 8
-//            opacity: enabled ? 1.0 : 0.3
             color: enabled ? "#222222" : "#AAAAAA"
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
             renderType: Text.NativeRendering
         }
-        onClicked: {
-            gateModel.removeData(gateList.currentIndex)
-        }
+
+        onClicked: gateModel.removeData(gateList.currentIndex)
     }
 }

@@ -1,12 +1,12 @@
 #include "Gate.hpp"
 
 #include <QPainter>
-#include <QPen>
-#include <QBrush>
-#include <QMap>
+
+#include <TrafficMapper/Globals>
+#include <TrafficMapper/Types>
 
 
-Gate::Gate(QQuickItem* parent) : QQuickPaintedItem(parent)
+Gate::Gate(QQuickItem * parent) : QQuickPaintedItem(parent)
 {
 	const int frameNr = GlobalMeta::getInstance()->VIDEO_FRAMECOUNT();
 
@@ -18,27 +18,18 @@ Gate::Gate(QQuickItem* parent) : QQuickPaintedItem(parent)
 	m_statistics[VehicleType::undefined].resize(frameNr, 0);
 
 	m_counterTimeline.resize(frameNr, 0);
-    m_counter = 0;
-//	m_isDrawing = true;
+	m_counter = 0;
 }
 
-Gate::Gate(const Gate &oldGate)
+Gate::Gate(const Gate & oldGate)
 {
 	m_startPos = std::move(oldGate.m_startPos);
 	m_endPos = std::move(oldGate.m_endPos);
 	m_name = std::move(oldGate.m_name);
 	m_counter = std::move(oldGate.m_counter);
+
 	update();
 }
-
-//void Gate::operator=(const Gate &oldGate)
-//{
-//	m_startPos = std::move(oldGate.m_startPos);
-//	m_endPos = std::move(oldGate.m_endPos);
-//	m_name = std::move(oldGate.m_name);
-//	m_counter = std::move(oldGate.m_counter);
-//	update();
-//}
 
 QPoint Gate::startPos() const
 {
@@ -52,6 +43,7 @@ void Gate::setStartPos(QPoint pos)
 
 	m_startPos = pos;
 	m_gateLine.setP1(QPointF(pos.x() * scale_X, pos.y() * scale_Y));
+
 	update();
 }
 
@@ -67,6 +59,7 @@ void Gate::setEndPos(QPoint pos)
 
 	m_endPos = pos;
 	m_gateLine.setP2(QPointF(pos.x() * scale_X, pos.y() * scale_Y));
+
 	update();
 }
 
@@ -78,6 +71,7 @@ QString Gate::name() const
 void Gate::setName(QString name)
 {
 	m_name = name;
+
 	update();
 }
 
@@ -89,6 +83,7 @@ int Gate::counter() const
 void Gate::setCounter(int counter)
 {
 	m_counter = counter;
+
 	update();
 }
 
@@ -99,19 +94,12 @@ std::unordered_map<VehicleType, std::vector<int>> Gate::getStatistics() const
 
 
 
-//void Gate::checkVehiclePass(Vehicle* _vehicle, const int _frameIdx)
-//{
-//	if (m_gateLine.intersect(_vehicle->getPathSegment(_frameIdx), nullptr) == QLineF::BoundedIntersection)
-//	{
-//		++m_counterTimeline[_frameIdx];
-//		++m_statistics[_vehicle->vehicleClass()][_frameIdx];
-//	}
-//}
-int Gate::checkVehiclePass(Vehicle *vehicle)
+int Gate::checkVehiclePass(Vehicle * vehicle)
 {
 	for (auto pathSegment : vehicle->getVehiclePath())
 	{
-		if (m_gateLine.intersect(pathSegment.second, nullptr) == QLineF::BoundedIntersection) {
+		if (m_gateLine.intersect(pathSegment.second, nullptr) == QLineF::BoundedIntersection)
+		{
 			++m_counterTimeline[pathSegment.first];
 			++m_statistics[vehicle->vehicleClass()][pathSegment.first];
 			return pathSegment.first;
@@ -127,24 +115,7 @@ void Gate::buildGateTimeline()
 		m_counterTimeline[i] = m_counterTimeline[i - 1] + m_counterTimeline[i];
 }
 
-//void Gate::initGate()
-//{
-//	m_statistics.clear();
-//	m_vehicleCounter.clear();
-//	m_historyCounter.clear();
-//	for (int i(0); i < GlobalMeta::VIDEO_LENGTH; ++i)
-//		m_historyCounter[i] = 0;
-//	for (auto pair : Settings::DETECTOR_CLASSES) {
-//		m_statistics[pair.second].reserve(GlobalMeta::VIDEO_LENGTH);
-//		std::fill(
-//			std::begin(m_statistics[pair.second]),
-//			std::end(m_statistics[pair.second]),
-//			0
-//		);
-//	}
-//}
-
-void Gate::paint(QPainter* painter)
+void Gate::paint(QPainter * painter)
 {
 	painter->setRenderHint(QPainter::Antialiasing);
 
@@ -176,37 +147,6 @@ void Gate::paint(QPainter* painter)
 void Gate::onFrameDisplayed(int frameIdx)
 {
 	m_counter = m_counterTimeline[frameIdx];
+
 	update();
-	//try {
-	//	setCounter(m_historyCounter.at(frameIdx));
-	//}
-	//catch (const std::out_of_range & ex) {
-	//	setCounter(9999);
-	//}
 }
-
-//QMap<QString, QList<int>> Gate::prepGateStat(int windowSize)
-//{
-//	int windowNum = std::ceil(GlobalMeta::VIDEO_LENGTH / windowSize);
-
-//	QMap<QString, QList<int>> stat;
-//	std::vector<std::string> classNames;
-
-//	for (auto pair : Settings::DETECTOR_CLASSES) {
-//		classNames.push_back(pair.second);
-//		stat[QString(pair.second.c_str())].reserve(windowNum);
-//	}
-
-//	for (auto cName : classNames) {
-//		const QString name(cName.c_str());
-//		for (int i(0); i < windowNum; ++i) {
-//			int sum = 0;
-//			for (int j(0); j < windowSize; ++j) {
-//				sum += m_statistics[name.toStdString()][i * windowSize + j];
-//			}
-//			stat[name][i] = sum;
-//		}
-//	}
-
-//	return stat;
-//}

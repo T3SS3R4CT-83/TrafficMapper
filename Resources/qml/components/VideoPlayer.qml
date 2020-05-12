@@ -22,7 +22,7 @@ Item {
 
     Connections {
         target: tracker
-        onProgressUpdated: sliderBg.width = (slider.width - 2) * _currentFrameIdx / _allFrameNr
+        onProgressUpdated: sliderBg.width = (slider.width - 2) * currentFrameIdx / allFrameNr
     }
 
     Keys.onLeftPressed: {

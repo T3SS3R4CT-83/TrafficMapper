@@ -4,7 +4,6 @@
 #include <opencv2/dnn/dnn.hpp>
 
 #include <QObject>
-#include <QUrl>
 #include <QMutex>
 #include <QVariant>
 
@@ -22,14 +21,14 @@ class TrafficTracker : public QObject
 {
 	Q_OBJECT
 
-    GateModel *m_gateModel_ptr;
-	StatModel *m_statModel_ptr;
+	GateModel * m_gateModel_ptr;
+	StatModel * m_statModel_ptr;
 
 	std::unordered_map<int, std::vector<Detection>> m_detections;
 	std::vector<Vehicle *> m_vehicles;
 	std::unordered_map<int, std::vector<Vehicle *>> m_trajectories;
 
-	std::unordered_map<const Gate*, std::unordered_map<VehicleType, std::vector<int>>> m_statistics;
+	std::unordered_map<const Gate *, std::unordered_map<VehicleType, std::vector<int>>> m_statistics;
 	QStringList m_stat_axisX_values;
 	int m_stat_axisY_maxval;
 	std::unordered_map<VehicleType, std::vector<int>> m_stat_vtype_values;
@@ -41,42 +40,39 @@ public:
 	TrafficTracker();
 	~TrafficTracker();
 
-    void setGateModel(GateModel *_gateModel_ptr);
-    void setStatModel(StatModel *_statModel_ptr);
+	void setGateModel(GateModel * gateModel_ptr);
+	void setStatModel(StatModel * statModel_ptr);
 
-    Q_INVOKABLE void extractDetectionData(QUrl _cacheFileUrl);
+	Q_INVOKABLE void extractDetectionData(const QUrl & cacheFileUrl);
 	Q_INVOKABLE void analizeVideo();
 
 	Q_INVOKABLE void terminate();
 
-	//Q_INVOKABLE void setVideo(QUrl fileUrl);
-	//Q_INVOKABLE void unSetVideo();
+	Q_INVOKABLE void openCacheFile(const QUrl & fileUrl);
 
-	Q_INVOKABLE void openCacheFile(QUrl _fileUrl);
-	Q_INVOKABLE void exportFrames();
+	std::vector<Vehicle *> getVehiclesOnFrame(const int & frameIdx);
+	std::vector<Detection> getDetections(const int & frameIdx) const;
 
-	std::vector<Vehicle*> getVehiclesOnFrame(const int frameIdx);
-	std::vector<Detection> getDetections(const int frameIdx) const;
-
-	Q_INVOKABLE void generateStatistics(Gate * _gate_ptr, const int _interval);
+	Q_INVOKABLE void generateStatistics(Gate * gate_ptr, const int & interval);
 	Q_INVOKABLE QStringList getAxisX();
 	Q_INVOKABLE int getAxisY();
 	Q_INVOKABLE QList<QVariant> getCarValues();
 	Q_INVOKABLE QList<QVariant> getTruckValues();
 	Q_INVOKABLE QList<QVariant> getBusValues();
 
-	void onFrameDisplayed(int _frameIdx);
+	void onFrameDisplayed(const int & frameIdx);
 
 private:
-//	bool isRunning();
 	inline cv::dnn::Net initNeuralNet();
-	inline std::vector<Detection> getRawFrameDetections(const cv::Mat& _frame, cv::dnn::Net &_net);
-	//inline void filterFrameDetections(std::vector<Detection>& _frameDetections);
+	inline std::vector<Detection> getRawFrameDetections(const cv::Mat & frame, cv::dnn::Net & net);
 
-	inline void prepIOUmatrix(std::vector<std::vector<double>>& iouMatrix, const int & _tNum, const int & _dNum, std::vector<Detection>& prevDetections, std::vector<Detection>& frameDetections);
+	inline void prepIOUmatrix(std::vector<std::vector<double>> & iouMatrix,
+		const int & tNum, const int & dNum,
+		std::vector<Detection> & prevDetections,
+		std::vector<Detection> & frameDetections);
 
 signals:
 	void processTerminated();
-	void progressUpdated(int _currentFrameIdx, int _allFrameNr);
+	void progressUpdated(const int & currentFrameIdx, const int & allFrameNr);
 	void analysisStarted();
 };

@@ -1,50 +1,50 @@
 #include "FrameProvider.hpp"
 
-#include <QDebug>
 
 #include <TrafficMapper/Globals>
 
-FrameProviderThread::FrameProviderThread(FrameProvider *parent)
+
+FrameProviderThread::FrameProviderThread(FrameProvider * parent)
     : QThread(parent), m_provider_ptr(parent)
 {
     m_video = cv::VideoCapture(GlobalMeta::getInstance()->VIDEO_URL().toStdString());
 }
 
-void FrameProviderThread::setFirstFrame(const int _frameIdx)
+void FrameProviderThread::setFirstFrame(const int & frameIdx)
 {
-    m_video.set(cv::CAP_PROP_POS_FRAMES, _frameIdx);
+    m_video.set(cv::CAP_PROP_POS_FRAMES, frameIdx);
 }
 
 void FrameProviderThread::run()
 {
-	cv::Mat frame;
+    cv::Mat frame;
 
-	while (true)
-	{
-		m_provider_ptr->m_frameBufferMutex.lock();
+    while (true)
+    {
+        m_provider_ptr->m_frameBufferMutex.lock();
         if (m_provider_ptr->m_frameBuffer.size() == Settings::FRAME_BUFFER_SIZE)
-			m_provider_ptr->m_frameBufferNotFull.wait(&m_provider_ptr->m_frameBufferMutex);
-		m_provider_ptr->m_frameBufferMutex.unlock();
+            m_provider_ptr->m_frameBufferNotFull.wait(&m_provider_ptr->m_frameBufferMutex);
+        m_provider_ptr->m_frameBufferMutex.unlock();
 
-		m_video >> frame;
-		if (frame.empty()) break;
+        m_video >> frame;
+        if (frame.empty()) break;
 
         m_provider_ptr->m_frameBuffer.enqueue(frame);
 
-		m_provider_ptr->m_frameBufferMutex.lock();
-		m_provider_ptr->m_frameBufferNotEmpty.wakeAll();
-		m_provider_ptr->m_frameBufferMutex.unlock();
-	}
+        m_provider_ptr->m_frameBufferMutex.lock();
+        m_provider_ptr->m_frameBufferNotEmpty.wakeAll();
+        m_provider_ptr->m_frameBufferMutex.unlock();
+    }
 }
 
 
 
-FrameProvider::FrameProvider(const int _firstFrameIdx)
+FrameProvider::FrameProvider(const int & firstFrameIdx)
 {
     m_workerThread_ptr = new FrameProviderThread(this);
 
-    if (_firstFrameIdx > 0)
-        m_workerThread_ptr->setFirstFrame(_firstFrameIdx);
+    if (firstFrameIdx > 0)
+        m_workerThread_ptr->setFirstFrame(firstFrameIdx);
 
     m_workerThread_ptr->start();
 }
@@ -55,7 +55,7 @@ FrameProvider::~FrameProvider()
     m_workerThread_ptr->wait();
 }
 
-void FrameProvider::getNextFrame(cv::Mat &_frame)
+void FrameProvider::getNextFrame(cv::Mat & frame)
 {
     // If the buffer is empty, wait for the worker thread to fill it.
     m_frameBufferMutex.lock();
@@ -65,7 +65,7 @@ void FrameProvider::getNextFrame(cv::Mat &_frame)
 
     // Provide the cached frame and save it for later use. (To speed up the consecutive
     // requests of the same frame.)
-    _frame = m_frameBuffer.dequeue();
+    frame = m_frameBuffer.dequeue();
 
     // Wakeing the worker thread, if it's waiting for free space in the buffer.
     m_frameBufferMutex.lock();

@@ -1,11 +1,13 @@
 #include "GateModel.hpp"
 
+
 #include <TrafficMapper/Classes/Gate>
 #include <TrafficMapper/Classes/Vehicle>
 
-GateModel::GateModel(QObject *parent) : QAbstractListModel(parent) { }
 
-int GateModel::rowCount(const QModelIndex &parent) const
+GateModel::GateModel(QObject * parent) : QAbstractListModel(parent) { }
+
+int GateModel::rowCount(const QModelIndex & parent) const
 {
 	if (parent.isValid())
 		return 0;
@@ -13,12 +15,12 @@ int GateModel::rowCount(const QModelIndex &parent) const
 	return m_gateList.size();
 }
 
-QVariant GateModel::data(const QModelIndex &index, int role) const
+QVariant GateModel::data(const QModelIndex & index, int role) const
 {
 	if (!index.isValid())
 		return QVariant();
 
-	const Gate *item = m_gateList.at(index.row());
+	const Gate * item = m_gateList.at(index.row());
 
 	switch (role)
 	{
@@ -35,52 +37,52 @@ QVariant GateModel::data(const QModelIndex &index, int role) const
 	return QVariant();
 }
 
-bool GateModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool GateModel::setData(const QModelIndex & index, const QVariant & value, int role)
 {
 	const int rowIdx = index.row();
-	
+
 	if (rowIdx < 0 || rowIdx >= m_gateList.size()) return false;
 
-	Gate *item = m_gateList.at(rowIdx);
+	Gate * item = m_gateList.at(rowIdx);
 
 	switch (role)
 	{
 	case StartPosRole:
-		{
-			const QPoint newValue = value.toPoint();
-			if (item->startPos() == newValue) return false;
-			item->setStartPos(newValue);
-			break;
-		}
-	case EndPosRole:
-		{
-			const QPoint newValue = value.toPoint();
-			if (item->endPos() == newValue) return false;
-			item->setEndPos(newValue);
-			break;
-		}
-	case NameRole:
-		{
-			const QString newValue = value.toString();
-			if (item->name() == newValue) return false;
-			item->setName(newValue);
-			break;
-		}
-	case CounterRole:
-		{
-			const int newValue = value.toInt();
-			if (item->counter() == newValue) return false;
-			item->setCounter(newValue);
-			break;
-		}
+	{
+		const QPoint newValue = value.toPoint();
+		if (item->startPos() == newValue) return false;
+		item->setStartPos(newValue);
+		break;
 	}
-	   
+	case EndPosRole:
+	{
+		const QPoint newValue = value.toPoint();
+		if (item->endPos() == newValue) return false;
+		item->setEndPos(newValue);
+		break;
+	}
+	case NameRole:
+	{
+		const QString newValue = value.toString();
+		if (item->name() == newValue) return false;
+		item->setName(newValue);
+		break;
+	}
+	case CounterRole:
+	{
+		const int newValue = value.toInt();
+		if (item->counter() == newValue) return false;
+		item->setCounter(newValue);
+		break;
+	}
+	}
+
 	emit dataChanged(index, index, QVector<int>() << role);
 
 	return true;
 }
 
-Qt::ItemFlags GateModel::flags(const QModelIndex &index) const
+Qt::ItemFlags GateModel::flags(const QModelIndex & index) const
 {
 	if (!index.isValid())
 		return Qt::NoItemFlags;
@@ -92,19 +94,19 @@ QHash<int, QByteArray> GateModel::roleNames() const
 {
 	QHash<int, QByteArray> names;
 	names[StartPosRole] = "startPos";
-	names[EndPosRole]	= "endPos";
-	names[NameRole]		= "name";
-	names[CounterRole]	= "counter";
+	names[EndPosRole] = "endPos";
+	names[NameRole] = "name";
+	names[CounterRole] = "counter";
 
 	return names;
 }
 
-Gate* GateModel::getData(const int idx) const
+Gate * GateModel::getData(const int & idx) const
 {
 	return m_gateList[idx];
 }
 
-void GateModel::insertData(Gate *newGate)
+void GateModel::insertData(Gate * newGate)
 {
 	const int index = m_gateList.size();
 
@@ -113,7 +115,7 @@ void GateModel::insertData(Gate *newGate)
 	emit endInsertRows();
 }
 
-void GateModel::removeData(int index)
+void GateModel::removeData(const int & index)
 {
 	const int itemCount = m_gateList.size();
 
@@ -129,9 +131,11 @@ void GateModel::clearData()
 {
 	const int itemCount = m_gateList.size();
 
-	if (itemCount) {
+	if (itemCount)
+	{
 		emit beginRemoveRows(QModelIndex(), 0, itemCount - 1);
-		for (int i(0); i < m_gateList.size(); ++i) {
+		for (int i(0); i < m_gateList.size(); ++i)
+		{
 			delete m_gateList[i];
 		}
 		m_gateList.clear();
@@ -139,18 +143,18 @@ void GateModel::clearData()
 	}
 }
 
-void GateModel::onFrameDisplayed(int frameIdx)
+void GateModel::onFrameDisplayed(const int & frameIdx)
 {
 	for (auto gate : m_gateList)
 		gate->onFrameDisplayed(frameIdx);
 }
 
-std::vector<Gate*> GateModel::getGates() const
+std::vector<Gate *> GateModel::getGates() const
 {
 	return m_gateList;
 }
 
-void GateModel::checkVehicle(Vehicle *vehicle)
+void GateModel::checkVehicle(Vehicle * vehicle)
 {
 	for (auto gate : m_gateList)
 	{

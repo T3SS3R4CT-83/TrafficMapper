@@ -33,14 +33,6 @@ Item {
                 elide: Text.ElideRight
                 renderType: Text.NativeRendering
             }
-
-//            Rectangle {
-//                anchors.bottom: parent.bottom
-//                anchors.horizontalCenter: parent.horizontalCenter
-//                width: parent.width - 20
-//                height: 1
-//                color: "#444444"
-//            }
         }
 
         Column {
@@ -104,5 +96,4 @@ Item {
             }
         }
     }
-
 }

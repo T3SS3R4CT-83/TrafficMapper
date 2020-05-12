@@ -1,11 +1,10 @@
 #include "Vehicle.hpp"
 
-#include <opencv2/tracking/kalman_filters.hpp>
-
 #include <QLineF>
 
 #include <TrafficMapper/Globals>
-
+#include <TrafficMapper/Types>
+#include <TrafficMapper/Classes/Detection>
 
 
 class AcceleratedModel : public cv::tracking::UkfSystemModel
@@ -57,11 +56,10 @@ public:
 };
 
 
-
-Vehicle::Vehicle(const int _frameIdx, const Detection &_detection)
+Vehicle::Vehicle(const int & frameIdx, const Detection & detection)
 {
-	m_detections[_frameIdx] = _detection;
-	m_positions[_frameIdx] = _detection.getCenter();
+	m_detections[frameIdx] = detection;
+	m_positions[frameIdx] = detection.getCenter();
 	m_vehicleClass = VehicleType::undefined;
 	m_isTracked = true;
 	m_timeSinceLastHit = 0;
@@ -94,8 +92,8 @@ Vehicle::Vehicle(const int _frameIdx, const Detection &_detection)
 	errorCov.at<float>(5, 5) = 0.1;
 
 	cv::Mat initState(DP, 1, CV_32FC1);
-	initState.at<float>(0, 0) = _detection.getCenter().x();	// center X
-	initState.at<float>(1, 0) = _detection.getCenter().y();	// center Y
+	initState.at<float>(0, 0) = detection.getCenter().x();	// center X
+	initState.at<float>(1, 0) = detection.getCenter().y();	// center Y
 	initState.at<float>(2, 0) = 0.f;						// velocicy X
 	initState.at<float>(3, 0) = 0.f;						// velocity Y
 	initState.at<float>(4, 0) = 0.f;						// acceleration X
@@ -118,12 +116,14 @@ Vehicle::Vehicle(const int _frameIdx, const Detection &_detection)
 
 
 
-Detection Vehicle::detection(const int frameIdx) const
+Detection Vehicle::detection(const int & frameIdx) const
 {
-	try {
+	try
+	{
 		return m_detections.at(frameIdx);
 	}
-	catch (const std::out_of_range & ex) {
+	catch (const std::out_of_range & ex)
+	{
 		return Detection();
 	}
 }
@@ -133,17 +133,14 @@ Detection Vehicle::getLastDetection() const
 	return m_detections.rbegin()->second;
 }
 
-//void Vehicle::setDetection(const int frameIdx, const Detection &detection)
-//{
-//	m_detections[frameIdx] = detection;
-//}
-
-QPoint Vehicle::position(const int frameIdx) const
+QPoint Vehicle::position(const int & frameIdx) const
 {
-	try {
+	try
+	{
 		return m_positions.at(frameIdx);
 	}
-	catch (const std::out_of_range & ex) {
+	catch (const std::out_of_range & ex)
+	{
 		return QPoint();
 	}
 }
@@ -155,22 +152,24 @@ VehicleType Vehicle::vehicleClass()
 
 QString Vehicle::className() const
 {
-	try {
+	try
+	{
 		return Settings::DETECTOR_CLASSES.at(m_vehicleClass);
 	}
-	catch (const std::out_of_range & ex) {
+	catch (const std::out_of_range & ex)
+	{
 		return QString("undefined");
 	}
 }
 
-//int Vehicle::vehicleType() const
-//{
-//	return m_vehicleType;
-//}
-
 bool Vehicle::isTracked() const
 {
 	return m_isTracked;
+}
+
+void Vehicle::stopTracking()
+{
+	m_isTracked = false;
 }
 
 inline void Vehicle::deactivate()
@@ -179,30 +178,25 @@ inline void Vehicle::deactivate()
 	m_isTracked = false;
 }
 
-//bool Vehicle::isValid() const
-//{
-//	return m_detections.size() > 100;
-//}
-
-inline void Vehicle::initTracker(const cv::Mat &frame, const cv::Rect2d &detection)
+inline void Vehicle::initTracker(const cv::Mat & frame, const cv::Rect2d & detection)
 {
 	m_tracker.release();
 	m_tracker = (*Settings::TRACKER_ALGORITHM)();
 	m_tracker->init(frame, detection);
-	//m_isTracking = true;
 }
 
-const bool Vehicle::trackPosition(const cv::Mat &_frame, const cv::Mat &_prevFrame, const int _frameIdx)
-//const bool Vehicle::trackPosition(FrameProvider &video, const int frameIdx)
+const bool Vehicle::trackPosition(const cv::Mat & frame, const cv::Mat & prevFrame, const int & frameIdx)
 {
 	cv::Rect2d newTrack;
-	cv::Mat frame;
-	
-	if (m_tracker.empty()) {
-		initTracker(_prevFrame, m_detections[_frameIdx - 1]);
+	//cv::Mat frame;
+
+	if (m_tracker.empty())
+	{
+		initTracker(prevFrame, m_detections[frameIdx - 1]);
 	}
 
-	if (m_tracker->update(_frame, newTrack)) {
+	if (m_tracker->update(frame, newTrack))
+	{
 		//if (newTrack.x < 10
 		//	|| newTrack.y < 10
 		//	|| newTrack.x + newTrack.width > GlobalMeta::getInstance()->VIDEO_WIDTH() - 10
@@ -212,21 +206,23 @@ const bool Vehicle::trackPosition(const cv::Mat &_frame, const cv::Mat &_prevFra
 		//	return false;
 		//}
 
-		m_detections[_frameIdx] = Detection(newTrack);
-		kalmanUpdate(_frameIdx);
+		m_detections[frameIdx] = Detection(newTrack);
+		kalmanUpdate(frameIdx);
 		if (++m_timeSinceLastHit == Settings::TRACKER_VISUAL_TRACKING_LENGTH)
 			deactivate();
 		return true;
 	}
-	else {
+	else
+	{
 		deactivate();
 		return false;
 	}
 }
 
-const void Vehicle::updatePosition(const int frameIdx, const Detection &detection)
+const void Vehicle::updatePosition(const int & frameIdx, const Detection & detection)
 {
-	if (!m_tracker.empty()) {
+	if (!m_tracker.empty())
+	{
 		m_tracker.release();
 		m_timeSinceLastHit = 0;
 	}
@@ -238,7 +234,7 @@ const void Vehicle::updatePosition(const int frameIdx, const Detection &detectio
 
 void Vehicle::calcVehicleType()
 {
-	std::unordered_map<VehicleType, float> sumConf{
+	std::unordered_map<VehicleType, float> sumConf {
 		{VehicleType::CAR, 0},
 		{VehicleType::BUS, 0},
 		{VehicleType::TRUCK, 0},
@@ -258,7 +254,7 @@ void Vehicle::calcVehicleType()
 	}
 
 	auto max_element = std::max_element(std::begin(sumConf), std::end(sumConf),
-		[](const decltype(sumConf)::value_type &p1, const decltype(sumConf)::value_type &p2) {
+		[](const decltype(sumConf)::value_type & p1, const decltype(sumConf)::value_type & p2) {
 			return p1.second < p2.second;
 		});
 
@@ -272,20 +268,21 @@ std::vector<QPoint> Vehicle::getAllPositions() const
 		m_positions.begin(),
 		m_positions.end(),
 		std::back_inserter(positions),
-		[](const std::map<int, QPoint>::value_type &pair) { return pair.second; });
+		[](const std::map<int, QPoint>::value_type & pair) { return pair.second; });
 
 	return positions;
 }
 
-QLineF Vehicle::getPathSegment(const int _frameIdx)
+QLineF Vehicle::getPathSegment(const int & frameIdx)
 {
-	try {
-		return QLineF(m_positions[_frameIdx - 1], m_positions[_frameIdx]);
+	try
+	{
+		return QLineF(m_positions[frameIdx - 1], m_positions[frameIdx]);
 	}
-	catch (const std::out_of_range & ex) {
+	catch (const std::out_of_range & ex)
+	{
 		return QLineF();
 	}
-
 }
 
 std::vector<std::pair<int, QLineF>> Vehicle::getVehiclePath()
@@ -293,7 +290,7 @@ std::vector<std::pair<int, QLineF>> Vehicle::getVehiclePath()
 	return m_path;
 }
 
-inline void Vehicle::kalmanUpdate(int frameIdx)
+inline void Vehicle::kalmanUpdate(const int & frameIdx)
 {
 	m_kalmanFilter->predict();
 

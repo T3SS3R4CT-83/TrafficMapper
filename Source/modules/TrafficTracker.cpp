@@ -1,18 +1,10 @@
 #include "TrafficTracker.hpp"
 
-//#include <experimental/filesystem>
+
 #include <fstream>
-#include <unordered_set>
-#include <iomanip>
 #include <iostream>
-#include <algorithm>
 
 #include <QtConcurrent/QtConcurrent>
-#include <QMutexLocker>
-
-#include <opencv2/core/mat.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/highgui.hpp>
 
 #include <TrafficMapper/Globals>
 #include <TrafficMapper/Asserts/HungarianAlgorithm>
@@ -20,7 +12,12 @@
 #include <TrafficMapper/Modules/GateModel>
 #include <TrafficMapper/Classes/Vehicle>
 #include <TrafficMapper/Classes/Gate>
+#include <TrafficMapper/Classes/Detection>
 
+#include <cppitertools/enumerate.hpp>
+
+
+using namespace iter;
 
 
 // ========================================
@@ -30,7 +27,9 @@
 TrafficTracker::TrafficTracker()
 {
 	m_gateModel_ptr = nullptr;
+	m_statModel_ptr = nullptr;
 	m_isRunning = false;
+	m_stat_axisY_maxval = 0;
 }
 
 TrafficTracker::~TrafficTracker()
@@ -41,37 +40,37 @@ TrafficTracker::~TrafficTracker()
 
 
 
-void TrafficTracker::setGateModel(GateModel *_gateModel_ptr)
+void TrafficTracker::setGateModel(GateModel * gateModel_ptr)
 {
-    m_gateModel_ptr = _gateModel_ptr;
+	m_gateModel_ptr = gateModel_ptr;
 }
 
-void TrafficTracker::setStatModel(StatModel* _statModel_ptr)
+void TrafficTracker::setStatModel(StatModel * statModel_ptr)
 {
-	m_statModel_ptr = _statModel_ptr;
+	m_statModel_ptr = statModel_ptr;
 }
 
-void TrafficTracker::extractDetectionData(QUrl _cacheFileUrl)
+void TrafficTracker::extractDetectionData(const QUrl & cacheFileUrl)
 {
 	m_isRunning = true;
 
-    QtConcurrent::run([this, _cacheFileUrl]()
-    {
-		GlobalMeta* globals = GlobalMeta::getInstance();
+	QtConcurrent::run([this, cacheFileUrl]() {
+		GlobalMeta * globals = GlobalMeta::getInstance();
 		const int allFrameNr = globals->VIDEO_FRAMECOUNT();
 		const int videoWidth = globals->VIDEO_WIDTH();
 		const int videoHeight = globals->VIDEO_HEIGHT();
 
-		openCacheFile(_cacheFileUrl);
+		openCacheFile(cacheFileUrl);
 
-		std::fstream cacheFile(_cacheFileUrl.toLocalFile().toStdString(), std::fstream::out | std::fstream::app);
+		std::fstream cacheFile(cacheFileUrl.toLocalFile().toStdString(), std::fstream::out | std::fstream::app);
 		FrameProvider video(m_detections.size());
-        cv::Mat frame;
+		cv::Mat frame;
 		cv::dnn::Net net = initNeuralNet();
 
 		for (int frameIdx(m_detections.size()); frameIdx < allFrameNr; ++frameIdx)
 		{
-			if (!m_isRunning) {
+			if (!m_isRunning)
+			{
 				emit processTerminated();
 				break;
 			}
@@ -83,7 +82,8 @@ void TrafficTracker::extractDetectionData(QUrl _cacheFileUrl)
 
 			std::vector<Detection> frameDetections = getRawFrameDetections(frame, net);
 			cacheFile << frameIdx << " " << frameDetections.size() << "\n";
-			for (auto detection : frameDetections) {
+			for (auto detection : frameDetections)
+			{
 				cacheFile << detection;
 			}
 		}
@@ -91,7 +91,7 @@ void TrafficTracker::extractDetectionData(QUrl _cacheFileUrl)
 		cacheFile.close();
 
 		emit processTerminated();
-    });
+		});
 }
 
 void TrafficTracker::analizeVideo()
@@ -101,14 +101,13 @@ void TrafficTracker::analizeVideo()
 	m_vehicles.clear();
 	m_trajectories.clear();
 
-	QtConcurrent::run([this]()
-	{
+	QtConcurrent::run([this]() {
 		emit analysisStarted();
 
 		FrameProvider video;
 		cv::Mat frame, prevFrame;
 
-		std::vector<Vehicle*> activeTracks;
+		std::vector<Vehicle *> activeTracks;
 
 		//cv::dnn::Net net = initNeuralNet();
 
@@ -127,10 +126,12 @@ void TrafficTracker::analizeVideo()
 			// Trying to read the cached detection data of the frame.
 			// If cannot, use DNN to get vehicle detections.
 			std::vector<Detection> frameDetections;
-			try {
+			try
+			{
 				frameDetections = m_detections.at(frameIdx);
 			}
-			catch (std::out_of_range& ex) {
+			catch (std::out_of_range & ex)
+			{
 				//frameDetections = getRawFrameDetections(frame, net);
 				//filterFrameDetections(frameDetections);
 			}
@@ -155,27 +156,30 @@ void TrafficTracker::analizeVideo()
 				HungarianAlgorithm::Solve(iouMatrix, assignment);
 			}
 
-			for (auto [i, vehicle_ptr] : enumerate(activeTracks))
+			for (auto&& [i, vehicle_ptr] : enumerate(activeTracks))
 			{
-				if (assignment[i] != -1 && iouMatrix[i][assignment[i]] <= Settings::TRACKER_IOU_TRESHOLD) {
+				if (assignment[i] != -1 && iouMatrix[i][assignment[i]] <= Settings::TRACKER_IOU_TRESHOLD)
+				{
 					vehicle_ptr->updatePosition(frameIdx, frameDetections[assignment[i]]);
 					m_trajectories[frameIdx].push_back(vehicle_ptr);
 				}
-				else {
-					vehicle_ptr->m_isTracked = false;
+				else
+				{
+					vehicle_ptr->stopTracking();
 					assignment[i] = -1;
-					if (vehicle_ptr->trackPosition(frame, prevFrame, frameIdx)) {
+					if (vehicle_ptr->trackPosition(frame, prevFrame, frameIdx))
+					{
 						m_trajectories[frameIdx].push_back(vehicle_ptr);
 					}
 				}
 			}
 
-			for (auto [i, detection] : enumerate(frameDetections))
+			for (auto&& [i, detection] : enumerate(frameDetections))
 			{
 				//if (std::none_of(std::begin(assignment), std::end(assignment), i))
 				if (std::find(std::begin(assignment), std::end(assignment), i) == std::end(assignment))
 				{
-					Vehicle* newVehicle = new Vehicle(frameIdx, detection);
+					Vehicle * newVehicle = new Vehicle(frameIdx, detection);
 					m_vehicles.push_back(newVehicle);
 					m_trajectories[frameIdx].push_back(newVehicle);
 					activeTracks.push_back(newVehicle);
@@ -186,9 +190,7 @@ void TrafficTracker::analizeVideo()
 				std::remove_if(
 					activeTracks.begin(),
 					activeTracks.end(),
-					[](Vehicle *vehicle_ptr) {
-						return !vehicle_ptr->isTracked();
-					}
+					[](Vehicle * vehicle_ptr) { return !vehicle_ptr->isTracked(); }
 				),
 				activeTracks.end()
 			);
@@ -213,45 +215,41 @@ void TrafficTracker::analizeVideo()
 
 
 inline void TrafficTracker::prepIOUmatrix(
-	std::vector<std::vector<double>>& _iouMatrix,
-	const int& _tNum, const int& _dNum,
-	std::vector<Detection>& _prevDetections,
-	std::vector<Detection>& _frameDetections)
+	std::vector<std::vector<double>> & iouMatrix,
+	const int & tNum, const int & dNum,
+	std::vector<Detection> & prevDetections,
+	std::vector<Detection> & frameDetections)
 {
-	_iouMatrix.resize(_tNum);
-	for (int vehicleIdx(0); vehicleIdx < _tNum; ++vehicleIdx)
+	iouMatrix.resize(tNum);
+	for (int vehicleIdx(0); vehicleIdx < tNum; ++vehicleIdx)
 	{
-		_iouMatrix[vehicleIdx].resize(_dNum);
-		for (int detectionIdx(0); detectionIdx < _dNum; ++detectionIdx)
+		iouMatrix[vehicleIdx].resize(dNum);
+		for (int detectionIdx(0); detectionIdx < dNum; ++detectionIdx)
 		{
-			float iou = -1 * Detection::iou(_prevDetections[vehicleIdx], _frameDetections[detectionIdx]);
-			_iouMatrix[vehicleIdx][detectionIdx] = iou;
-			//_iouMatrix[vehicleIdx][detectionIdx] = (iou <= Settings::TRACKER_IOU_TRESHOLD) ? iou : 0.f;
+			float iou = -1 * Detection::iou(prevDetections[vehicleIdx], frameDetections[detectionIdx]);
+			iouMatrix[vehicleIdx][detectionIdx] = iou;
 		}
 	}
 }
 
 void TrafficTracker::terminate()
 {
-//	QMutexLocker locker(&m_runningMutex);
+	QMutexLocker locker(&m_runningMutex);
+
 	m_isRunning = false;
 }
 
-std::vector<Vehicle *> TrafficTracker::getVehiclesOnFrame(const int frameIdx)
+std::vector<Vehicle *> TrafficTracker::getVehiclesOnFrame(const int & frameIdx)
 {
-	try {
+	try
+	{
 		return m_trajectories.at(frameIdx);
 	}
-	catch (const std::out_of_range & ex) {
-		return std::vector<Vehicle*>();
+	catch (const std::out_of_range & ex)
+	{
+		return std::vector<Vehicle *>();
 	}
 }
-
-//bool TrafficTracker::isRunning()
-//{
-//	QMutexLocker locker(&m_runningMutex);
-//	return m_isRunning;
-//}
 
 inline cv::dnn::Net TrafficTracker::initNeuralNet()
 {
@@ -262,9 +260,9 @@ inline cv::dnn::Net TrafficTracker::initNeuralNet()
 	return net;
 }
 
-inline std::vector<Detection> TrafficTracker::getRawFrameDetections(const cv::Mat& _frame, cv::dnn::Net &_net)
+inline std::vector<Detection> TrafficTracker::getRawFrameDetections(const cv::Mat & frame, cv::dnn::Net & net)
 {
-	GlobalMeta* globals = GlobalMeta::getInstance();
+	GlobalMeta * globals = GlobalMeta::getInstance();
 
 	const int videoWidth = globals->VIDEO_WIDTH();
 	const int videoHeight = globals->VIDEO_HEIGHT();
@@ -273,14 +271,14 @@ inline std::vector<Detection> TrafficTracker::getRawFrameDetections(const cv::Ma
 	std::vector<cv::Mat> outs;
 	std::vector<Detection> frameDetections;
 
-	cv::dnn::blobFromImage(_frame, blob, 1 / 255.0, Settings::DETECTOR_DNN_BLOB_SIZE, cv::Scalar(), false, false, CV_32F);
+	cv::dnn::blobFromImage(frame, blob, 1 / 255.0, Settings::DETECTOR_DNN_BLOB_SIZE, cv::Scalar(), false, false, CV_32F);
 
-	_net.setInput(blob);
-	_net.forward(outs, _net.getUnconnectedOutLayersNames());
+	net.setInput(blob);
+	net.forward(outs, net.getUnconnectedOutLayersNames());
 
 	for (auto layer : outs)
 	{
-		float* data = (float*)layer.data;
+		float * data = (float *)layer.data;
 		for (int detIdx = 0; detIdx < layer.rows; ++detIdx, data += layer.cols)
 		{
 			cv::Mat scores = layer.row(detIdx).colRange(5, layer.cols);
@@ -305,66 +303,15 @@ inline std::vector<Detection> TrafficTracker::getRawFrameDetections(const cv::Ma
 	return frameDetections;
 }
 
-//inline void TrafficTracker::filterFrameDetections(std::vector<Detection>& _frameDetections)
-//{
-//	GlobalMeta* globals = GlobalMeta::getInstance();
-//
-//	// Removing detections which's confidence score is too low or they're too close to the frame border.
-//	_frameDetections.erase(
-//		std::remove_if(
-//			_frameDetections.begin(),
-//			_frameDetections.end(),
-//			[globals](const Detection detection) {
-//				return detection.confidence() < Settings::DETECTOR_CONF_THRESHOLD
-//					|| detection.x < Settings::DETECTOR_CLIP_TRESHOLD
-//					|| detection.y < Settings::DETECTOR_CLIP_TRESHOLD
-//					|| detection.x + detection.width > globals->VIDEO_WIDTH() - Settings::DETECTOR_CLIP_TRESHOLD
-//					|| detection.y + detection.height > globals->VIDEO_HEIGHT() - Settings::DETECTOR_CLIP_TRESHOLD;
-//			}
-//		),
-//		_frameDetections.end()
-//	);
-//
-//	// Sort by confidence scores in descending order.
-//	std::stable_sort(_frameDetections.begin(), _frameDetections.end(),
-//		[](const Detection& det_1, const Detection& det_2) {
-//			return det_1.confidence() > det_2.confidence();
-//		});
-//
-//	// Run NMS (Non-Maximum Supression) on the stack and mark the removable items.
-//	for (auto it_higher = std::begin(_frameDetections); it_higher < std::end(_frameDetections) - 1; ++it_higher)
-//	{
-//		if (it_higher->deletable()) continue;
-//		for (auto it_lower = it_higher + 1; it_lower != std::end(_frameDetections); ++it_lower)
-//		{
-//			const float iou = Detection::iou(*it_higher, *it_lower);
-//			if (iou > Settings::DETECTOR_NMS_THRESHOLD)
-//				it_lower->markToDelete();
-//		}
-//	}
-//
-//	// Removing the marked detections.
-//	_frameDetections.erase(
-//		std::remove_if(
-//			_frameDetections.begin(),
-//			_frameDetections.end(),
-//			[](const Detection detection) {
-//				return detection.deletable();
-//			}
-//		),
-//		_frameDetections.end()
-//	);
-//}
-
-void TrafficTracker::openCacheFile(QUrl _fileUrl)
+void TrafficTracker::openCacheFile(const QUrl & fileUrl)
 {
 	m_detections.clear();
 
-	GlobalMeta* globals = GlobalMeta::getInstance();
+	GlobalMeta * globals = GlobalMeta::getInstance();
 
 	int frameIdx, detNum;
 
-	std::ifstream ifs(_fileUrl.toLocalFile().toStdString());
+	std::ifstream ifs(fileUrl.toLocalFile().toStdString());
 
 	while (ifs >> frameIdx)
 	{
@@ -379,7 +326,7 @@ void TrafficTracker::openCacheFile(QUrl _fileUrl)
 			frameDetections.push_back(detection);
 		}
 
-//		filterFrameDetections(frameDetections);
+		//		filterFrameDetections(frameDetections);
 
 		m_detections[frameIdx] = frameDetections;
 	}
@@ -387,65 +334,26 @@ void TrafficTracker::openCacheFile(QUrl _fileUrl)
 	ifs.close();
 }
 
-void TrafficTracker::exportFrames()
+std::vector<Detection> TrafficTracker::getDetections(const int & frameIdx) const
 {
-	m_isRunning = true;
-
-	QtConcurrent::run([this]()
+	try
 	{
-		cv::Mat frame;
-		FrameProvider video;
-
-		for (int i(0); ; ++i)
-		{
-			if (!m_isRunning) {
-				emit processTerminated();
-				break;
-			}
-
-			emit progressUpdated(i, GlobalMeta::getInstance()->VIDEO_FRAMECOUNT());
-
-			video.getNextFrame(frame);
-
-			if (frame.empty()) break;
-
-			for (auto det : m_detections[i])
-			{
-				cv::rectangle(frame, det, cv::Scalar(255, 0, 0), 2);
-			}
-
-			// TODO: Remove later
-			cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE); // Create a window for display.
-			cv::imshow("Display window", frame);
-			cv::waitKey(0);
-
-			std::stringstream fileName("");
-			fileName << "D:\\Videos\\Export\\" << std::setfill('0') << std::setw(5) << i << ".png";
-			cv::imwrite(fileName.str(), frame);
-		}
-
-		emit processTerminated();
-	});
-}
-
-std::vector<Detection> TrafficTracker::getDetections(const int frameIdx) const
-{
-	try {
 		return m_detections.at(frameIdx);
 	}
-	catch (const out_of_range & ex) {
+	catch (const out_of_range & ex)
+	{
 		return std::vector<Detection>();
 	}
 }
 
-void TrafficTracker::generateStatistics(Gate* _gate_ptr, const int _interval)
+void TrafficTracker::generateStatistics(Gate * gate_ptr, const int & interval)
 {
-	const int intNr = std::ceil(GlobalMeta::getInstance()->VIDEO_LENGTH() / _interval * 0.001f);
-	const int intSize = GlobalMeta::getInstance()->VIDEO_FPS() * _interval;
+	const int intNr = std::ceil(GlobalMeta::getInstance()->VIDEO_LENGTH() / interval * 0.001f);
+	const int intSize = GlobalMeta::getInstance()->VIDEO_FPS() * interval;
 
 	// TODO: Remove later
-	_gate_ptr = m_gateModel_ptr->getGates()[0];
-	auto stat = _gate_ptr->getStatistics();
+	gate_ptr = m_gateModel_ptr->getGates()[0];
+	auto stat = gate_ptr->getStatistics();
 	m_stat_axisY_maxval = 0;
 
 	m_stat_axisX_values.clear();
@@ -484,8 +392,8 @@ void TrafficTracker::generateStatistics(Gate* _gate_ptr, const int _interval)
 
 	for (int i(1); i <= intNr; ++i)
 	{
-		const int minutes = i * _interval / 60;
-		const int seconds = i * _interval % 60;
+		const int minutes = i * interval / 60;
+		const int seconds = i * interval % 60;
 
 		m_stat_axisX_values << QString("%1:%2").arg(minutes).arg(seconds);
 	}
@@ -537,7 +445,7 @@ QList<QVariant> TrafficTracker::getBusValues()
 	return values;
 }
 
-void TrafficTracker::onFrameDisplayed(int _frameIdx)
+void TrafficTracker::onFrameDisplayed(const int & frameIdx)
 {
-	m_gateModel_ptr->onFrameDisplayed(_frameIdx);
+	m_gateModel_ptr->onFrameDisplayed(frameIdx);
 }

@@ -1,24 +1,23 @@
 #include "Detection.hpp"
 
-#include <algorithm>
+#include <QPoint>
 
 
 // ========================================
 //             CONSTRUCTORS
 // ========================================
 
-Detection::Detection()
-	: cv::Rect2d()
+Detection::Detection() : cv::Rect2d()
 {
 	m_vehicleType = VehicleType::undefined;
 	m_confidence = 0;
 }
 
-Detection::Detection(const int _x, const int _y, const int _width, const int _height, const VehicleType _vehicleType, const float _confidence)
-	: cv::Rect2d(_x, _y, _width, _height), m_vehicleType(_vehicleType), m_confidence(_confidence) { }
+Detection::Detection(const size_t &x, const size_t &y, const size_t &width, const size_t &height, const VehicleType &vehicleType, const float &confidence)
+	: cv::Rect2d(x, y, width, height), m_vehicleType(vehicleType), m_confidence(confidence) { }
 
-Detection::Detection(const cv::Rect2d & _old, const VehicleType _vehicleClass, const float _confidence)
-	: cv::Rect2d(_old), m_vehicleType(_vehicleClass), m_confidence(_confidence) { }
+Detection::Detection(const cv::Rect2d & old, const VehicleType & vehicleClass, const float & confidence)
+	: cv::Rect2d(old), m_vehicleType(vehicleClass), m_confidence(confidence) { }
 
 
 
@@ -26,25 +25,25 @@ Detection::Detection(const cv::Rect2d & _old, const VehicleType _vehicleClass, c
 //               OPERATORS
 // ========================================
 
-Detection &Detection::operator=(const cv::Rect2d &_old)
+Detection Detection::operator=(const cv::Rect2d & old)
 {
-	Detection detection(_old);
+	Detection detection(old);
 
 	return detection;
 }
 
-std::ostream &operator<<(std::ostream &_os, const Detection &_det)
+std::ostream & operator<<(std::ostream & oStream, const Detection & det)
 {
-	_os << _det.m_vehicleType << " " << _det.m_confidence << " " << _det.x << " " << _det.y << " " << _det.width << " " << _det.height << '\n';
-	
-	return _os;
+	oStream << det.m_vehicleType << ' ' << det.m_confidence << ' ' << det.x << ' ' << det.y << ' ' << det.width << ' ' << det.height << '\n';
+
+	return oStream;
 }
 
-std::istream &operator>>(std::istream &_is, Detection &_det)
+std::istream & operator>>(std::istream & iStream, Detection & det)
 {
-	_is >> _det.m_vehicleType >> _det.m_confidence >> _det.x >> _det.y >> _det.width >> _det.height;
+	iStream >> det.m_vehicleType >> det.m_confidence >> det.x >> det.y >> det.width >> det.height;
 
-	return _is;
+	return iStream;
 }
 
 
@@ -80,18 +79,18 @@ QPoint Detection::getCenter() const
 //            STATIC FUNCTIONS
 // ========================================
 
-float Detection::iou(const cv::Rect2d &lhs, const cv::Rect2d &rhs)
+float Detection::iou(const cv::Rect2d & rect_1, const cv::Rect2d & rect_2)
 {
-	const cv::Rect2d intersection = lhs & rhs;
+	const cv::Rect2d intersection = rect_1 & rect_2;
 	const float area_int = intersection.area();
 
 	if (area_int == 0) return 0.f;
 
-	if (intersection.area() == lhs.area() || intersection.area() == rhs.area())
+	if (intersection.area() == rect_1.area() || intersection.area() == rect_2.area())
 		return 1.f;
 
-	const float area_lhs = lhs.area();
-	const float area_rhs = rhs.area();
+	const float area_rect_1 = rect_1.area();
+	const float area_rect_2 = rect_2.area();
 
-	return area_int / (area_rhs + area_lhs - area_int);
+	return area_int / (area_rect_1 + area_rect_2 - area_int);
 }

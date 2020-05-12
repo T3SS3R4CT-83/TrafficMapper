@@ -19,6 +19,7 @@
     <ClInclude Include="Source\includes\TrafficMapper\Modules\TrafficTracker" />
     <ClInclude Include="Source\includes\TrafficMapper\Modules\VideoFilter" />
     <ClInclude Include="Source\modules\FrameProvider.hpp" />
+    <ClInclude Include="Types.hpp" />
     <QtMoc Include="Source\modules\StatModel.hpp" />
     <QtMoc Include="Source\modules\VideoFilter.hpp" />
     <QtMoc Include="Source\modules\TrafficTracker.hpp" />
@@ -36,6 +37,7 @@
     <ClCompile Include="Source\classes\Detection.cpp" />
     <ClCompile Include="Source\classes\Gate.cpp" />
     <ClCompile Include="Source\classes\Vehicle.cpp" />
+    <ClCompile Include="Source\includes\TrafficMapper\Types" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Globals.cpp" />
     <ClCompile Include="Source\modules\FrameProvider.cpp" />
@@ -43,6 +45,7 @@
     <ClCompile Include="Source\modules\StatModel.cpp" />
     <ClCompile Include="Source\modules\TrafficTracker.cpp" />
     <ClCompile Include="Source\modules\VideoFilter.cpp" />
+    <ClCompile Include="Types.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
@@ -97,6 +100,7 @@
     <InstrumentIntelTBB>false</InstrumentIntelTBB>
     <UseIntelMKL>No</UseIntelMKL>
     <UseILP64Interfaces>false</UseILP64Interfaces>
+    <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
@@ -114,13 +118,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(ProjectDir)Source\includes;C:\Frameworks\OpenCV\include;$(Qt_INCLUDEPATH_);$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)Build\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>Build\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\$(Platform)\$(Configuration)\</IntDir>
     <LibraryPath>C:\Frameworks\OpenCV\x64\vc16\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(ProjectDir)Source\includes;C:\Frameworks\OpenCV\include;$(Qt_INCLUDEPATH_);$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)Build\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>Build\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)Binary\</OutDir>
+    <IntDir>$(SolutionDir)Build\$(Platform)\$(Configuration)\</IntDir>
     <LibraryPath>C:\Frameworks\OpenCV\x64\vc16\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
@@ -151,6 +155,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;D:\GitHub\opencv_build\install\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -171,6 +176,7 @@
       <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;D:\GitHub\opencv_build\install\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Optimization>MaxSpeed</Optimization>
+      <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

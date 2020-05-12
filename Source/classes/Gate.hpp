@@ -1,15 +1,12 @@
 #pragma once
 
-#include <vector>
-
 #include <QQuickPaintedItem>
 #include <QLineF>
 
-#include <TrafficMapper/Globals>
 #include <TrafficMapper/Classes/Vehicle>
 
 
-class Vehicle;
+enum class VehicleType : int;
 
 
 class Gate : public QQuickPaintedItem
@@ -30,14 +27,9 @@ class Gate : public QQuickPaintedItem
 	std::unordered_map<VehicleType, std::vector<int>> m_statistics;
 	std::vector<int> m_counterTimeline;
 
-	//std::map<int, std::vector<Vehicle*>> m_vehicleCounter;
-	//std::map<std::string, std::vector<int>> m_stat;
-
 public:
-    Gate(QQuickItem* parent = nullptr);
-	Gate(const Gate &oldGate);
-
-//	void operator=(const Gate &oldGate);
+	Gate(QQuickItem * parent = nullptr);
+	Gate(const Gate & oldGate);
 
 	QPoint startPos() const;
 	void setStartPos(QPoint pos);
@@ -50,19 +42,16 @@ public:
 
 	std::unordered_map<VehicleType, std::vector<int>> getStatistics() const;
 
-//	void initGate();
-	//void checkVehiclePass(Vehicle* _vehicle, const int _frameIdx);
-	int checkVehiclePass(Vehicle *vehicle);
+	int checkVehiclePass(Vehicle * vehicle);
 	void buildGateTimeline();
 	void onFrameDisplayed(int frameIdx);
-//	QMap<QString, QList<int>> prepGateStat(int windowSize);
 
 private:
 	// Inherited via QQuickPaintedItem
-	virtual void paint(QPainter* painter) override;
+	virtual void paint(QPainter * painter) override;
 
 signals:
 	void valueChanged();
 };
 
-Q_DECLARE_METATYPE(Gate)
+//Q_DECLARE_METATYPE(Gate)

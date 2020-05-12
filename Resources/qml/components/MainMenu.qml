@@ -52,14 +52,6 @@ MenuBar {
     Menu {
         title: "Traffic analysis"
 
-//        MenuItem {
-//            text: "Extract detection data"
-//            enabled: videoPlayer.isVideoLoaded
-//            onTriggered: dlgSaveCache.open()
-//        }
-
-//        MenuSeparator {}
-
         MenuItem {
             text: "Analize traffic video"
             enabled: videoPlayer.isVideoLoaded
@@ -78,17 +70,4 @@ MenuBar {
             onTriggered: statWindow.open()
         }
     }
-
-//    Menu {
-//        title: "Other"
-//
-//        MenuItem {
-//            text: "Open stat window"
-//            onTriggered: {
-//                var component = Qt.createComponent("StatWindow.qml")
-//                mainWindow.statWindow = component.createObject(mainWindow)
-//                mainWindow.statWindow.closing.connect(mainWindow.statWindow.destroy)
-//            }
-//        }
-//    }
 }

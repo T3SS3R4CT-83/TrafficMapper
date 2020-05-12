@@ -3,44 +3,11 @@
 
 #include <opencv2/tracking/tracker.hpp>
 
-std::istream& operator>>(std::istream& _is, VehicleType& _vType)
-{
-    std::string value;
-    _is >> value;
-    _vType = VehicleType(std::stoi(value));
-
-    return _is;
-}
-
-std::ostream& operator<<(std::ostream& _is, const VehicleType& _vType)
-{
-    _is << static_cast<int>(_vType);
-
-    return _is;
-}
-
 namespace Settings
 {
-#ifdef YOLOv3_SPP
-    const char * DETECTOR_CONFIG_PATH       = "T:\\Models\\yolov3-spp.cfg";
-    const char * DETECTOR_WEIGHTS_PATH      = "T:\\Models\\yolov3-spp.weights";
-    const cv::Size DETECTOR_DNN_BLOB_SIZE   = cv::Size(416, 416);
-#endif // !YOLOv3_SPP
-#ifdef YOLOv3_608
-    const char * DETECTOR_CONFIG_PATH       = "T:\\Models\\yolov3.cfg";
-    const char * DETECTOR_WEIGHTS_PATH      = "T:\\Models\\yolov3.weights";
+    const char * DETECTOR_CONFIG_PATH       = "T:\\Models\\yolov3_TM.cfg";
+    const char * DETECTOR_WEIGHTS_PATH      = "T:\\Models\\yolov3_TM.weights";
     const cv::Size DETECTOR_DNN_BLOB_SIZE   = cv::Size(608, 608);
-#endif // !YOLOv3_608
-#ifdef YOLOv3_416
-    const char * DETECTOR_CONFIG_PATH       = "T:\\Models\\yolov3.cfg";
-    const char * DETECTOR_WEIGHTS_PATH      = "T:\\Models\\yolov3.weights";
-    const cv::Size DETECTOR_DNN_BLOB_SIZE   = cv::Size(416, 416);
-#endif // !YOLO3v3_416
-#ifdef YOLOv3_320
-    const char * DETECTOR_CONFIG_PATH       = "T:\\Models\\yolov3.cfg";
-    const char * DETECTOR_WEIGHTS_PATH      = "T:\\Models\\yolov3.weights";
-    const cv::Size DETECTOR_DNN_BLOB_SIZE   = cv::Size(320, 320);
-#endif // !YOLOv3_320
 
     const float DETECTOR_CONF_THRESHOLD = 0.5f;
     const float DETECTOR_NMS_THRESHOLD = 0.5f;

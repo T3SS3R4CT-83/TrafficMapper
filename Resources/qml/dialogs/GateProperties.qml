@@ -3,15 +3,12 @@ import QtQuick.Controls 2.14
 import QtQuick.Dialogs 1.2
 
 Dialog {
-
-    id: gatePropertiesDialog
+    id: dlgGateProperties
     width: 300
     height: 90
     title: "Gate properties"
     standardButtons: StandardButton.Ok | StandardButton.Cancel
     visible: false
-
-
 
     Text {
         id: lblInputFieldName
@@ -28,7 +25,6 @@ Dialog {
         y: 10
         width: parent.width - lblInputFieldName.width - 26
         height: 20
-//        padding: 3
         text: ""
         font.pixelSize: 12
         focus: true
@@ -44,8 +40,6 @@ Dialog {
         border.color: "#AAAAAA"
     }
 
-
-
     onVisibilityChanged: {
         if (visible) inputGateName.forceActiveFocus()
     }
@@ -55,6 +49,7 @@ Dialog {
         gateModel.insertData(videoPlayer.currentGateItem)
         inputGateName.text = ""
     }
+
     onRejected: {
         videoPlayer.currentGateItem.destroy()
     }

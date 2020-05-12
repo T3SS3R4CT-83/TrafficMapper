@@ -1,15 +1,14 @@
 #include "StatModel.hpp"
 
+
 #include <TrafficMapper/Classes/Gate>
 #include <TrafficMapper/Classes/Vehicle>
 #include <TrafficMapper/Modules/GateModel>
 #include <TrafficMapper/Globals>
 
-#include <QDebug>
 
-
-
-StatModel::StatModel(QObject* parent) : QAbstractItemModel(parent)
+StatModel::StatModel(QObject * parent)
+	: QAbstractItemModel(parent)
 {
 	m_asdf = 2;
 
@@ -28,42 +27,41 @@ StatModel::StatModel(QObject* parent) : QAbstractItemModel(parent)
 
 
 
-void StatModel::setGateModel(GateModel* gateModel_ptr)
+void StatModel::setGateModel(GateModel * gateModel_ptr)
 {
 	m_gateModel_ptr = gateModel_ptr;
 }
 
 
 
-Q_INVOKABLE QModelIndex StatModel::index(int row, int column, const QModelIndex& parent) const
+Q_INVOKABLE QModelIndex StatModel::index(int row, int column, const QModelIndex & parent) const
 {
 	return QAbstractItemModel::createIndex(row, column);
-	//return QModelIndex();
 }
 
-Q_INVOKABLE QModelIndex StatModel::parent(const QModelIndex& child) const
+Q_INVOKABLE QModelIndex StatModel::parent(const QModelIndex & child) const
 {
 	return Q_INVOKABLE QModelIndex();
 }
 
-Q_INVOKABLE int StatModel::rowCount(const QModelIndex& parent) const
+Q_INVOKABLE int StatModel::rowCount(const QModelIndex & parent) const
 {
 	return m_displayedData.size();
 }
 
-Q_INVOKABLE int StatModel::columnCount(const QModelIndex& parent) const
+Q_INVOKABLE int StatModel::columnCount(const QModelIndex & parent) const
 {
 	return m_displayedData[0].size();
 }
 
-Q_INVOKABLE QVariant StatModel::data(const QModelIndex& index, int role) const
+Q_INVOKABLE QVariant StatModel::data(const QModelIndex & index, int role) const
 {
 	return Q_INVOKABLE QVariant(m_displayedData[index.row()][index.column()]);
 }
 
-QVariant StatModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant StatModel::headerData(int section, Qt::Orientation orientation, const int role) const
 {
-	QStringList legend = { "Cars", "Buses", "Trucks", "Motorcycles", "Bicycles" };
+	QStringList legend = {"Cars", "Buses", "Trucks", "Motorcycles", "Bicycles"};
 
 	if (section < 5)
 		return QVariant(legend[section]);
@@ -73,7 +71,7 @@ QVariant StatModel::headerData(int section, Qt::Orientation orientation, int rol
 
 
 
-void StatModel::updateStat(Gate* gate, int intervalSize)
+void StatModel::updateStat(Gate * gate, const int & intervalSize)
 {
 	m_intervalNr = std::ceil(GlobalMeta::getInstance()->VIDEO_LENGTH() / intervalSize * 0.001f);
 	const int intSize = GlobalMeta::getInstance()->VIDEO_FPS() * intervalSize;
@@ -83,7 +81,6 @@ void StatModel::updateStat(Gate* gate, int intervalSize)
 	for (int i(0); i < m_intervalNr; ++i)
 		m_displayedData[i].resize(5, 0);
 
-	//auto gateData = m_data.begin()->second;
 	auto gateData = m_data.at(gate);
 	for (int frameIdx(0); frameIdx < GlobalMeta::getInstance()->VIDEO_FRAMECOUNT(); ++frameIdx)
 		for (int vClass(0); vClass < 5; ++vClass)
@@ -132,7 +129,7 @@ void StatModel::initModel()
 	}
 }
 
-void StatModel::onGatePass(Vehicle* vehicle, Gate* gate, int frameIdx)
+void StatModel::onGatePass(Vehicle * vehicle, Gate * gate, int frameIdx)
 {
 	++(m_data[gate][(int)vehicle->vehicleClass()][frameIdx]);
 }

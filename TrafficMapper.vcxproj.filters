@@ -88,6 +88,9 @@
     <ClInclude Include="Source\modules\FrameProvider.hpp">
       <Filter>Source Files\Modules</Filter>
     </ClInclude>
+    <ClInclude Include="Types.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\main.cpp">
@@ -122,6 +125,12 @@
     </ClCompile>
     <ClCompile Include="Source\modules\StatModel.cpp">
       <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Types.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\includes\TrafficMapper\Types">
+      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

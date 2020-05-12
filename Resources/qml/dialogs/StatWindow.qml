@@ -2,12 +2,10 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Dialogs 1.2
 import QtCharts 2.14
-//import QtQuick.Controls.Styles 1.4
 
 import com.elte.t3ss3r4ct 1.0
 
 Dialog {
-
     id: statWindow
     width: 1000
     height: 600
@@ -109,7 +107,6 @@ Dialog {
 //                BarSet { label: "Susan"; values: [5, 1, 2, 4, 1, 7] }
 //                BarSet { label: "James"; values: [3, 5, 8, 13, 5, 8] }
 
-
                 axisX: BarCategoryAxis {
                     id: x_axis
                     categories: statModel.axis_X_labels
@@ -133,6 +130,8 @@ Dialog {
     }
 
     DlgSaveChart { id: dlgSaveChart }
+
+
 
     function updateGraph(gate, interval) {
         statModel.updateStat(gate, interval)

@@ -6,12 +6,8 @@
 #include <QObject>
 #include <QString>
 
+#include <TrafficMapper/Types>
 
-// YOLOv3_SPP (mAP: 60.6 - FLOPS: 141.45 Bn - FPS: 20)
-// YOLOv3_608 (mAP: 57.9 - FLOPS: 140.69 Bn - FPS: 20)
-// YOLOv3_416 (mAP: 55.3 - FLOPS:  65.86 Bn - FPS: 35)
-// YOLOv3_320 (mAP: 51.5 - FLOPS:  38.97 Bn - FPS: 45)
-#define YOLOv3_608
 
 // TRACKER_GOTURN
 // TRACKER_KCF
@@ -20,16 +16,6 @@
 #define TRACKER_MOSSE
 
 
-enum class VehicleType {
-    undefined = -1,
-    CAR = 0,
-    BUS = 1,
-    TRUCK = 2,
-    MOTORCYCLE = 3,
-    BICYCLE = 4
-};
-std::istream& operator>>(std::istream& _is, VehicleType& _vType);
-std::ostream& operator<<(std::ostream& _is, const VehicleType& _vType);
 
 namespace Settings
 {
@@ -63,12 +49,6 @@ namespace Settings
 	extern const float TRACKER_IOU_TRESHOLD;
 
     extern const int FRAME_BUFFER_SIZE;
-
-
-//    inline std::string const &const1() {
-//        static std::string ret = "hello, world!";
-//        return ret;
-//    }
 };
 
 
@@ -127,29 +107,3 @@ private:
 signals:
     void propertyChanged();
 };
-
-
-
-#include <tuple>
-
-template <typename T,
-    typename TIter = decltype(std::begin(std::declval<T>())),
-    typename = decltype(std::end(std::declval<T>()))>
-    constexpr auto enumerate(T&& iterable)
-{
-    struct iterator
-    {
-        size_t i;
-        TIter iter;
-        bool operator != (const iterator& other) const { return iter != other.iter; }
-        void operator ++ () { ++i; ++iter; }
-        auto operator * () const { return std::tie(i, *iter); }
-    };
-    struct iterable_wrapper
-    {
-        T iterable;
-        auto begin() { return iterator{ 0, std::begin(iterable) }; }
-        auto end() { return iterator{ 0, std::end(iterable) }; }
-    };
-    return iterable_wrapper{ std::forward<T>(iterable) };
-}

@@ -1,11 +1,13 @@
 #pragma once
 
 #include <opencv2/core/types.hpp>
-//#include <QPainter>
-//#include <QPen>
-#include <QPoint>
 
-#include <TrafficMapper/Globals>
+#include <TrafficMapper/Types>
+
+
+enum class VehicleType : int;
+class QPoint;
+
 
 class Detection : public cv::Rect2d
 {
@@ -15,17 +17,17 @@ protected:
 
 public:
 	Detection();
-	Detection(const int _x, const int _y, const int _width, const int _height, const VehicleType _vehicleType = VehicleType::undefined, const float _confidence = 0.f);
-	Detection(const cv::Rect2d & _old, const VehicleType _vehicleClass = VehicleType::undefined, const float _confidence = 0.f);
+	Detection(const size_t & x, const size_t & y, const size_t & width, const size_t & height, const VehicleType & vehicleType = VehicleType::undefined, const float & confidence = 0.f);
+	Detection(const cv::Rect2d & old, const VehicleType & vehicleClass = VehicleType::undefined, const float & confidence = 0.f);
 
-	Detection &operator=(const cv::Rect2d &_old);
-	friend std::ostream &operator<<(std::ostream &_os, const Detection &_det);
-	friend std::istream &operator>>(std::istream &_is, Detection &_det);
+	Detection operator=(const cv::Rect2d & old);
+	friend std::ostream & operator<<(std::ostream & oStream, const Detection & det);
+	friend std::istream & operator>>(std::istream & iStream, Detection & det);
 
 	VehicleType vehicleType() const;
 	float confidence() const;
 	
 	QPoint getCenter() const;
 
-	static float iou(const cv::Rect2d &lhs, const cv::Rect2d &rhs);
+	static float iou(const cv::Rect2d & rect_1, const cv::Rect2d & rect_2);
 };

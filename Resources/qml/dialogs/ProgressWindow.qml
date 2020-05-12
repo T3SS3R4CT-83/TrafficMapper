@@ -1,23 +1,22 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Dialogs 1.2
-//import QtQuick.Controls.Styles 1.4
 
 Dialog {
-
     id: progressWindow
     width: 600
     height: 170
     title: ""
-//    standardButtons: StandardButton.Cancel
     standardButtons: Dialog.NoButton
     visible: false
+
+
 
     Connections {
         target: tracker
         onProgressUpdated: {
-            progressMessage.text = internal.message + " [" + (_currentFrameIdx + 1) + " / " + _allFrameNr + "]"
-            progressBar.value = _currentFrameIdx / _allFrameNr * 100
+            progressMessage.text = internal.message + " [" + (currentFrameIdx + 1) + " / " + allFrameNr + "]"
+            progressBar.value = currentFrameIdx / allFrameNr * 100
         }
     }
 
@@ -30,13 +29,6 @@ Dialog {
         id: internal
         property string message: ""
         property int value: 0
-    }
-
-    function initAndOpen(_title, _message) {
-        title = _title
-        internal.message = _message
-        progressBar.value = 0
-        open()
     }
 
 
@@ -74,8 +66,11 @@ Dialog {
     }
 
 
-//    onRejected: {
-//        progressMessage.text = "Cancelling process..."
-//        tracker.terminate()
-//    }
+
+    function initAndOpen(_title, _message) {
+        title = _title
+        internal.message = _message
+        progressBar.value = 0
+        open()
+    }
 }

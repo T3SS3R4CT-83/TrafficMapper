@@ -1,11 +1,12 @@
 #pragma once
 
-#include <memory>
 
 #include <QAbstractListModel>
 
+
 class Gate;
 class Vehicle;
+
 
 class GateModel : public QAbstractListModel
 {
@@ -15,7 +16,7 @@ class GateModel : public QAbstractListModel
 
 public:
 
-    GateModel(QObject *parent = nullptr);
+	GateModel(QObject * parent = nullptr);
 
 	enum {
 		StartPosRole = Qt::UserRole + 1,
@@ -32,21 +33,21 @@ public:
 	virtual QHash<int, QByteArray> roleNames() const override;
 
 
-	Q_INVOKABLE void insertData(Gate *newGate);
-	Q_INVOKABLE void removeData(int index);
-	Q_INVOKABLE Gate* getData(const int idx) const;
+	Q_INVOKABLE void insertData(Gate * newGate);
+	Q_INVOKABLE void removeData(const int & index);
+	Q_INVOKABLE Gate * getData(const int & idx) const;
 	Q_INVOKABLE void clearData();
 
 
-	std::vector<Gate*> getGates() const;
+	std::vector<Gate *> getGates() const;
 
 
-	void checkVehicle(Vehicle *vehicle);
+	void checkVehicle(Vehicle * vehicle);
 	void buildGateStats();
 
 signals:
-	void vehiclePassed(Vehicle*, Gate*, int);
+	void vehiclePassed(Vehicle *, Gate *, int);
 
 public slots:
-	void onFrameDisplayed(int frameIdx);
+	void onFrameDisplayed(const int & frameIdx);
 };
