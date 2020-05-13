@@ -19,7 +19,7 @@
     <ClInclude Include="Source\includes\TrafficMapper\Modules\TrafficTracker" />
     <ClInclude Include="Source\includes\TrafficMapper\Modules\VideoFilter" />
     <ClInclude Include="Source\modules\FrameProvider.hpp" />
-    <ClInclude Include="Types.hpp" />
+    <ClInclude Include="Source\Types.hpp" />
     <QtMoc Include="Source\modules\StatModel.hpp" />
     <QtMoc Include="Source\modules\VideoFilter.hpp" />
     <QtMoc Include="Source\modules\TrafficTracker.hpp" />
@@ -45,7 +45,7 @@
     <ClCompile Include="Source\modules\StatModel.cpp" />
     <ClCompile Include="Source\modules\TrafficTracker.cpp" />
     <ClCompile Include="Source\modules\VideoFilter.cpp" />
-    <ClCompile Include="Types.cpp" />
+    <ClCompile Include="Source\Types.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

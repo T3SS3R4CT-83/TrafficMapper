@@ -14,7 +14,7 @@ namespace Settings
 
     cv::dnn::Backend DETECTOR_BACKEND = cv::dnn::Backend::DNN_BACKEND_DEFAULT;
     cv::dnn::Target DETECTOR_TARGET = cv::dnn::Target::DNN_TARGET_CPU;
-    //cv::dnn::Target DETECTOR_TARGET = cv::dnn::Target::DNN_TARGET_OPENCL_FP16;
+    //cv::dnn::Target DETECTOR_TARGET = cv::dnn::Target::DNN_TARGET_OPENCL;
 
     const int DETECTOR_CLIP_TRESHOLD = 30;
     const std::unordered_map<VehicleType, QString> DETECTOR_CLASSES = {

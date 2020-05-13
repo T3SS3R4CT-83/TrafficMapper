@@ -14,6 +14,7 @@ class Detection : public cv::Rect2d
 protected:
     VehicleType m_vehicleType;
     float m_confidence;
+	bool m_deletable;
 
 public:
 	Detection();
@@ -26,6 +27,8 @@ public:
 
 	VehicleType vehicleType() const;
 	float confidence() const;
+	void markToDelete();
+	bool isDeletable() const;
 	
 	QPoint getCenter() const;
 

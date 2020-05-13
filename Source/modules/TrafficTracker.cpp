@@ -109,12 +109,14 @@ void TrafficTracker::analizeVideo()
 
 		std::vector<Vehicle *> activeTracks;
 
-		//cv::dnn::Net net = initNeuralNet();
+		cv::dnn::Net net = initNeuralNet();
 
 		const int allFrameNr = GlobalMeta::getInstance()->VIDEO_FRAMECOUNT();
 
 		for (size_t frameIdx(0); frameIdx < allFrameNr; ++frameIdx)
 		{
+	//		if (frameIdx < 24) continue;
+
 			// If the user interrupted the process then exit the cycle.
 			if (!m_isRunning) break;
 
@@ -132,8 +134,8 @@ void TrafficTracker::analizeVideo()
 			}
 			catch (std::out_of_range & ex)
 			{
-				//frameDetections = getRawFrameDetections(frame, net);
-				//filterFrameDetections(frameDetections);
+				frameDetections = getRawFrameDetections(frame, net);
+				filterFrameDetections(frameDetections);
 			}
 
 			const int trackingNumber = activeTracks.size();
@@ -156,7 +158,7 @@ void TrafficTracker::analizeVideo()
 				HungarianAlgorithm::Solve(iouMatrix, assignment);
 			}
 
-			for (auto&& [i, vehicle_ptr] : enumerate(activeTracks))
+			for (auto && [i, vehicle_ptr] : enumerate(activeTracks))
 			{
 				if (assignment[i] != -1 && iouMatrix[i][assignment[i]] <= Settings::TRACKER_IOU_TRESHOLD)
 				{
@@ -232,6 +234,53 @@ inline void TrafficTracker::prepIOUmatrix(
 	}
 }
 
+inline void TrafficTracker::filterFrameDetections(std::vector<Detection> & frameDetections)
+{
+	const float confTreshold = Settings::DETECTOR_CONF_THRESHOLD;
+	const float clipTreshold = Settings::DETECTOR_CLIP_TRESHOLD;
+	const float nmsTreshold = Settings::DETECTOR_NMS_THRESHOLD;
+	const int videoWidth = GlobalMeta::getInstance()->VIDEO_WIDTH();
+	const int videoHeight = GlobalMeta::getInstance()->VIDEO_HEIGHT();
+
+	// Filtering detections by clipping treshold.
+	if (clipTreshold > 0)
+	{
+		frameDetections.erase(
+			std::remove_if(std::begin(frameDetections), std::end(frameDetections),
+				[confTreshold, clipTreshold, videoWidth, videoHeight](const Detection & det) {
+					return det.x < clipTreshold
+						|| det.y < clipTreshold
+						|| det.x + det.width > videoWidth - clipTreshold
+						|| det.y + det.height > videoHeight - clipTreshold;
+				}), std::end(frameDetections));
+	}
+
+	if (frameDetections.size() > 1)
+	{
+		// Prepairing detections (sorting by confidence score) for NMS.
+		std::sort(std::begin(frameDetections), std::end(frameDetections),
+			[](const Detection & lhs, const Detection & rhs) { return lhs.confidence() > rhs.confidence(); });
+
+		// Applying Non-Maximum Supresson.
+		for (auto it_1 = std::begin(frameDetections); it_1 != std::end(frameDetections) - 1; ++it_1)
+		{
+			for (auto it_2 = it_1 + 1; it_2 != std::end(frameDetections); ++it_2)
+			{
+				if (Detection::iou(*it_1, *it_2) > nmsTreshold)
+				{
+					it_2->markToDelete();
+				}
+			}
+		}
+		frameDetections.erase(
+			std::remove_if(std::begin(frameDetections), std::end(frameDetections),
+				[](const Detection & det) {
+					return det.isDeletable();
+				}),
+			std::end(frameDetections));
+	}
+}
+
 void TrafficTracker::terminate()
 {
 	QMutexLocker locker(&m_runningMutex);
@@ -262,10 +311,8 @@ inline cv::dnn::Net TrafficTracker::initNeuralNet()
 
 inline std::vector<Detection> TrafficTracker::getRawFrameDetections(const cv::Mat & frame, cv::dnn::Net & net)
 {
-	GlobalMeta * globals = GlobalMeta::getInstance();
-
-	const int videoWidth = globals->VIDEO_WIDTH();
-	const int videoHeight = globals->VIDEO_HEIGHT();
+	const int videoWidth = frame.cols;
+	const int videoHeight = frame.rows;
 
 	cv::Mat blob;
 	std::vector<cv::Mat> outs;
@@ -285,8 +332,7 @@ inline std::vector<Detection> TrafficTracker::getRawFrameDetections(const cv::Ma
 			cv::Point classIdPoint;
 			double confidence;
 			cv::minMaxLoc(scores, 0, &confidence, 0, &classIdPoint);
-			const VehicleType vType = VehicleType(classIdPoint.x);
-			if (Settings::DETECTOR_CLASSES.count(vType) > 0)
+			if (confidence > Settings::DETECTOR_CONF_THRESHOLD)
 			{
 				const int centerX	= static_cast<int>(data[0] * videoWidth);
 				const int centerY	= static_cast<int>(data[1] * videoHeight);
@@ -295,7 +341,7 @@ inline std::vector<Detection> TrafficTracker::getRawFrameDetections(const cv::Ma
 				const int x			= static_cast<int>(centerX - width * 0.5f);
 				const int y			= static_cast<int>(centerY - height * 0.5f);
 
-				frameDetections.push_back(Detection(x, y, width, height, vType, confidence));
+				frameDetections.push_back(Detection(x, y, width, height, VehicleType(classIdPoint.x), confidence));
 			}
 		}
 	}
@@ -326,7 +372,7 @@ void TrafficTracker::openCacheFile(const QUrl & fileUrl)
 			frameDetections.push_back(detection);
 		}
 
-		//		filterFrameDetections(frameDetections);
+		filterFrameDetections(frameDetections);
 
 		m_detections[frameIdx] = frameDetections;
 	}

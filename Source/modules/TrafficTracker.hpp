@@ -7,6 +7,8 @@
 #include <QMutex>
 #include <QVariant>
 
+#include <cppitertools/enumerate.hpp>
+
 
 class Vehicle;
 class Gate;
@@ -65,11 +67,11 @@ public:
 private:
 	inline cv::dnn::Net initNeuralNet();
 	inline std::vector<Detection> getRawFrameDetections(const cv::Mat & frame, cv::dnn::Net & net);
-
 	inline void prepIOUmatrix(std::vector<std::vector<double>> & iouMatrix,
 		const int & tNum, const int & dNum,
 		std::vector<Detection> & prevDetections,
 		std::vector<Detection> & frameDetections);
+	inline void filterFrameDetections(std::vector<Detection> & frameDetections);
 
 signals:
 	void processTerminated();

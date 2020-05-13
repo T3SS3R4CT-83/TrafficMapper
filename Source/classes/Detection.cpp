@@ -7,17 +7,14 @@
 //             CONSTRUCTORS
 // ========================================
 
-Detection::Detection() : cv::Rect2d()
-{
-	m_vehicleType = VehicleType::undefined;
-	m_confidence = 0;
-}
+Detection::Detection()
+	: cv::Rect2d(), m_vehicleType(VehicleType::undefined), m_confidence(0), m_deletable(false) { }
 
 Detection::Detection(const size_t &x, const size_t &y, const size_t &width, const size_t &height, const VehicleType &vehicleType, const float &confidence)
-	: cv::Rect2d(x, y, width, height), m_vehicleType(vehicleType), m_confidence(confidence) { }
+	: cv::Rect2d(x, y, width, height), m_vehicleType(vehicleType), m_confidence(confidence), m_deletable(false) { }
 
 Detection::Detection(const cv::Rect2d & old, const VehicleType & vehicleClass, const float & confidence)
-	: cv::Rect2d(old), m_vehicleType(vehicleClass), m_confidence(confidence) { }
+	: cv::Rect2d(old), m_vehicleType(vehicleClass), m_confidence(confidence), m_deletable(false) { }
 
 
 
@@ -60,6 +57,16 @@ VehicleType Detection::vehicleType() const
 float Detection::confidence() const
 {
 	return m_confidence;
+}
+
+void Detection::markToDelete()
+{
+	m_deletable = true;
+}
+
+bool Detection::isDeletable() const
+{
+	return m_deletable;
 }
 
 
