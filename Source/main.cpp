@@ -3,6 +3,7 @@
 #include <QQuickStyle>
 #include <QQMLContext>
 #include <QFileDialog>
+#include <QSplashScreen>
 
 #include <TrafficMapper/Modules/TrafficTracker>
 #include <TrafficMapper/Modules/VideoFilter>
@@ -21,6 +22,10 @@ int main(int argc, char *argv[])
     app.setApplicationVersion("1.0");
     app.setOrganizationName("ELTE - IK");
     app.setOrganizationDomain("www.inf.elte.hu");
+
+    QPixmap splashImg(":/img/placeholder.png");
+    QSplashScreen splashScreen(splashImg);
+    splashScreen.show();
 
     qmlRegisterType<Gate>("com.elte.t3ss3r4ct", 1, 0, "Gate");
     qmlRegisterType<GateModel>("com.elte.t3ss3r4ct", 1, 0, "GateModel");
@@ -46,11 +51,11 @@ int main(int argc, char *argv[])
     videoFilter.setTracker(&tracker);
 
     QObject::connect(&videoFilter, &VideoFilter::frameDisplayed,
-                     &gateModel, &GateModel::onFrameDisplayed);
+        &gateModel, &GateModel::onFrameDisplayed);
     QObject::connect(&gateModel, &GateModel::vehiclePassed,
-                     &statModel, &StatModel::onGatePass);
+        &statModel, &StatModel::onGatePass);
     QObject::connect(&tracker, &TrafficTracker::analysisStarted,
-                     &statModel, &StatModel::initModel);
+        &statModel, &StatModel::initModel);
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty(QStringLiteral("gateModel"), &gateModel);
@@ -60,18 +65,20 @@ int main(int argc, char *argv[])
 
     const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-                     &app, [url](QObject *obj, const QUrl &objUrl) {
-                            if (!obj && url == objUrl)
-                                QCoreApplication::exit(-1);
-                            }, Qt::QueuedConnection);
+        &app, [url](QObject * obj, const QUrl & objUrl) {
+            if (!obj && url == objUrl)
+                QCoreApplication::exit(-1);
+        }, Qt::QueuedConnection);
     engine.load(url);
 
-    QObject *qmlOpenVideoDialog = engine.rootObjects()[0]->findChild<QObject *>("dlgOpenVideo");
+    QObject * qmlOpenVideoDialog = engine.rootObjects()[0]->findChild<QObject *>("dlgOpenVideo");
     if (qmlOpenVideoDialog != nullptr)
     {
         QObject::connect(qmlOpenVideoDialog, SIGNAL(videoFileOpened(QUrl)),
-                         &tracker, SLOT(onVideoFileOpened(QUrl)));
+            &tracker, SLOT(onVideoFileOpened(QUrl)));
     }
+
+    splashScreen.finish(nullptr);
 
     return app.exec();
 }
