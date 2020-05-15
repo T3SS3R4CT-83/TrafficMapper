@@ -4,6 +4,7 @@
 #include <QQMLContext>
 #include <QFileDialog>
 #include <QSplashScreen>
+#include <QSettings>
 
 #include <TrafficMapper/Modules/TrafficTracker>
 #include <TrafficMapper/Modules/VideoFilter>
@@ -40,10 +41,10 @@ int main(int argc, char *argv[])
             return GlobalMeta::getInstance();
         });
 
-    GateModel gateModel;
     TrafficTracker tracker;
-    VideoFilter videoFilter;
+    GateModel gateModel;
     StatModel statModel;
+    VideoFilter videoFilter;
 
     tracker.setGateModel(&gateModel);
     tracker.setStatModel(&statModel);
@@ -76,6 +77,16 @@ int main(int argc, char *argv[])
     {
         QObject::connect(qmlOpenVideoDialog, SIGNAL(videoFileOpened(QUrl)),
             &tracker, SLOT(onVideoFileOpened(QUrl)));
+    }
+
+    {   // Reading settings from the .ini file
+        QSettings settings("settings.ini", QSettings::IniFormat);
+        settings.beginGroup("DETECTOR");
+
+        Settings::DETECTOR_CONFIG_PATH = settings.value("config_path", "T:/Models/yolov3_TM.cfg").toString().toStdString();
+        Settings::DETECTOR_WEIGHTS_PATH = settings.value("weights_path", "T:/Models/yolov3_TM.weights").toString().toStdString();
+        const int DNN_BLOB_SIZE = settings.value("dnn_blob_size", 608).toInt();
+        Settings::DETECTOR_DNN_BLOB_SIZE = cv::Size(DNN_BLOB_SIZE, DNN_BLOB_SIZE);
     }
 
     splashScreen.finish(nullptr);

@@ -55,11 +55,15 @@ Window {
         id: dlgOpenVideo
     }
 
+    DlgOpenCache {
+        id: dlgOpenCache
+    }
+
     DlgSaveCache {
         id: dlgSaveCache
     }
 
-    DlgOpenCache {
-        id: dlgOpenCache
+    DlgAnalyzerSettings {
+        id: dlgAnalyzerSettings
     }
 }

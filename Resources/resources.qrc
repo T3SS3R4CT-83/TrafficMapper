@@ -17,5 +17,6 @@
         <file>svg/sound-mute.svg</file>
         <file>svg/sound-on.svg</file>
         <file>qml/dialogs/DlgSaveChart.qml</file>
+        <file>qml/dialogs/DlgAnalyzerSettings.qml</file>
     </qresource>
 </RCC>

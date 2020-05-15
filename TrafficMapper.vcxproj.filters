@@ -206,6 +206,9 @@
     <None Include="Resources\qml\dialogs\DlgSaveChart.qml">
       <Filter>QML files\Dialogs</Filter>
     </None>
+    <None Include="Resources\qml\dialogs\DlgAnalyzerSettings.qml">
+      <Filter>QML files\Dialogs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="Resources\resources.qrc">

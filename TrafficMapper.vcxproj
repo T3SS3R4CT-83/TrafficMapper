@@ -53,6 +53,7 @@
     <None Include="Resources\qml\components\MainMenu.qml" />
     <None Include="Resources\qml\components\PlaybackOptions.qml" />
     <None Include="Resources\qml\components\VideoPlayer.qml" />
+    <None Include="Resources\qml\dialogs\DlgAnalyzerSettings.qml" />
     <None Include="Resources\qml\dialogs\DlgOpenCache.qml" />
     <None Include="Resources\qml\dialogs\DlgOpenVideo.qml" />
     <None Include="Resources\qml\dialogs\DlgSaveCache.qml" />

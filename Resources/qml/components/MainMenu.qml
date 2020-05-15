@@ -54,10 +54,11 @@ MenuBar {
 
         MenuItem {
             text: "Analize traffic video"
-            enabled: videoPlayer.isVideoLoaded
+            // enabled: videoPlayer.isVideoLoaded
             onTriggered: {
-                progressWindow.initAndOpen("Analysing traffic video", "Processing frames:")
-                tracker.analizeVideo()
+                dlgAnalyzerSettings.open()
+                // progressWindow.initAndOpen("Analysing traffic video", "Processing frames:")
+                // tracker.analizeVideo()
             }
         }
     }

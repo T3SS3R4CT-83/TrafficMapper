@@ -45,8 +45,7 @@ public:
 	void setGateModel(GateModel * gateModel_ptr);
 	void setStatModel(StatModel * statModel_ptr);
 
-	Q_INVOKABLE void extractDetectionData(const QUrl & cacheFileUrl);
-	Q_INVOKABLE void analizeVideo();
+	Q_INVOKABLE void analizeVideo(bool useGPU = false);
 
 	Q_INVOKABLE void terminate();
 
@@ -65,7 +64,7 @@ public:
 	void onFrameDisplayed(const int & frameIdx);
 
 private:
-	inline cv::dnn::Net initNeuralNet();
+	inline cv::dnn::Net initNeuralNet(bool useGPU = false);
 	inline std::vector<Detection> getRawFrameDetections(const cv::Mat & frame, cv::dnn::Net & net);
 	inline void prepIOUmatrix(std::vector<std::vector<double>> & iouMatrix,
 		const int & tNum, const int & dNum,

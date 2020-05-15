@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include <QtConcurrent/QtConcurrent>
+#include <QSettings>
 
 #include <TrafficMapper/Globals>
 #include <TrafficMapper/Asserts/HungarianAlgorithm>
@@ -50,58 +51,14 @@ void TrafficTracker::setStatModel(StatModel * statModel_ptr)
 	m_statModel_ptr = statModel_ptr;
 }
 
-void TrafficTracker::extractDetectionData(const QUrl & cacheFileUrl)
-{
-	m_isRunning = true;
-
-	QtConcurrent::run([this, cacheFileUrl]() {
-		GlobalMeta * globals = GlobalMeta::getInstance();
-		const int allFrameNr = globals->VIDEO_FRAMECOUNT();
-		const int videoWidth = globals->VIDEO_WIDTH();
-		const int videoHeight = globals->VIDEO_HEIGHT();
-
-		openCacheFile(cacheFileUrl);
-
-		std::fstream cacheFile(cacheFileUrl.toLocalFile().toStdString(), std::fstream::out | std::fstream::app);
-		FrameProvider video(m_detections.size());
-		cv::Mat frame;
-		cv::dnn::Net net = initNeuralNet();
-
-		for (int frameIdx(m_detections.size()); frameIdx < allFrameNr; ++frameIdx)
-		{
-			if (!m_isRunning)
-			{
-				emit processTerminated();
-				break;
-			}
-
-			emit progressUpdated(frameIdx, allFrameNr);
-
-			video.getNextFrame(frame);
-			if (frame.empty()) break;
-
-			std::vector<Detection> frameDetections = getRawFrameDetections(frame, net);
-			cacheFile << frameIdx << " " << frameDetections.size() << "\n";
-			for (auto detection : frameDetections)
-			{
-				cacheFile << detection;
-			}
-		}
-
-		cacheFile.close();
-
-		emit processTerminated();
-		});
-}
-
-void TrafficTracker::analizeVideo()
+void TrafficTracker::analizeVideo(bool useGPU)
 {
 	m_isRunning = true;
 
 	m_vehicles.clear();
 	m_trajectories.clear();
 
-	QtConcurrent::run([this]() {
+	QtConcurrent::run([this, useGPU]() {
 		emit analysisStarted();
 
 		FrameProvider video;
@@ -109,7 +66,7 @@ void TrafficTracker::analizeVideo()
 
 		std::vector<Vehicle *> activeTracks;
 
-		cv::dnn::Net net = initNeuralNet();
+		cv::dnn::Net net = initNeuralNet(useGPU);
 
 		const int allFrameNr = GlobalMeta::getInstance()->VIDEO_FRAMECOUNT();
 
@@ -300,11 +257,15 @@ std::vector<Vehicle *> TrafficTracker::getVehiclesOnFrame(const int & frameIdx)
 	}
 }
 
-inline cv::dnn::Net TrafficTracker::initNeuralNet()
+inline cv::dnn::Net TrafficTracker::initNeuralNet(bool useGPU)
 {
 	cv::dnn::Net net = cv::dnn::readNet(Settings::DETECTOR_WEIGHTS_PATH, Settings::DETECTOR_CONFIG_PATH);
-	net.setPreferableBackend(Settings::DETECTOR_BACKEND);
-	net.setPreferableTarget(Settings::DETECTOR_TARGET);
+
+	net.setPreferableBackend(cv::dnn::Backend::DNN_BACKEND_DEFAULT);
+	if (useGPU)
+		net.setPreferableTarget(cv::dnn::Target::DNN_TARGET_OPENCL);
+	else
+		net.setPreferableTarget(cv::dnn::Target::DNN_TARGET_CPU);
 
 	return net;
 }

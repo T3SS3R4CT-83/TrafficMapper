@@ -19,16 +19,13 @@
 
 namespace Settings
 {
-    extern const char * DETECTOR_CONFIG_PATH;
-    extern const char * DETECTOR_WEIGHTS_PATH;
-    extern const cv::Size DETECTOR_DNN_BLOB_SIZE;
+    extern std::string DETECTOR_CONFIG_PATH;
+    extern std::string DETECTOR_WEIGHTS_PATH;
+    extern cv::Size DETECTOR_DNN_BLOB_SIZE;
 
     extern const float DETECTOR_CONF_THRESHOLD;
     extern const float DETECTOR_NMS_THRESHOLD;
 
-    extern cv::dnn::Backend DETECTOR_BACKEND;
-	extern cv::dnn::Target DETECTOR_TARGET;
-    
     extern const int DETECTOR_CLIP_TRESHOLD;
 	extern const std::unordered_map<VehicleType, QString> DETECTOR_CLASSES;
 

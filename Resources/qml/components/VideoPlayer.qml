@@ -12,6 +12,8 @@ Item {
     width: 782
     height: 480
 
+    signal videoFileOpened(url fileUrl)
+
     property bool isVideoLoaded: false
     property Gate currentGateItem: null
 

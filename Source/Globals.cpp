@@ -5,16 +5,12 @@
 
 namespace Settings
 {
-    const char * DETECTOR_CONFIG_PATH       = "T:\\Models\\yolov3_TM.cfg";
-    const char * DETECTOR_WEIGHTS_PATH      = "T:\\Models\\yolov3_TM.weights";
-    const cv::Size DETECTOR_DNN_BLOB_SIZE   = cv::Size(608, 608);
+    std::string DETECTOR_CONFIG_PATH = "";
+    std::string DETECTOR_WEIGHTS_PATH = "";
+    cv::Size DETECTOR_DNN_BLOB_SIZE = cv::Size(0, 0);
 
     const float DETECTOR_CONF_THRESHOLD = 0.5f;
     const float DETECTOR_NMS_THRESHOLD = 0.5f;
-
-    cv::dnn::Backend DETECTOR_BACKEND = cv::dnn::Backend::DNN_BACKEND_DEFAULT;
-    cv::dnn::Target DETECTOR_TARGET = cv::dnn::Target::DNN_TARGET_CPU;
-    //cv::dnn::Target DETECTOR_TARGET = cv::dnn::Target::DNN_TARGET_OPENCL;
 
     const int DETECTOR_CLIP_TRESHOLD = 30;
     const std::unordered_map<VehicleType, QString> DETECTOR_CLASSES = {
