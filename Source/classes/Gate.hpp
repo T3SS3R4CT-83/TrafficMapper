@@ -53,5 +53,3 @@ private:
 signals:
 	void valueChanged();
 };
-
-//Q_DECLARE_METATYPE(Gate)

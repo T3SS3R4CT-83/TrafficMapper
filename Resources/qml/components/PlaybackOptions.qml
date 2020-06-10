@@ -1,5 +1,5 @@
 import QtQuick 2.12
-import QtQuick.Controls 2.12
+import QtQuick.Controls 2.14
 import QtQuick.Controls.Styles 1.4
 
 import com.elte.t3ss3r4ct 1.0
@@ -10,7 +10,7 @@ Item {
     GroupBox {
         anchors.fill: parent
         background: Rectangle {
-            border.color: "#777777"
+            border.color: "#AAAAAA"
             color: "transparent"
         }
         label: Rectangle {
@@ -18,7 +18,7 @@ Item {
             anchors.top: parent.top
             width: parent.width
             height: title.font.pixelSize + 20
-            border.color: "#777777"
+            border.color: "#AAAAAA"
             color: "transparent"
 
             Text {
@@ -31,7 +31,7 @@ Item {
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
                 elide: Text.ElideRight
-                renderType: Text.NativeRendering
+//                renderType: Text.NativeRendering
             }
         }
 
@@ -39,59 +39,47 @@ Item {
             id: cbWrapper
             y: title.font.pixelSize + 20
             
-            CheckBox {
+            Switch {
                 text: "Detections"
-                checkState: GlobalMeta.PLAYER_SHOW_DETECTIONS ? Qt.Checked : Qt.Unchecked
-                nextCheckState: function() {
-                    if (checkState === Qt.Checked) {
-                        GlobalMeta.PLAYER_SHOW_DETECTIONS = false
-                        return Qt.Unchecked
-                    } else {
+                checked: GlobalMeta.PLAYER_SHOW_DETECTIONS ? Qt.Checked : Qt.Unchecked
+                onClicked: {
+                    if (checked)
                         GlobalMeta.PLAYER_SHOW_DETECTIONS = true
-                        return Qt.Checked
-                    }
+                    else
+                        GlobalMeta.PLAYER_SHOW_DETECTIONS = false
                 }
             }
             
-            CheckBox {
+            Switch {
                 text: "Paths"
-                checkState: GlobalMeta.PLAYER_SHOW_PATHS ? Qt.Checked : Qt.Unchecked
-                nextCheckState: function() {
-                    if (checkState === Qt.Checked) {
-                        GlobalMeta.PLAYER_SHOW_PATHS = false
-                        return Qt.Unchecked
-                    } else {
+                checked: GlobalMeta.PLAYER_SHOW_PATHS ? Qt.Checked : Qt.Unchecked
+                onClicked: {
+                    if (checked)
                         GlobalMeta.PLAYER_SHOW_PATHS = true
-                        return Qt.Checked
-                    }
+                    else
+                        GlobalMeta.PLAYER_SHOW_PATHS = false
                 }
             }
             
-            CheckBox {
+            Switch {
                 text: "Labels"
-                checkState: GlobalMeta.PLAYER_SHOW_LABELS ? Qt.Checked : Qt.Unchecked
-                nextCheckState: function() {
-                    if (checkState === Qt.Checked) {
-                        GlobalMeta.PLAYER_SHOW_LABELS = false
-                        return Qt.Unchecked
-                    } else {
+                checked: GlobalMeta.PLAYER_SHOW_LABELS ? Qt.Checked : Qt.Unchecked
+                onClicked: {
+                    if (checked)
                         GlobalMeta.PLAYER_SHOW_LABELS = true
-                        return Qt.Checked
-                    }
+                    else
+                        GlobalMeta.PLAYER_SHOW_LABELS = false
                 }
             }
             
-            CheckBox {
+            Switch {
                 text: "Positions"
-                checkState: GlobalMeta.PLAYER_SHOW_POSITIONS ? Qt.Checked : Qt.Unchecked
-                nextCheckState: function() {
-                    if (checkState === Qt.Checked) {
-                        GlobalMeta.PLAYER_SHOW_POSITIONS = false
-                        return Qt.Unchecked
-                    } else {
+                checked: GlobalMeta.PLAYER_SHOW_POSITIONS ? Qt.Checked : Qt.Unchecked
+                onClicked: {
+                    if (checked)
                         GlobalMeta.PLAYER_SHOW_POSITIONS = true
-                        return Qt.Checked
-                    }
+                    else
+                        GlobalMeta.PLAYER_SHOW_POSITIONS = false
                 }
             }
         }

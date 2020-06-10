@@ -7,24 +7,32 @@ import QtQuick.Dialogs 1.2
 
 import com.elte.t3ss3r4ct 1.0
 
+import "../custom-items"
+
 Item {
     id: videoPlayer
     width: 782
     height: 480
+
+
 
     signal videoFileOpened(url fileUrl)
 
     property bool isVideoLoaded: false
     property Gate currentGateItem: null
 
+
+
     Connections {
         target: dlgOpenVideo
-        onVideoFileOpened: mediaPlayer.source = fileUrl
+        function onVideoFileOpened(fileUrl) { mediaPlayer.source = fileUrl }
     }
 
     Connections {
         target: tracker
-        onProgressUpdated: sliderBg.width = (slider.width - 2) * currentFrameIdx / allFrameNr
+        function onProgressUpdated(currentFrameIdx, allFrameNr) {
+            sliderBg.width = (slider.width - 2) * currentFrameIdx / allFrameNr
+        }
     }
 
     Keys.onLeftPressed: {
@@ -42,6 +50,8 @@ Item {
         console.log(mediaPlayer.position / frameTime)
     }
     Keys.onSpacePressed: switchPlayState()
+
+
 
     Rectangle {
         id: videoWrapper
@@ -102,22 +112,9 @@ Item {
         height: 30
         anchors.left: parent.left
         anchors.bottom: parent.bottom
-        icon.source: "qrc:/svg/sound-on.svg"
-
-        background: Rectangle {
-            border.color: "#777777"
-            color: "transparent"
-        }
-
-        onClicked: {
-            if (mediaPlayer.muted) {
-                mediaPlayer.muted = false
-                btnMute.icon.source = "qrc:/svg/sound-on.svg"
-            } else {
-                mediaPlayer.muted = true
-                btnMute.icon.source = "qrc:/svg/sound-mute.svg"
-            }
-        }
+        icon.source: checked ? "qrc:/svg/sound-mute.svg" : "qrc:/svg/sound-on.svg"
+        checkable: true
+        background: CustomButtonBackground {}
     }
 
     Button {
@@ -128,11 +125,7 @@ Item {
         anchors.leftMargin: 40
         anchors.bottom: parent.bottom
         icon.source: "qrc:/svg/media-play.svg"
-
-        background: Rectangle {
-            border.color: "#777777"
-            color: "transparent"
-        }
+        background: CustomButtonBackground {}
 
         onClicked: switchPlayState()
     }
@@ -148,8 +141,8 @@ Item {
         value: mediaPlayer.position / mediaPlayer.duration
         background: Rectangle {
             anchors.fill: parent
-            color: "#DDDDDD"
-            border.color: "#777777"
+            color: "#EEEEEE"
+            border.color: "#AAAAAA"
             Rectangle {
                 id: sliderBg
                 x: 1
@@ -195,10 +188,12 @@ Item {
         font.pixelSize: 12
     }
 
+
+
     MediaPlayer {
         id: mediaPlayer
         objectName: "mediaPlayer"
-        muted: false
+        muted: btnMute.checked
         notifyInterval: 10
 
         onPlaying: {
@@ -227,6 +222,8 @@ Item {
         text: "The video file may be invalid or the required codecs are not installed!"
         standardButtons: StandardButton.Ok
     }
+
+
 
     function setVideo() {
         mediaPlayer.play()

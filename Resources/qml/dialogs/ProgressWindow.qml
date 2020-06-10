@@ -14,7 +14,7 @@ Dialog {
 
     Connections {
         target: tracker
-        onProgressUpdated: {
+        function onProgressUpdated(currentFrameIdx, allFrameNr) {
             progressMessage.text = internal.message + " [" + (currentFrameIdx + 1) + " / " + allFrameNr + "]"
             progressBar.value = currentFrameIdx / allFrameNr * 100
         }
@@ -22,7 +22,7 @@ Dialog {
 
     Connections {
         target: tracker
-        onProcessTerminated: close()
+        function onProcessTerminated() { close() }
     }
 
     QtObject {

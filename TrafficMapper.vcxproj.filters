@@ -50,6 +50,9 @@
     <Filter Include="Header Files\Modules">
       <UniqueIdentifier>{a2da600d-0c3e-4677-8885-396cf4938203}</UniqueIdentifier>
     </Filter>
+    <Filter Include="QML files\Custom Items">
+      <UniqueIdentifier>{a5c0185a-2886-4eb8-b4bd-24c300ac21b2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\includes\TrafficMapper\Globals">
@@ -132,6 +135,9 @@
     <ClCompile Include="Source\Types.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\modules\CameraCalibration.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Source\classes\Gate.hpp">
@@ -153,6 +159,9 @@
       <Filter>Source Files\Modules</Filter>
     </QtMoc>
     <QtMoc Include="Source\modules\StatModel.hpp">
+      <Filter>Source Files\Modules</Filter>
+    </QtMoc>
+    <QtMoc Include="Source\modules\CameraCalibration.hpp">
       <Filter>Source Files\Modules</Filter>
     </QtMoc>
   </ItemGroup>
@@ -208,6 +217,18 @@
     </None>
     <None Include="Resources\qml\dialogs\DlgAnalyzerSettings.qml">
       <Filter>QML files\Dialogs</Filter>
+    </None>
+    <None Include="Resources\qml\dialogs\DlgCameraCalibration.qml">
+      <Filter>QML files\Dialogs</Filter>
+    </None>
+    <None Include="Resources\qml\custom-items\CustomButton.qml">
+      <Filter>QML files\Custom Items</Filter>
+    </None>
+    <None Include="Resources\qml\custom-items\CustomButtonBackground.qml">
+      <Filter>QML files\Custom Items</Filter>
+    </None>
+    <None Include="Source\includes\TrafficMapper\Modules\CameraCalibration">
+      <Filter>Header Files\Modules</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

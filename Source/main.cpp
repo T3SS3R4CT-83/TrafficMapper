@@ -10,7 +10,9 @@
 #include <TrafficMapper/Modules/VideoFilter>
 #include <TrafficMapper/Modules/GateModel>
 #include <TrafficMapper/Modules/StatModel>
+#include <TrafficMapper/Modules/CameraCalibration>
 #include <TrafficMapper/Classes/Gate>
+
 #include <TrafficMapper/Globals>
 
 int main(int argc, char *argv[])
@@ -24,10 +26,12 @@ int main(int argc, char *argv[])
     app.setOrganizationName("ELTE - IK");
     app.setOrganizationDomain("www.inf.elte.hu");
 
-    QPixmap splashImg(":/img/placeholder.png");
+    QPixmap splashImg(":/img/splash.png");
+    splashImg = splashImg.scaledToHeight(540);
     QSplashScreen splashScreen(splashImg);
     splashScreen.show();
 
+    qmlRegisterType<CameraCalibration>("com.elte.t3ss3r4ct", 1, 0, "CameraCalibration");
     qmlRegisterType<Gate>("com.elte.t3ss3r4ct", 1, 0, "Gate");
     qmlRegisterType<GateModel>("com.elte.t3ss3r4ct", 1, 0, "GateModel");
     qmlRegisterType<TrafficTracker>("com.elte.t3ss3r4ct", 1, 0, "TrafficTracker");

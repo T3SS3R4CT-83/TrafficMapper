@@ -10,11 +10,6 @@ FrameProviderThread::FrameProviderThread(FrameProvider * parent)
     m_video = cv::VideoCapture(GlobalMeta::getInstance()->VIDEO_URL().toStdString());
 }
 
-void FrameProviderThread::setFirstFrame(const int & frameIdx)
-{
-    m_video.set(cv::CAP_PROP_POS_FRAMES, frameIdx);
-}
-
 void FrameProviderThread::run()
 {
     cv::Mat frame;
@@ -39,12 +34,9 @@ void FrameProviderThread::run()
 
 
 
-FrameProvider::FrameProvider(const int & firstFrameIdx)
+FrameProvider::FrameProvider()
 {
     m_workerThread_ptr = new FrameProviderThread(this);
-
-    if (firstFrameIdx > 0)
-        m_workerThread_ptr->setFirstFrame(firstFrameIdx);
 
     m_workerThread_ptr->start();
 }
@@ -63,8 +55,7 @@ void FrameProvider::getNextFrame(cv::Mat & frame)
         m_frameBufferNotEmpty.wait(&m_frameBufferMutex);
     m_frameBufferMutex.unlock();
 
-    // Provide the cached frame and save it for later use. (To speed up the consecutive
-    // requests of the same frame.)
+    // Provide the cached frame.
     frame = m_frameBuffer.dequeue();
 
     // Wakeing the worker thread, if it's waiting for free space in the buffer.

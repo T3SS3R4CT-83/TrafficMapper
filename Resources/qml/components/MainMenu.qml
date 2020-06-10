@@ -19,7 +19,7 @@ MenuBar {
             width: parent.width
             height: 1
             anchors.bottom: parent.bottom
-            color: "#CCCCCC"
+            color: "#BBBBBB"
         }
     }
 
@@ -51,6 +51,14 @@ MenuBar {
 
     Menu {
         title: "Traffic analysis"
+
+        MenuItem {
+            text: "Calibrate camera"
+            enabled: videoPlayer.isVideoLoaded
+            onTriggered: dlgCameraCalibration.initAndOpen()
+        }
+
+        MenuSeparator {}
 
         MenuItem {
             text: "Analize traffic video"

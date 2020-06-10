@@ -18,5 +18,9 @@
         <file>svg/sound-on.svg</file>
         <file>qml/dialogs/DlgSaveChart.qml</file>
         <file>qml/dialogs/DlgAnalyzerSettings.qml</file>
+        <file>img/splash.png</file>
+        <file>qml/dialogs/DlgCameraCalibration.qml</file>
+        <file>qml/custom-items/CustomButton.qml</file>
+        <file>qml/custom-items/CustomButtonBackground.qml</file>
     </qresource>
 </RCC>

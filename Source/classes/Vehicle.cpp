@@ -6,6 +6,9 @@
 #include <TrafficMapper/Types>
 #include <TrafficMapper/Classes/Detection>
 
+#include <cppitertools/enumerate.hpp>
+#include <cppitertools/sliding_window.hpp>
+
 
 class AcceleratedModel : public cv::tracking::UkfSystemModel
 {
@@ -65,7 +68,7 @@ Vehicle::Vehicle(const int & frameIdx, const Detection & detection)
 	m_timeSinceLastHit = 0;
 
 	//const float deltaTime = 1 / 30.f;
-	const float deltaTime = 0.2f;
+	const float deltaTime = 0.1f;
 
 	int MP = 2;
 	int DP = 6;
@@ -159,6 +162,18 @@ QString Vehicle::className() const
 	catch (const std::out_of_range & ex)
 	{
 		return QString("undefined");
+	}
+}
+
+float Vehicle::getSpeedAtFrame(const int frameIdx)
+{
+	try
+	{
+		return m_speed.at(frameIdx);
+	}
+	catch (std::out_of_range & ex)
+	{
+		return -1;
 	}
 }
 
@@ -259,6 +274,44 @@ void Vehicle::calcVehicleType()
 		});
 
 	m_vehicleClass = max_element->first;
+}
+
+void Vehicle::calcVehicleSpeed(const cv::Mat & homographyMatrix)
+{
+	std::vector<cv::Point2f> input, output;
+
+	input.reserve(m_positions.size());
+	output.reserve(m_positions.size());
+
+	for (auto position : m_positions)
+	{
+		input.push_back(cv::Point2f(position.second.x(), position.second.y()));
+	}
+
+	cv::perspectiveTransform(input, output, homographyMatrix);
+
+	const float multiplier = GlobalMeta::getInstance()->VIDEO_FPS() * 3.6f;
+
+	std::vector<float> distances;
+	distances.reserve(output.size() - 1);
+
+	for (auto && window : iter::sliding_window(output, 2))
+	{
+		auto distance = cv::norm(window[0] - window[1]);
+		distances.push_back(distance * multiplier);
+	}
+
+	int idx = m_positions.begin()->first + 10;
+	for (auto && window : iter::sliding_window(distances, 10))
+	{
+		float val = 0;
+
+		for (auto && i : window)
+			val += i;
+		val /= 4;
+
+		m_speed[idx++] = val;
+	}
 }
 
 std::vector<QPoint> Vehicle::getAllPositions() const

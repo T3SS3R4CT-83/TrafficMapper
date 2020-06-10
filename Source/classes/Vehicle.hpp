@@ -16,6 +16,7 @@ class Vehicle : public QObject
 
 	std::map<int, Detection> m_detections;
 	std::map<int, QPoint> m_positions;
+	std::map<int, int> m_speed;
 	std::vector<std::pair<int, QLineF>> m_path;
 	VehicleType m_vehicleClass;
 
@@ -34,6 +35,7 @@ public:
 	QPoint position(const int & frameIdx) const;
 	VehicleType vehicleClass();
 	QString className() const;
+	float getSpeedAtFrame(const int frameIdx);
 	bool isTracked() const;
 	void stopTracking();
 	
@@ -41,6 +43,7 @@ public:
 	const void updatePosition(const int & frameIdx, const Detection & detection);
 
 	void calcVehicleType();
+	void calcVehicleSpeed(const cv::Mat & homographyMatrix);
 	std::vector<QPoint> getAllPositions() const;
 	QLineF getPathSegment(const int & frameIdx);
 	std::vector<std::pair<int, QLineF>> getVehiclePath();

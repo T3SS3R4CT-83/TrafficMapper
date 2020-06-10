@@ -2,7 +2,6 @@ import QtQuick 2.13
 import QtQuick.Window 2.13
 import QtQuick.Controls 2.12
 import QtQuick.Controls.Styles 1.4
-import QtQuick.Dialogs 1.2
 
 import "./components"
 import "./dialogs"
@@ -65,5 +64,9 @@ Window {
 
     DlgAnalyzerSettings {
         id: dlgAnalyzerSettings
+    }
+
+    DlgCameraCalibration {
+        id: dlgCameraCalibration
     }
 }

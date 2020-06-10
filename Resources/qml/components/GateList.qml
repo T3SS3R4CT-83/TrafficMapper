@@ -4,9 +4,11 @@ import QtQuick.Controls.Styles 1.4
 
 import com.elte.t3ss3r4ct 1.0
 
+import "../custom-items"
+
 Item {
 
-    property bool isGatePlacingEnabled: false
+    property alias isGatePlacingEnabled: btnAddGate.checked
 
     GroupBox {
         id: gateListWrapper
@@ -15,7 +17,7 @@ Item {
         title: "Gates"
         background: Rectangle {
             width: parent.width
-            border.color: "#777777"
+            border.color: "#AAAAAA"
             color: "transparent"
         }
         label: Rectangle {
@@ -23,7 +25,7 @@ Item {
             anchors.top: parent.top
             width: parent.width
             height: title.font.pixelSize + 20
-            border.color: "#777777"
+            border.color: "#AAAAAA"
             color: "transparent"
 
             Text {
@@ -36,7 +38,7 @@ Item {
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
                 elide: Text.ElideRight
-                renderType: Text.NativeRendering
+//                renderType: Text.NativeRendering
             }
         }
 
@@ -53,10 +55,15 @@ Item {
                 color: (index % 2 == 0) ? "#DDDDDD" : "#EEEEEE"
 
                 Label {
-                    text: name
-                    anchors.fill: parent
-                    padding: 5
-                    verticalAlignment: Text.AlignVCenter
+                    x: 5
+                    y: 5
+                    text: "Name: " + name
+                }
+
+                Label {
+                    x: 5
+                    y: 20
+                    text: "Counter: " + counter
                 }
 
                 MouseArea {
@@ -74,53 +81,25 @@ Item {
         }
     }
 
-    Button {
+    CustomButton {
         id: btnAddGate
+        text: "ADD GATE"
         anchors.left: parent.left
         anchors.bottom: parent.bottom
         width: parent.width / 2 - 5
         height: 30
-
-        background: Rectangle {
-            border.color: isGatePlacingEnabled ? "#CD5555" : "#777777"
-            color: isGatePlacingEnabled ? "#FFD1D1" : "#FFFFFF"
-        }
-        contentItem: Text {
-            text: "ADD GATE"
-            font.pointSize: 8
-            color: isGatePlacingEnabled ? "#CD5555" : "#222222"
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            elide: Text.ElideRight
-            renderType: Text.NativeRendering
-        }
-
-        onClicked: isGatePlacingEnabled = !isGatePlacingEnabled
+        enabled: videoPlayer.isVideoLoaded
+        checkable: true
     }
 
-    Button {
+    CustomButton {
         id: btnDeleteGate
+        text: "DELETE GATE"
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         width: parent.width / 2 - 5
         height: 30
-        text: "DELETE GATE"
-        font.pointSize: 8
         enabled: gateList.count > 0
-
-        background: Rectangle {
-            border.color: enabled ? "#777777" : "#CCCCCC"
-            color: "transparent"
-        }
-        contentItem: Text {
-            text: "DELETE GATE"
-            font.pointSize: 8
-            color: enabled ? "#222222" : "#AAAAAA"
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            elide: Text.ElideRight
-            renderType: Text.NativeRendering
-        }
 
         onClicked: gateModel.removeData(gateList.currentIndex)
     }

@@ -15,6 +15,7 @@ class Gate;
 class Detection;
 class GateModel;
 class StatModel;
+class CameraCalibration;
 
 enum class VehicleType : int;
 
@@ -29,6 +30,9 @@ class TrafficTracker : public QObject
 	std::unordered_map<int, std::vector<Detection>> m_detections;
 	std::vector<Vehicle *> m_vehicles;
 	std::unordered_map<int, std::vector<Vehicle *>> m_trajectories;
+
+	bool m_isCameraCalibrated;
+	cv::Mat m_H;
 
 	std::unordered_map<const Gate *, std::unordered_map<VehicleType, std::vector<int>>> m_statistics;
 	QStringList m_stat_axisX_values;
@@ -57,9 +61,8 @@ public:
 	Q_INVOKABLE void generateStatistics(Gate * gate_ptr, const int & interval);
 	Q_INVOKABLE QStringList getAxisX();
 	Q_INVOKABLE int getAxisY();
-	Q_INVOKABLE QList<QVariant> getCarValues();
-	Q_INVOKABLE QList<QVariant> getTruckValues();
-	Q_INVOKABLE QList<QVariant> getBusValues();
+
+	Q_INVOKABLE void loadHomographyMatrix(CameraCalibration * calibrationModule);
 
 	void onFrameDisplayed(const int & frameIdx);
 

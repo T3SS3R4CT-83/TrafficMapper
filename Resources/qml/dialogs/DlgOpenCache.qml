@@ -11,13 +11,13 @@ FileDialog {
     signal cacheFileOpened(url fileUrl)
 
     onAccepted: {
-//        tracker.openCacheFile(dlgOpenCache.fileUrl)
+        tracker.openCacheFile(dlgOpenCache.fileUrl)
 
         // var path = fileUrl.toString().replace(/^(file:\/{3})|(qrc:\/{2})|(http:\/{2})/, "")
         // path = decodeURIComponent(path);
 
         // dlgAnalyzerSettings.cacheFileUrl = path
 
-        cacheFileOpened(dlgOpenCache.fileUrl)
+//        cacheFileOpened(dlgOpenCache.fileUrl)
     }
 }

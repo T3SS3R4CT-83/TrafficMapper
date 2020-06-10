@@ -18,6 +18,7 @@
     <ClInclude Include="Source\includes\TrafficMapper\Modules\GateModel" />
     <ClInclude Include="Source\includes\TrafficMapper\Modules\TrafficTracker" />
     <ClInclude Include="Source\includes\TrafficMapper\Modules\VideoFilter" />
+    <QtMoc Include="Source\modules\CameraCalibration.hpp" />
     <ClInclude Include="Source\modules\FrameProvider.hpp" />
     <ClInclude Include="Source\Types.hpp" />
     <QtMoc Include="Source\modules\StatModel.hpp" />
@@ -40,6 +41,7 @@
     <ClCompile Include="Source\includes\TrafficMapper\Types" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Globals.cpp" />
+    <ClCompile Include="Source\modules\CameraCalibration.cpp" />
     <ClCompile Include="Source\modules\FrameProvider.cpp" />
     <ClCompile Include="Source\modules\GateModel.cpp" />
     <ClCompile Include="Source\modules\StatModel.cpp" />
@@ -53,7 +55,10 @@
     <None Include="Resources\qml\components\MainMenu.qml" />
     <None Include="Resources\qml\components\PlaybackOptions.qml" />
     <None Include="Resources\qml\components\VideoPlayer.qml" />
+    <None Include="Resources\qml\custom-items\CustomButton.qml" />
+    <None Include="Resources\qml\custom-items\CustomButtonBackground.qml" />
     <None Include="Resources\qml\dialogs\DlgAnalyzerSettings.qml" />
+    <None Include="Resources\qml\dialogs\DlgCameraCalibration.qml" />
     <None Include="Resources\qml\dialogs\DlgOpenCache.qml" />
     <None Include="Resources\qml\dialogs\DlgOpenVideo.qml" />
     <None Include="Resources\qml\dialogs\DlgSaveCache.qml" />
@@ -66,6 +71,7 @@
     <None Include="Resources\svg\media-play.svg" />
     <None Include="Resources\svg\sound-mute.svg" />
     <None Include="Resources\svg\sound-on.svg" />
+    <None Include="Source\includes\TrafficMapper\Modules\CameraCalibration" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="Resources\resources.qrc" />
@@ -132,14 +138,14 @@
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <QtInstall>msvc2017_64</QtInstall>
+    <QtInstall>msvc2019_64</QtInstall>
     <QtModules>charts;core;multimedia;qml;quick;quickcontrols2;widgets</QtModules>
     <QtQMLDebugEnable>
     </QtQMLDebugEnable>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <QtInstall>msvc2017_64</QtInstall>
-    <QtModules>charts;core;multimedia;qml;quick;quickcontrols2</QtModules>
+    <QtInstall>msvc2019_64</QtInstall>
+    <QtModules>charts;core;multimedia;qml;quick;quickcontrols2;widgets</QtModules>
     <QtQMLDebugEnable>
     </QtQMLDebugEnable>
   </PropertyGroup>

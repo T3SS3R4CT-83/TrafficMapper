@@ -3,7 +3,7 @@ import QtQuick.Controls 2.14
 import QtQuick.Dialogs 1.2
 
 Dialog {
-    id: dlgAnalyzerSettings
+    id: dlgCameraCalibration
     width: 250
     height: 100
     title: "Start video analysis"

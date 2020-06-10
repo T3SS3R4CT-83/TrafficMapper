@@ -89,7 +89,11 @@ QVideoFrame VideoFilterRunnable::run(QVideoFrame * input, const QVideoSurfaceFor
 					m_painter.drawText(
 						labelTranslate.x(),
 						labelTranslate.y(),
-						vehicle->className());
+						QString::number(vehicle->getSpeedAtFrame(frameIdx)));
+					//m_painter.drawText(
+					//	labelTranslate.x(),
+					//	labelTranslate.y(),
+					//	vehicle->className());
 				}
 			}
 

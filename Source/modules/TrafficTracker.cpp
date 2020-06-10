@@ -14,6 +14,7 @@
 #include <TrafficMapper/Classes/Vehicle>
 #include <TrafficMapper/Classes/Gate>
 #include <TrafficMapper/Classes/Detection>
+#include <TrafficMapper/Modules/CameraCalibration>
 
 #include <cppitertools/enumerate.hpp>
 
@@ -25,13 +26,13 @@ using namespace iter;
 //       CONSTRUCTORS & DESTRUCTORS
 // ========================================
 
-TrafficTracker::TrafficTracker()
-{
-	m_gateModel_ptr = nullptr;
-	m_statModel_ptr = nullptr;
-	m_isRunning = false;
-	m_stat_axisY_maxval = 0;
-}
+TrafficTracker::TrafficTracker() :
+	m_gateModel_ptr(nullptr),
+	m_statModel_ptr(nullptr),
+	m_isRunning(false),
+	m_stat_axisY_maxval(0),
+	m_isCameraCalibrated(false)
+{ }
 
 TrafficTracker::~TrafficTracker()
 {
@@ -72,8 +73,6 @@ void TrafficTracker::analizeVideo(bool useGPU)
 
 		for (size_t frameIdx(0); frameIdx < allFrameNr; ++frameIdx)
 		{
-	//		if (frameIdx < 24) continue;
-
 			// If the user interrupted the process then exit the cycle.
 			if (!m_isRunning) break;
 
@@ -159,6 +158,8 @@ void TrafficTracker::analizeVideo(bool useGPU)
 
 		for (auto vehicle : m_vehicles)
 		{
+			if (m_isCameraCalibrated)
+				vehicle->calcVehicleSpeed(m_H);
 			vehicle->calcVehicleType();
 			m_gateModel_ptr->checkVehicle(vehicle);
 		}
@@ -416,40 +417,13 @@ int TrafficTracker::getAxisY()
 	return m_stat_axisY_maxval;
 }
 
-QList<QVariant> TrafficTracker::getCarValues()
+void TrafficTracker::loadHomographyMatrix(CameraCalibration * calibrationModule)
 {
-	QList<QVariant> values;
-
-	for (int i(0); i < m_stat_vtype_values[VehicleType::CAR].size(); ++i)
+	if (calibrationModule->m_pointSet == 4)
 	{
-		values << m_stat_vtype_values[VehicleType::CAR][i];
+		m_isCameraCalibrated = true;
+		m_H = calibrationModule->m_homography_i2p;
 	}
-
-	return values;
-}
-
-QList<QVariant> TrafficTracker::getTruckValues()
-{
-	QList<QVariant> values;
-
-	for (int i(0); i < m_stat_vtype_values[VehicleType::TRUCK].size(); ++i)
-	{
-		values << m_stat_vtype_values[VehicleType::TRUCK][i];
-	}
-
-	return values;
-}
-
-QList<QVariant> TrafficTracker::getBusValues()
-{
-	QList<QVariant> values;
-
-	for (int i(0); i < m_stat_vtype_values[VehicleType::BUS].size(); ++i)
-	{
-		values << m_stat_vtype_values[VehicleType::BUS][i];
-	}
-
-	return values;
 }
 
 void TrafficTracker::onFrameDisplayed(const int & frameIdx)
