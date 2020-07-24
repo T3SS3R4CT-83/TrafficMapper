@@ -1,38 +1,41 @@
 #pragma once
 
+class GateModel;
+class VehicleModel;
 
 #include <QAbstractItemModel>
+#include <QQueue>
+#include <QMutex>
+#include <QWaitCondition>
 
-
-class Vehicle;
 class Gate;
-class GateModel;
-
+class Vehicle;
 
 class StatModel : public QAbstractItemModel
 {
 	Q_OBJECT
 
-	Q_PROPERTY(int intervalNr MEMBER m_intervalNr)
-	Q_PROPERTY(QStringList axis_X_labels MEMBER m_axisX_labels)
-	Q_PROPERTY(int axis_Y_maxval MEMBER m_axisY_maxval)
+	Q_PROPERTY(QString graphTitle MEMBER m_graphTitle NOTIFY titleChanged)
+	Q_PROPERTY(uint intervalNr MEMBER m_intervalNr NOTIFY intervalChanged)
+	Q_PROPERTY(QStringList axis_X_labels MEMBER m_axisX_labels NOTIFY axisXchanged)
+	Q_PROPERTY(uint axis_Y_maxval MEMBER m_axisY_maxval NOTIFY axisYchanged)
 
-	int m_asdf;
-	GateModel * m_gateModel_ptr;
+	bool m_threadRunning;
+	QQueue<std::tuple<Vehicle *, Gate *, uint>> m_buffer;
+	QMutex m_bufferMutex;
+	QWaitCondition m_bufferNotEmpty;
 
-	int m_intervalNr;
-	int m_axisY_maxval;
+	QString m_graphTitle;
+	uint m_intervalNr;
+	uint m_axisY_maxval;
 	QStringList m_axisX_labels;
-	
+
 	std::unordered_map<Gate *, std::vector<std::vector<int>>> m_data;
 	std::vector<std::vector<int>> m_displayedData;
-
 
 public:
 
 	StatModel(QObject * parent = nullptr);
-
-	void setGateModel(GateModel * gateModel_ptr);
 
 	// Inherited via QAbstractItemModel
 	virtual Q_INVOKABLE QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const override;
@@ -42,11 +45,23 @@ public:
 	virtual Q_INVOKABLE QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
 	Q_INVOKABLE QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
-	Q_INVOKABLE void updateStat(Gate * gate, const int & intervalSize = 10);
-
+	Q_INVOKABLE void updateStat(Gate * gate, const uint & intervalSize);
 
 public slots:
-	void initModel();
-	void onGatePass(Vehicle * vehicle, Gate * gate, int frameIdx);
-};
 
+	void onAnalysisStarted();
+	void onAnalysisEnded();
+
+	void pipelineInput(Vehicle * vehicle_ptr, Gate * gate_ptr, uint frameIdx);
+
+private:
+
+	inline void statPostProcess(std::tuple<Vehicle *, Gate *, uint> data);
+
+signals:
+
+	void titleChanged();
+	void intervalChanged();
+	void axisXchanged();
+	void axisYchanged();
+};

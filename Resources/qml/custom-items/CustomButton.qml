@@ -12,7 +12,7 @@ Button {
     property int fontSize: 8
     property bool fontBold: false
 
-    background: CustomButtonBackground {}
+    background: CustomItemBackground {}
     contentItem: Text {
         text: customButton.text
         font.pointSize: fontSize

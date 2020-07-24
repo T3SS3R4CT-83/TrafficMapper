@@ -439,9 +439,10 @@ MigrationBackup/
 
 
 
-countlines.bat
+qt_work.log
+cpp.hint
 
-Binary/
-Build/
-Include/
-Models/
+binary/
+build/
+3rd-party/
+models/

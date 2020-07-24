@@ -2,7 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Controls.Styles 1.4
 
-import com.elte.t3ss3r4ct 1.0
+import TrafficMapper 1.0
 
 import "../custom-items"
 
@@ -15,18 +15,12 @@ Item {
         anchors.fill: parent
         anchors.bottomMargin: 40
         title: "Gates"
-        background: Rectangle {
-            width: parent.width
-            border.color: "#AAAAAA"
-            color: "transparent"
-        }
-        label: Rectangle {
+        background: CustomItemBackground {}
+        label: CustomItemBackground {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
             width: parent.width
             height: title.font.pixelSize + 20
-            border.color: "#AAAAAA"
-            color: "transparent"
 
             Text {
                 id: title

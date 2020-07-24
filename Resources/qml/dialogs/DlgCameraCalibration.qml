@@ -4,7 +4,7 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.15
 import QtQuick.Window 2.2
 
-import com.elte.t3ss3r4ct 1.0
+import TrafficMapper 1.0
 
 import "../custom-items"
 
@@ -171,7 +171,7 @@ Window {
         anchors.bottomMargin: 20
 
         onClicked: {
-            tracker.loadHomographyMatrix(cameraCalibration)
+            vehicleModel.loadHomographyMatrix(cameraCalibration)
             dlgCameraCalibration.visible = false
         }
     }

@@ -1,26 +1,32 @@
 <RCC>
     <qresource prefix="/">
-        <file>qml/main.qml</file>
+        <file>qml/MainWindow.qml</file>
+        <file>qml/MainMenu.qml</file>
+        <file>qml/Footer.qml</file>
+      
         <file>qml/components/GateList.qml</file>
-        <file>qml/components/MainMenu.qml</file>
         <file>qml/components/VideoPlayer.qml</file>
+        <file>qml/components/PlaybackOptions.qml</file>
+
         <file>qml/dialogs/DlgOpenCache.qml</file>
         <file>qml/dialogs/DlgOpenVideo.qml</file>
         <file>qml/dialogs/DlgSaveCache.qml</file>
-        <file>qml/dialogs/GateProperties.qml</file>
-        <file>qml/dialogs/ProgressWindow.qml</file>
-        <file>svg/media-pause.svg</file>
-        <file>svg/media-play.svg</file>
-        <file>qml/components/PlaybackOptions.qml</file>
-        <file>img/placeholder.png</file>
-        <file>qml/dialogs/StatWindow.qml</file>
-        <file>svg/sound-mute.svg</file>
-        <file>svg/sound-on.svg</file>
+        <file>qml/dialogs/DlgProgressWindow.qml</file>
+        <file>qml/dialogs/DlgStatWindow.qml</file>
         <file>qml/dialogs/DlgSaveChart.qml</file>
         <file>qml/dialogs/DlgAnalyzerSettings.qml</file>
-        <file>img/splash.png</file>
         <file>qml/dialogs/DlgCameraCalibration.qml</file>
+        <file>qml/dialogs/DlgGateProperties.qml</file>
+        
         <file>qml/custom-items/CustomButton.qml</file>
-        <file>qml/custom-items/CustomButtonBackground.qml</file>
+        <file>qml/custom-items/CustomItemBackground.qml</file>
+      
+        <file>svg/media-pause.svg</file>
+        <file>svg/media-play.svg</file>
+        <file>svg/sound-mute.svg</file>
+        <file>svg/sound-on.svg</file>
+        
+        <file>img/placeholder.png</file>
+        <file>img/splash.png</file>
     </qresource>
 </RCC>

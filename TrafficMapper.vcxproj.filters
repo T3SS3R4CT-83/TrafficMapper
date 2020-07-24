@@ -3,242 +3,265 @@
   <ItemGroup>
     <Filter Include="Source Files">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+      <Extensions>cpp;c;cc;cxx;c++;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
     <Filter Include="Resource Files">
-      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
-      <Extensions>qrc;*</Extensions>
-      <ParseFiles>false</ParseFiles>
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
-      <Extensions>qrc;*</Extensions>
-      <ParseFiles>false</ParseFiles>
+    <Filter Include="QMLs">
+      <UniqueIdentifier>{02c84904-c168-4d3b-8891-6d4d52f97862}</UniqueIdentifier>
     </Filter>
-    <Filter Include="QML files">
-      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
-      <Extensions>ui</Extensions>
+    <Filter Include="Header Files\Types">
+      <UniqueIdentifier>{4c347936-f9fe-40ff-944b-0cfc9ace21cd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="QML files\Dialogs">
-      <UniqueIdentifier>{2427b499-6e2a-4a9a-bf3f-f5c0c7d1b1bd}</UniqueIdentifier>
+    <Filter Include="Header Files\Pipeline Modules">
+      <UniqueIdentifier>{3e79e2b7-fa86-42bf-9849-c4b7bde3159a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="QML files\Components">
-      <UniqueIdentifier>{404e5de4-466e-4440-8156-d7180a4f8834}</UniqueIdentifier>
+    <Filter Include="Header Files\Complementary">
+      <UniqueIdentifier>{629042c7-ce0e-4911-a53b-17a84d9c5058}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\SVG">
-      <UniqueIdentifier>{2033e1b4-10f8-46ed-820a-2ec1a82dc119}</UniqueIdentifier>
+    <Filter Include="QMLs\Components">
+      <UniqueIdentifier>{8a91c074-fbff-4797-af57-4dc29d048fd4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Classes">
-      <UniqueIdentifier>{b646147c-3973-42e2-96cf-e1ea0b07f591}</UniqueIdentifier>
+    <Filter Include="QMLs\Custom Items">
+      <UniqueIdentifier>{f3c58929-ce38-4ad5-bdd3-04979d8397e1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Modules">
-      <UniqueIdentifier>{216b0aab-0b58-4bd1-bedc-e9ab7bc777f2}</UniqueIdentifier>
+    <Filter Include="QMLs\Dialogs">
+      <UniqueIdentifier>{a9050386-cbce-4a54-bbb1-901e8d5d6479}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Asserts">
-      <UniqueIdentifier>{4a39ee9d-f0a7-490c-a373-182bf6bbc253}</UniqueIdentifier>
+    <Filter Include="Resource Files\Images">
+      <UniqueIdentifier>{47250fb6-305e-4ce1-9942-b73239f003dc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Asserts">
-      <UniqueIdentifier>{b6f72ae5-cd9a-4017-841f-934919d599bc}</UniqueIdentifier>
+    <Filter Include="Resource Files\SVGs">
+      <UniqueIdentifier>{556ce171-b95d-4614-a259-148ad55f7d2c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Classes">
-      <UniqueIdentifier>{f2b48a3b-bad4-4872-aa29-422dd7fb08b6}</UniqueIdentifier>
+    <Filter Include="Source Files\Complementary">
+      <UniqueIdentifier>{b32f5fdd-ba76-4bfb-8570-0afb0e70ca49}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Modules">
-      <UniqueIdentifier>{a2da600d-0c3e-4677-8885-396cf4938203}</UniqueIdentifier>
+    <Filter Include="Source Files\Pipeline Modules">
+      <UniqueIdentifier>{eb94ef2a-cb09-4019-ae81-9ff222c739da}</UniqueIdentifier>
     </Filter>
-    <Filter Include="QML files\Custom Items">
-      <UniqueIdentifier>{a5c0185a-2886-4eb8-b4bd-24c300ac21b2}</UniqueIdentifier>
+    <Filter Include="Source Files\Types">
+      <UniqueIdentifier>{2bb1997d-7e2f-4dbd-b408-14b70b521a41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\3rd Party">
+      <UniqueIdentifier>{4b65a1f4-d3e9-4cdb-b928-06dd1567c569}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\includes\TrafficMapper\Globals">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\classes\Detection.hpp">
-      <Filter>Source Files\Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\asserts\HungarianAlgorithm.hpp">
-      <Filter>Source Files\Asserts</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\includes\TrafficMapper\Classes\Detection">
-      <Filter>Header Files\Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\includes\TrafficMapper\Classes\Gate">
-      <Filter>Header Files\Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\includes\TrafficMapper\Classes\Vehicle">
-      <Filter>Header Files\Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\includes\TrafficMapper\Asserts\HungarianAlgorithm">
-      <Filter>Header Files\Asserts</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\includes\TrafficMapper\Modules\FrameProvider">
-      <Filter>Header Files\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\includes\TrafficMapper\Modules\GateModel">
-      <Filter>Header Files\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\includes\TrafficMapper\Modules\TrafficTracker">
-      <Filter>Header Files\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\includes\TrafficMapper\Modules\VideoFilter">
-      <Filter>Header Files\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\modules\FrameProvider.hpp">
-      <Filter>Source Files\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Types.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Source\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\classes\Detection.cpp">
-      <Filter>Source Files\Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\classes\Gate.cpp">
-      <Filter>Source Files\Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\classes\Vehicle.cpp">
-      <Filter>Source Files\Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\asserts\HungarianAlgorithm.cpp">
-      <Filter>Source Files\Asserts</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Globals.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\modules\FrameProvider.cpp">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\modules\GateModel.cpp">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\modules\TrafficTracker.cpp">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\modules\VideoFilter.cpp">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\modules\StatModel.cpp">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\includes\TrafficMapper\Types">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Types.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\modules\CameraCalibration.cpp">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include="Source\classes\Gate.hpp">
-      <Filter>Source Files\Classes</Filter>
-    </QtMoc>
-    <QtMoc Include="Source\classes\Vehicle.hpp">
-      <Filter>Source Files\Classes</Filter>
-    </QtMoc>
-    <QtMoc Include="Source\Globals.hpp">
-      <Filter>Source Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Source\modules\GateModel.hpp">
-      <Filter>Source Files\Modules</Filter>
-    </QtMoc>
-    <QtMoc Include="Source\modules\TrafficTracker.hpp">
-      <Filter>Source Files\Modules</Filter>
-    </QtMoc>
-    <QtMoc Include="Source\modules\VideoFilter.hpp">
-      <Filter>Source Files\Modules</Filter>
-    </QtMoc>
-    <QtMoc Include="Source\modules\StatModel.hpp">
-      <Filter>Source Files\Modules</Filter>
-    </QtMoc>
-    <QtMoc Include="Source\modules\CameraCalibration.hpp">
-      <Filter>Source Files\Modules</Filter>
-    </QtMoc>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\qml\main.qml">
-      <Filter>QML files</Filter>
+    <None Include="source\includes\TrafficMapper\Complementary\AcceleratedModel">
+      <Filter>Header Files\Complementary</Filter>
     </None>
-    <None Include="Resources\qml\dialogs\DlgOpenCache.qml">
-      <Filter>QML files\Dialogs</Filter>
+    <None Include="source\includes\TrafficMapper\Complementary\CameraCalibration">
+      <Filter>Header Files\Complementary</Filter>
     </None>
-    <None Include="Resources\qml\dialogs\DlgOpenVideo.qml">
-      <Filter>QML files\Dialogs</Filter>
+    <None Include="source\includes\TrafficMapper\Complementary\FrameProvider">
+      <Filter>Header Files\Complementary</Filter>
     </None>
-    <None Include="Resources\qml\dialogs\DlgSaveCache.qml">
-      <Filter>QML files\Dialogs</Filter>
+    <None Include="source\includes\TrafficMapper\Complementary\VideoFilter">
+      <Filter>Header Files\Complementary</Filter>
     </None>
-    <None Include="Resources\qml\dialogs\GateProperties.qml">
-      <Filter>QML files\Dialogs</Filter>
+    <None Include="source\includes\TrafficMapper\Complementary\VideoOverlay">
+      <Filter>Header Files\Complementary</Filter>
     </None>
-    <None Include="Resources\qml\dialogs\ProgressWindow.qml">
-      <Filter>QML files\Dialogs</Filter>
+    <None Include="source\includes\TrafficMapper\Modules\GateModel">
+      <Filter>Header Files\Pipeline Modules</Filter>
     </None>
-    <None Include="Resources\qml\components\GateList.qml">
-      <Filter>QML files\Components</Filter>
+    <None Include="source\includes\TrafficMapper\Modules\StatModel">
+      <Filter>Header Files\Pipeline Modules</Filter>
     </None>
-    <None Include="Resources\qml\components\MainMenu.qml">
-      <Filter>QML files\Components</Filter>
+    <None Include="source\includes\TrafficMapper\Modules\Tracker">
+      <Filter>Header Files\Pipeline Modules</Filter>
     </None>
-    <None Include="Resources\qml\components\VideoPlayer.qml">
-      <Filter>QML files\Components</Filter>
+    <None Include="source\includes\TrafficMapper\Modules\VehicleModel">
+      <Filter>Header Files\Pipeline Modules</Filter>
     </None>
-    <None Include="Resources\svg\media-pause.svg">
-      <Filter>Resource Files\SVG</Filter>
+    <None Include="source\includes\TrafficMapper\Types\Detection">
+      <Filter>Header Files\Types</Filter>
     </None>
-    <None Include="Resources\svg\media-play.svg">
-      <Filter>Resource Files\SVG</Filter>
+    <None Include="source\includes\TrafficMapper\Types\Gate">
+      <Filter>Header Files\Types</Filter>
+    </None>
+    <None Include="source\includes\TrafficMapper\Types\Types">
+      <Filter>Header Files\Types</Filter>
+    </None>
+    <None Include="source\includes\TrafficMapper\Types\Vehicle">
+      <Filter>Header Files\Types</Filter>
+    </None>
+    <None Include="resources\qml\Footer.qml">
+      <Filter>QMLs</Filter>
+    </None>
+    <None Include="resources\qml\MainMenu.qml">
+      <Filter>QMLs</Filter>
+    </None>
+    <None Include="resources\qml\MainWindow.qml">
+      <Filter>QMLs</Filter>
+    </None>
+    <None Include="resources\qml\components\GateList.qml">
+      <Filter>QMLs\Components</Filter>
+    </None>
+    <None Include="resources\qml\components\PlaybackOptions.qml">
+      <Filter>QMLs\Components</Filter>
+    </None>
+    <None Include="resources\qml\components\VideoPlayer.qml">
+      <Filter>QMLs\Components</Filter>
+    </None>
+    <None Include="resources\qml\custom-items\CustomButton.qml">
+      <Filter>QMLs\Custom Items</Filter>
+    </None>
+    <None Include="resources\qml\custom-items\CustomItemBackground.qml">
+      <Filter>QMLs\Custom Items</Filter>
+    </None>
+    <None Include="resources\qml\dialogs\DlgAnalyzerSettings.qml">
+      <Filter>QMLs\Dialogs</Filter>
+    </None>
+    <None Include="resources\qml\dialogs\DlgCameraCalibration.qml">
+      <Filter>QMLs\Dialogs</Filter>
+    </None>
+    <None Include="resources\qml\dialogs\DlgGateProperties.qml">
+      <Filter>QMLs\Dialogs</Filter>
+    </None>
+    <None Include="resources\qml\dialogs\DlgOpenCache.qml">
+      <Filter>QMLs\Dialogs</Filter>
+    </None>
+    <None Include="resources\qml\dialogs\DlgOpenVideo.qml">
+      <Filter>QMLs\Dialogs</Filter>
+    </None>
+    <None Include="resources\qml\dialogs\DlgSaveCache.qml">
+      <Filter>QMLs\Dialogs</Filter>
+    </None>
+    <None Include="resources\qml\dialogs\DlgSaveChart.qml">
+      <Filter>QMLs\Dialogs</Filter>
+    </None>
+    <None Include="resources\qml\dialogs\DlgProgressWindow.qml">
+      <Filter>QMLs\Dialogs</Filter>
+    </None>
+    <None Include="resources\qml\dialogs\DlgStatWindow.qml">
+      <Filter>QMLs\Dialogs</Filter>
+    </None>
+    <None Include="resources\svg\media-pause.svg">
+      <Filter>Resource Files\SVGs</Filter>
+    </None>
+    <None Include="resources\svg\media-play.svg">
+      <Filter>Resource Files\SVGs</Filter>
+    </None>
+    <None Include="resources\svg\sound-mute.svg">
+      <Filter>Resource Files\SVGs</Filter>
+    </None>
+    <None Include="resources\svg\sound-on.svg">
+      <Filter>Resource Files\SVGs</Filter>
     </None>
     <None Include="cpp.hint" />
-    <None Include="Resources\qml\components\PlaybackOptions.qml">
-      <Filter>QML files\Components</Filter>
-    </None>
-    <None Include="Resources\qml\dialogs\StatWindow.qml">
-      <Filter>QML files\Dialogs</Filter>
-    </None>
-    <None Include="Resources\svg\sound-mute.svg">
-      <Filter>Resource Files\SVG</Filter>
-    </None>
-    <None Include="Resources\svg\sound-on.svg">
-      <Filter>Resource Files\SVG</Filter>
-    </None>
-    <None Include="Resources\qml\dialogs\DlgSaveChart.qml">
-      <Filter>QML files\Dialogs</Filter>
-    </None>
-    <None Include="Resources\qml\dialogs\DlgAnalyzerSettings.qml">
-      <Filter>QML files\Dialogs</Filter>
-    </None>
-    <None Include="Resources\qml\dialogs\DlgCameraCalibration.qml">
-      <Filter>QML files\Dialogs</Filter>
-    </None>
-    <None Include="Resources\qml\custom-items\CustomButton.qml">
-      <Filter>QML files\Custom Items</Filter>
-    </None>
-    <None Include="Resources\qml\custom-items\CustomButtonBackground.qml">
-      <Filter>QML files\Custom Items</Filter>
-    </None>
-    <None Include="Source\includes\TrafficMapper\Modules\CameraCalibration">
-      <Filter>Header Files\Modules</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
-    <QtRcc Include="Resources\resources.qrc">
+    <Image Include="resources\img\placeholder.png">
+      <Filter>Resource Files\Images</Filter>
+    </Image>
+    <Image Include="resources\img\splash.png">
+      <Filter>Resource Files\Images</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd-party\other\HungarianAlgorithm.cpp">
+      <Filter>Source Files\3rd Party</Filter>
+    </ClCompile>
+    <ClCompile Include="source\complementary\AcceleratedModel.cpp">
+      <Filter>Source Files\Complementary</Filter>
+    </ClCompile>
+    <ClCompile Include="source\complementary\CameraCalibration.cpp">
+      <Filter>Source Files\Complementary</Filter>
+    </ClCompile>
+    <ClCompile Include="source\complementary\FrameProvider.cpp">
+      <Filter>Source Files\Complementary</Filter>
+    </ClCompile>
+    <ClCompile Include="source\complementary\VideoFilter.cpp">
+      <Filter>Source Files\Complementary</Filter>
+    </ClCompile>
+    <ClCompile Include="source\complementary\VideoOverlay.cpp">
+      <Filter>Source Files\Complementary</Filter>
+    </ClCompile>
+    <ClCompile Include="source\modules\GateModel.cpp">
+      <Filter>Source Files\Pipeline Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="source\modules\StatModel.cpp">
+      <Filter>Source Files\Pipeline Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="source\modules\Tracker.cpp">
+      <Filter>Source Files\Pipeline Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="source\modules\VehicleModel.cpp">
+      <Filter>Source Files\Pipeline Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="source\types\Detection.cpp">
+      <Filter>Source Files\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="source\types\Gate.cpp">
+      <Filter>Source Files\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="source\types\Types.cpp">
+      <Filter>Source Files\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="source\types\Vehicle.cpp">
+      <Filter>Source Files\Types</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="3rd-party\other\HungarianAlgorithm.hpp">
+      <Filter>Source Files\3rd Party</Filter>
+    </ClInclude>
+    <ClInclude Include="source\complementary\AcceleratedModel.hpp">
+      <Filter>Source Files\Complementary</Filter>
+    </ClInclude>
+    <ClInclude Include="source\types\Detection.hpp">
+      <Filter>Source Files\Types</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="resources\resources.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Source\includes\TrafficMapper\Modules\StatModel">
-      <Filter>Header Files\Modules</Filter>
-    </Text>
+    <QtMoc Include="source\types\Gate.hpp">
+      <Filter>Source Files\Types</Filter>
+    </QtMoc>
+    <QtMoc Include="source\types\Vehicle.hpp">
+      <Filter>Source Files\Types</Filter>
+    </QtMoc>
+    <QtMoc Include="source\modules\GateModel.hpp">
+      <Filter>Source Files\Pipeline Modules</Filter>
+    </QtMoc>
+    <QtMoc Include="source\modules\StatModel.hpp">
+      <Filter>Source Files\Pipeline Modules</Filter>
+    </QtMoc>
+    <QtMoc Include="source\modules\Tracker.hpp">
+      <Filter>Source Files\Pipeline Modules</Filter>
+    </QtMoc>
+    <QtMoc Include="source\modules\VehicleModel.hpp">
+      <Filter>Source Files\Pipeline Modules</Filter>
+    </QtMoc>
+    <QtMoc Include="source\types\Types.hpp">
+      <Filter>Source Files\Types</Filter>
+    </QtMoc>
+    <QtMoc Include="source\complementary\CameraCalibration.hpp">
+      <Filter>Source Files\Complementary</Filter>
+    </QtMoc>
+    <QtMoc Include="source\complementary\FrameProvider.hpp">
+      <Filter>Source Files\Complementary</Filter>
+    </QtMoc>
+    <QtMoc Include="source\complementary\VideoFilter.hpp">
+      <Filter>Source Files\Complementary</Filter>
+    </QtMoc>
+    <QtMoc Include="source\complementary\VideoOverlay.hpp">
+      <Filter>Source Files\Complementary</Filter>
+    </QtMoc>
   </ItemGroup>
 </Project>

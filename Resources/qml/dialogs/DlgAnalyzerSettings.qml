@@ -10,8 +10,6 @@ Dialog {
     standardButtons: StandardButton.Ok | StandardButton.Cancel
     visible: false
 
-
-
     Switch {
         id: swUseGPU
         x: 10
@@ -20,8 +18,6 @@ Dialog {
         checked: false
         checkable: true
     }
-
-
 
     onAccepted: {
         progressWindow.initAndOpen("Analysing traffic video", "Processing frames:")

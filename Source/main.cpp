@@ -1,99 +1,113 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickStyle>
-#include <QQMLContext>
-#include <QFileDialog>
 #include <QSplashScreen>
-#include <QSettings>
+#include <QQMLContext>
 
-#include <TrafficMapper/Modules/TrafficTracker>
-#include <TrafficMapper/Modules/VideoFilter>
+#include <TrafficMapper/Complementary/CameraCalibration>
+#include <TrafficMapper/Complementary/FrameProvider>
+#include <TrafficMapper/Complementary/VideoOverlay>
+#include <TrafficMapper/Modules/Tracker>
+#include <TrafficMapper/Modules/VehicleModel>
 #include <TrafficMapper/Modules/GateModel>
 #include <TrafficMapper/Modules/StatModel>
-#include <TrafficMapper/Modules/CameraCalibration>
-#include <TrafficMapper/Classes/Gate>
+#include <TrafficMapper/Types/Gate>
+#include <TrafficMapper/Types/Types>
 
-#include <TrafficMapper/Globals>
-
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QQuickStyle::setStyle("Fusion");
 
-    QApplication app(argc, argv);
+    QApplication app(argc, argv);  // Maybe: QGuiApplication
     app.setApplicationName("TrafficMapper");
     app.setApplicationVersion("1.0");
     app.setOrganizationName("ELTE - IK");
     app.setOrganizationDomain("www.inf.elte.hu");
 
-    QPixmap splashImg(":/img/splash.png");
-    splashImg = splashImg.scaledToHeight(540);
-    QSplashScreen splashScreen(splashImg);
+
+    //QPixmap splashImg(":/img/splash.png");
+    //splashImg = splashImg.scaledToHeight(540);
+    //QSplashScreen splashScreen(splashImg);
+    QSplashScreen splashScreen(QPixmap(QStringLiteral(":/img/splash.png")).scaledToHeight(540));
     splashScreen.show();
 
-    qmlRegisterType<CameraCalibration>("com.elte.t3ss3r4ct", 1, 0, "CameraCalibration");
-    qmlRegisterType<Gate>("com.elte.t3ss3r4ct", 1, 0, "Gate");
-    qmlRegisterType<GateModel>("com.elte.t3ss3r4ct", 1, 0, "GateModel");
-    qmlRegisterType<TrafficTracker>("com.elte.t3ss3r4ct", 1, 0, "TrafficTracker");
-    qmlRegisterType<VideoFilter>("com.elte.t3ss3r4ct", 1, 0, "VideoFilter");
+    qRegisterMetaType<VideoMeta>("VideoMeta");
 
-    qmlRegisterSingletonType<GlobalMeta>("com.elte.t3ss3r4ct", 1, 0, "GlobalMeta",
-        [](QQmlEngine* engine, QJSEngine* scriptEngine) -> QObject* {
-            Q_UNUSED(engine)
-            Q_UNUSED(scriptEngine)
+    qmlRegisterType<FrameProvider>("TrafficMapper", 1, 0, "FrameProvider");
+    qmlRegisterType<VideoOverlay>("TrafficMapper", 1, 0, "VideoOverlay");
+    qmlRegisterType<CameraCalibration>("TrafficMapper", 1, 0, "CameraCalibration");
+    qmlRegisterType<GateModel>("TrafficMapper", 1, 0, "GateModel");
+    qmlRegisterType<Tracker>("TrafficMapper", 1, 0, "Tracker");
+    qmlRegisterType<Gate>("TrafficMapper", 1, 0, "Gate");
 
-            return GlobalMeta::getInstance();
-        });
-
-    TrafficTracker tracker;
+    FrameProvider frameProvider;
+    Tracker tracker;
+    VehicleModel vehicleModel;
     GateModel gateModel;
     StatModel statModel;
-    VideoFilter videoFilter;
 
-    tracker.setGateModel(&gateModel);
-    tracker.setStatModel(&statModel);
-    statModel.setGateModel(&gateModel);
-    videoFilter.setTracker(&tracker);
+    VideoOverlay videoOverlay;
 
-    QObject::connect(&videoFilter, &VideoFilter::frameDisplayed,
-        &gateModel, &GateModel::onFrameDisplayed);
-    QObject::connect(&gateModel, &GateModel::vehiclePassed,
-        &statModel, &StatModel::onGatePass);
-    QObject::connect(&tracker, &TrafficTracker::analysisStarted,
-        &statModel, &StatModel::initModel);
+    tracker.setFrameProvider(&frameProvider);
+    videoOverlay.setVehicleModel(&vehicleModel);
+    videoOverlay.setGateModel(&gateModel);
+
+    // PIPELINE CONNECTIONS
+    {
+        // Tracker -> VehicleModel
+        QObject::connect(&tracker, &Tracker::pipelineOutput,
+            &vehicleModel, &VehicleModel::pipelineInput);
+
+        // VehicleModel -> GateModel
+        QObject::connect(&vehicleModel, &VehicleModel::pipelineOutput,
+            &gateModel, &GateModel::pipelineInput);
+
+        // GateModel -> StatModel
+        QObject::connect(&gateModel, &GateModel::pipelineOutput,
+            &statModel, &StatModel::pipelineInput);
+    }
+
+    // STARTING PIPELINE MODULES
+    {
+        // Tracker started -> Start VehicleModel
+        QObject::connect(&tracker, &Tracker::analysisStarted,
+            &vehicleModel, &VehicleModel::onAnalysisStarted);
+
+        // Tracker started -> Start GateModel
+        QObject::connect(&tracker, &Tracker::analysisStarted,
+            &gateModel, &GateModel::onAnalysisStarted);
+
+        // Tracker started -> Start StatModel
+        QObject::connect(&tracker, &Tracker::analysisStarted,
+            &statModel, &StatModel::onAnalysisStarted);
+    }
+
+    // DAISY-CHAINING STOP SIGNAL
+    {
+        // Tracker stopped -> Initialize VehicleModel stopping process
+        QObject::connect(&tracker, &Tracker::analysisEnded,
+            &vehicleModel, &VehicleModel::onAnalysisEnded);
+
+        // VehicleModel stopped -> Initialize GateModel stopping process
+        QObject::connect(&vehicleModel, &VehicleModel::analysisEnded,
+            &gateModel, &GateModel::onAnalysisEnded);
+
+        // GateModel stopped -> Initialize StatModel stopping process
+        QObject::connect(&gateModel, &GateModel::analysisEnded,
+            &statModel, &StatModel::onAnalysisEnded);
+    }
 
     QQmlApplicationEngine engine;
+    engine.rootContext()->setContextProperty(QStringLiteral("frameProvider"), &frameProvider);
+    engine.rootContext()->setContextProperty(QStringLiteral("videoOverlay"), &videoOverlay);
+    engine.rootContext()->setContextProperty(QStringLiteral("tracker"), &tracker);
+    engine.rootContext()->setContextProperty(QStringLiteral("vehicleModel"), &vehicleModel);
     engine.rootContext()->setContextProperty(QStringLiteral("gateModel"), &gateModel);
     engine.rootContext()->setContextProperty(QStringLiteral("statModel"), &statModel);
-    engine.rootContext()->setContextProperty(QStringLiteral("tracker"), &tracker);
-    engine.rootContext()->setContextProperty(QStringLiteral("videoFilter"), &videoFilter);
-
-    const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-        &app, [url](QObject * obj, const QUrl & objUrl) {
-            if (!obj && url == objUrl)
-                QCoreApplication::exit(-1);
-        }, Qt::QueuedConnection);
-    engine.load(url);
-
-    QObject * qmlOpenVideoDialog = engine.rootObjects()[0]->findChild<QObject *>("dlgOpenVideo");
-    if (qmlOpenVideoDialog != nullptr)
-    {
-        QObject::connect(qmlOpenVideoDialog, SIGNAL(videoFileOpened(QUrl)),
-            &tracker, SLOT(onVideoFileOpened(QUrl)));
-    }
-
-    {   // Reading settings from the .ini file
-        QSettings settings("settings.ini", QSettings::IniFormat);
-        settings.beginGroup("DETECTOR");
-
-        Settings::DETECTOR_CONFIG_PATH = settings.value("config_path", "T:/Models/yolov3_TM.cfg").toString().toStdString();
-        Settings::DETECTOR_WEIGHTS_PATH = settings.value("weights_path", "T:/Models/yolov3_TM.weights").toString().toStdString();
-        const int DNN_BLOB_SIZE = settings.value("dnn_blob_size", 608).toInt();
-        Settings::DETECTOR_DNN_BLOB_SIZE = cv::Size(DNN_BLOB_SIZE, DNN_BLOB_SIZE);
-    }
+    engine.load(QUrl(QStringLiteral("qrc:/qml/MainWindow.qml")));
 
     splashScreen.finish(nullptr);
 
-    return app.exec();
+	return app.exec();
 }
