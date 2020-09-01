@@ -34,7 +34,7 @@ ToolBar {
         }
 
         Label {
-            text: "Cached frames: <b>" + tracker.cacheSize + "</b> / <b>" + frameProvider.videoMeta.framecount + "</b>"
+            text: "Cached frames: <b>" + tracker.cacheSize + "</b> / <b>" + mediaPlayer.videoMeta.framecount + "</b>"
         }
 
         ToolButton {

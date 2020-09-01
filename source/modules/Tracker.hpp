@@ -8,7 +8,7 @@
 
 #include <TrafficMapper/Types/Detection>
 
-class FrameProvider;
+class MediaPlayer;
 class VehicleModel;
 class CameraCalibration;
 
@@ -16,9 +16,9 @@ class Tracker : public QObject
 {
 	Q_OBJECT
 
-	Q_PROPERTY(int cacheSize READ getCacheSize NOTIFY cacheLoaded)
+	Q_PROPERTY(int cacheSize READ getCacheSize NOTIFY cacheSizeChanged)
 
-	FrameProvider * m_frameProvider_ptr;
+	MediaPlayer * m_media_ptr;
 
 	std::unordered_map<int, std::vector<Detection>> m_detections;
 
@@ -28,10 +28,11 @@ public:
 
 	Tracker(QObject * parent = nullptr);
 
-	void setFrameProvider(FrameProvider * frameProvider_ptr);
+	void setFrameProvider(MediaPlayer * frameProvider_ptr);
 
 	Q_INVOKABLE void openCacheFile(QUrl fileUrl);
 	Q_INVOKABLE void analizeVideo(bool useGPU);
+	Q_INVOKABLE void analizeVideo_v2(bool useGPU);
 	Q_INVOKABLE void stop();
 
 public slots:
@@ -58,6 +59,6 @@ signals:
 	void pipelineOutput(Vehicle *);
 
 	// Signals towards QML
-	void cacheLoaded();
+	void cacheSizeChanged();
 	void progressUpdated(const int &, const int &);
 };

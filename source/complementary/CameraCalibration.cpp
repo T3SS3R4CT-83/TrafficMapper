@@ -7,7 +7,7 @@
 
 #include <QPainter>
 
-#include <TrafficMapper/Complementary/FrameProvider>
+#include <TrafficMapper/Media/MediaPlayer>
 
 CameraCalibration::CameraCalibration(QQuickItem * parent)
 	: QQuickPaintedItem(parent), m_pointSet(0)
@@ -18,8 +18,8 @@ void CameraCalibration::calculateHomography()
 {
 	//const float ratio_X = 1.f;
 	//const float ratio_Y = 1.f;
-	const float ratio_X = FrameProvider::m_videoMeta.WIDTH / (float)property("width").toFloat();
-	const float ratio_Y = FrameProvider::m_videoMeta.HEIGHT / (float)property("height").toFloat();
+	const float ratio_X = MediaPlayer::m_videoMeta.WIDTH / (float)property("width").toFloat();
+	const float ratio_Y = MediaPlayer::m_videoMeta.HEIGHT / (float)property("height").toFloat();
 
 	std::vector<cv::Point2f> planePoints = {
 		cv::Point2f(0, 0),
@@ -42,7 +42,7 @@ void CameraCalibration::loadRandomFrame()
 {
 	cv::Mat frame;
 
-	FrameProvider::getRandomFrame(frame);
+	MediaPlayer::getRandomFrame(frame);
 	cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
 
 	m_image = QImage((uchar *)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888).scaled(QSize(960, 540));
@@ -113,8 +113,8 @@ void CameraCalibration::paint(QPainter * painter)
 
 		//const float ratio_X = 1.f;
 		//const float ratio_Y = 1.f;
-		const float ratio_X = property("width").toInt() / (float)FrameProvider::m_videoMeta.WIDTH;
-		const float ratio_Y = property("height").toInt() / (float)FrameProvider::m_videoMeta.HEIGHT;
+		const float ratio_X = property("width").toInt() / (float)MediaPlayer::m_videoMeta.WIDTH;
+		const float ratio_Y = property("height").toInt() / (float)MediaPlayer::m_videoMeta.HEIGHT;
 
 		pen.setColor(QColor("yellow"));
 		painter->setPen(pen);

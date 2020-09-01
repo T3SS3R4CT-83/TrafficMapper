@@ -8,23 +8,23 @@ struct VideoMeta
 {
 	Q_GADGET
 
-	Q_PROPERTY(int width MEMBER WIDTH)
-	Q_PROPERTY(int height MEMBER HEIGHT)
+	Q_PROPERTY(uint width MEMBER WIDTH)
+	Q_PROPERTY(uint height MEMBER HEIGHT)
 	Q_PROPERTY(float fps MEMBER FPS)
-	Q_PROPERTY(int length MEMBER LENGTH)
-	Q_PROPERTY(int length_min MEMBER LENGTH_MIN)
-	Q_PROPERTY(int length_sec MEMBER LENGTH_SEC)
-	Q_PROPERTY(int framecount MEMBER FRAMECOUNT)
+	Q_PROPERTY(size_t length MEMBER LENGTH)
+	Q_PROPERTY(uint length_min MEMBER LENGTH_MIN)
+	Q_PROPERTY(uint length_sec MEMBER LENGTH_SEC)
+	Q_PROPERTY(size_t framecount MEMBER FRAMECOUNT)
 
 public:
 
-	int WIDTH;
-	int HEIGHT;
+	uint WIDTH;
+	uint HEIGHT;
 	float FPS;
-	int LENGTH;
-	int LENGTH_MIN;
-	int LENGTH_SEC;
-	int FRAMECOUNT;
+	size_t LENGTH;
+	uint LENGTH_MIN;
+	uint LENGTH_SEC;
+	size_t FRAMECOUNT;
 
 	VideoMeta();
 	VideoMeta(const VideoMeta & other);

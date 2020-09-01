@@ -26,6 +26,7 @@ class Gate : public QQuickPaintedItem
 	//std::unordered_map<VehicleType, std::vector<int>> m_statistics;
 
 	uint m_counter;
+	uint m_sumVehicleNr;
 	std::vector<int> m_timelineCounter;
 
 public:

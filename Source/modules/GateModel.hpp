@@ -27,7 +27,8 @@ public:
 		StartPosRole = Qt::UserRole + 1,
 		EndPosRole,
 		NameRole,
-		CounterRole
+		CounterRole,
+		SumRole
 	};
 
 	GateModel(QObject * parent = nullptr);

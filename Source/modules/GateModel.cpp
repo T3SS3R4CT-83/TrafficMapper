@@ -4,6 +4,8 @@
 
 #include <TrafficMapper/Types/Gate>
 
+#include <cppitertools/enumerate.hpp>
+
 
 
 GateModel::GateModel(QObject * parent)
@@ -35,6 +37,8 @@ Q_INVOKABLE QVariant GateModel::data(const QModelIndex & index, int role) const
 		return QVariant(item->m_name);
 	case CounterRole:
 		return QVariant(item->m_counter);
+	case SumRole:
+		return QVariant(item->m_sumVehicleNr);
 	}
 
 	return QVariant();
@@ -55,6 +59,7 @@ QHash<int, QByteArray> GateModel::roleNames() const
 	names[EndPosRole] = "endPos";
 	names[NameRole] = "name";
 	names[CounterRole] = "counter";
+	names[SumRole] = "sumVehicleNr";
 
 	return names;
 }
@@ -157,12 +162,15 @@ void GateModel::onFrameDisplayed(int frameIdx)
 
 inline void GateModel::vehiclePostProcess(Vehicle * vehicle_ptr)
 {
-	for (auto & gate : m_gateList)
+	for (auto && [idx, gate] : iter::enumerate(m_gateList))
+	//for (auto & gate : m_gateList)
 	{
 		uint frameIdx = gate->checkVehiclePass(vehicle_ptr);
 
 		if (frameIdx > 0)
 		{
+			// dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>())
+			emit dataChanged(createIndex(idx, 0), createIndex(idx, 0), QVector<int>() << SumRole);
 			emit pipelineOutput(vehicle_ptr, gate, frameIdx);
 			return;
 		}

@@ -1,10 +1,14 @@
 #pragma once
 
+#include <bitset>
+
 #include <opencv2/tracking/tracker.hpp>
-#include <opencv2/tracking/kalman_filters.hpp>
+//#include <opencv2/tracking/kalman_filters.hpp>
+#include <opencv2/video/tracking.hpp>
 
 #include <QObject>
 #include <QLineF>
+#include <QPainter>
 
 
 class Detection;
@@ -32,6 +36,7 @@ class Vehicle : public QObject
 	friend class VehicleModel;
 	friend class StatModel;
 	friend class VideoFilter;
+	friend class MediaPlayer; // TODO: Remove later
 
 public:
 
@@ -45,7 +50,7 @@ public:
 	void updatePosition(const int & frameIdx, const Detection & detection);
 	void trackPosition(const cv::Mat & frame, const cv::Mat & prevFrame, const int & frameIdx);
 
-//	void track(const int & frameIdx, const cv::Mat & frame, const cv::Mat & prevFrame, const Detection & detection);
+	//void track(const size_t & frameIdx, const cv::Mat & frame, const cv::Mat & prevFrame, const Detection & detection);
 
 	void calcVehicleType();
 	void calcPositions();
@@ -53,12 +58,13 @@ public:
 
 	bool weaksFallFirst();
 
-	//QPoint getPositionOnFrame() const;
+	void drawOnFrame(QPainter & painter, const size_t & frameIdx, const std::bitset<4> & options);
 
 private:
 
 	inline void initTracker(const cv::Mat & frame, const QRectF & detection);
-	inline void initKalmanFilter(cv::Ptr<cv::tracking::UnscentedKalmanFilter> & kalmanFilter);
+	inline void initKalmanFilter(cv::KalmanFilter & kalmanFilter);
+	//inline void initKalmanFilter_unscented(cv::Ptr<cv::tracking::UkfSystemModel> kalmanFilter);
 
 	inline void addDetection(const uint & frameIdx, const Detection & detection);
 	inline void stopTracking();

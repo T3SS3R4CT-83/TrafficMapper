@@ -20,7 +20,7 @@ Dialog {
     }
 
     onAccepted: {
-        progressWindow.initAndOpen("Analysing traffic video", "Processing frames:")
+        dlgProgressWindow.openForTracker()
         tracker.analizeVideo(swUseGPU.checked)
     }
 }

@@ -8,13 +8,13 @@
 #include <QWaitCondition>
 
 #include <TrafficMapper/Types/Types>
-//#include <TrafficMapper/Modules/Tracker>
 
 class QAbstractVideoSurface;
 class Tracker;
-class FrameProviderWorker;
+class VehicleModel;
+class GateModel;
 
-class FrameProvider : public QMediaPlayer
+class MediaPlayer : public QMediaPlayer
 {
 	Q_OBJECT
 
@@ -24,29 +24,36 @@ class FrameProvider : public QMediaPlayer
 	
 	QAbstractVideoSurface * m_surface;
 
+	VehicleModel * m_vehicleModel_ptr;
+	GateModel * m_gateModel_ptr;
+
 	QString m_positionLabel;
 
 	static cv::VideoCapture m_video;
 
-	FrameProviderWorker * m_worker_ptr;
 	QQueue<cv::Mat> m_frameBuffer;
 
-	bool m_isRunning;
+	bool m_frameProviderRunning, m_exporterRunning;
 	QMutex m_bufferMutex;
 	QWaitCondition m_bufferNotEmpty;
 	QWaitCondition m_bufferNotFull;
 
 	friend class Tracker;
-	friend class FrameProviderWorker;
 
 public:
 
 	static VideoMeta m_videoMeta;
 
-	FrameProvider(QObject * parent = nullptr, Flags flags = 0);
+	MediaPlayer(QObject * parent = nullptr, Flags flags = 0);
+
+	void setVehicleModel(VehicleModel * vehicleModel_ptr);
+	void setGateModel(GateModel * gateModel_ptr);
 
 	void getNextFrame(cv::Mat & frame);
 	static void getRandomFrame(cv::Mat & frame);
+
+	Q_INVOKABLE void exportVideo(QUrl fileUrl);
+	Q_INVOKABLE void stop();
 
 public slots:
 
@@ -60,11 +67,11 @@ private:
 	void setVideoSurface(QAbstractVideoSurface * surface);
 	QAbstractVideoSurface * getVideoSurface();
 
-//	void setPositionLabel(QString label);
 	QString getPositionLabel() const;
 
-	//void setVideoMeta(VideoMeta metaData);
 	VideoMeta getVideoMeta() const;
+
+	inline void startWorker();
 
 private slots:
 
@@ -75,4 +82,7 @@ signals:
 
 	void videoMetaChanged();
 	void positionLabelChanged();
+	void videoExportFinished();
+
+	void progressUpdated(const int &, const int &);
 };

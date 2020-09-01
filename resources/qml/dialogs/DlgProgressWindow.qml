@@ -10,10 +10,17 @@ Dialog {
     standardButtons: Dialog.NoButton
     visible: false
 
-
-
     Connections {
         target: tracker
+        function onProgressUpdated(currentFrameIdx, allFrameNr) {
+            progressMessage.text = internal.message + " [" + (currentFrameIdx + 1) + " / " + allFrameNr + "]"
+            progressBar.value = currentFrameIdx / allFrameNr * 100
+        }
+        function onAnalysisEnded() { close() }
+    }
+
+    Connections {
+        target: mediaPlayer
         function onProgressUpdated(currentFrameIdx, allFrameNr) {
             progressMessage.text = internal.message + " [" + (currentFrameIdx + 1) + " / " + allFrameNr + "]"
             progressBar.value = currentFrameIdx / allFrameNr * 100
@@ -25,6 +32,7 @@ Dialog {
         id: internal
         property string message: ""
         property int value: 0
+        property var handler
     }
 
 
@@ -57,13 +65,24 @@ Dialog {
         anchors.rightMargin: 20
         onClicked: {
             progressMessage.text = "Cancelling process..."
-            tracker.stop()
+            internal.handler.stop()
         }
     }
 
-    function initAndOpen(_title, _message) {
-        title = _title
-        internal.message = _message
+
+
+    function openForTracker() {
+        title = "Analysing traffic video"
+        internal.message = "Processing frames: "
+        internal.handler = tracker
+        progressBar.value = 0
+        open()
+    }
+
+    function openForVideoExport() {
+        title = "Exporting video"
+        internal.message = "Processing frames: "
+        internal.handler = mediaPlayer
         progressBar.value = 0
         open()
     }

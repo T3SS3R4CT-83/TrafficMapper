@@ -77,6 +77,11 @@ bool Detection::isDeletable() const
 	return m_deletable;
 }
 
+bool Detection::isValid() const
+{
+	return x() > 0.05 && x() + width() < 0.95 && y() > 0.05 && y() + height() < 0.95;
+}
+
 
 
 // ========================================

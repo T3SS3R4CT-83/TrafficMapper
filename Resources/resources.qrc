@@ -10,13 +10,13 @@
 
         <file>qml/dialogs/DlgOpenCache.qml</file>
         <file>qml/dialogs/DlgOpenVideo.qml</file>
-        <file>qml/dialogs/DlgSaveCache.qml</file>
         <file>qml/dialogs/DlgProgressWindow.qml</file>
         <file>qml/dialogs/DlgStatWindow.qml</file>
         <file>qml/dialogs/DlgSaveChart.qml</file>
         <file>qml/dialogs/DlgAnalyzerSettings.qml</file>
         <file>qml/dialogs/DlgCameraCalibration.qml</file>
         <file>qml/dialogs/DlgGateProperties.qml</file>
+        <file>qml/dialogs/DlgExportVideo.qml</file>
         
         <file>qml/custom-items/CustomButton.qml</file>
         <file>qml/custom-items/CustomItemBackground.qml</file>

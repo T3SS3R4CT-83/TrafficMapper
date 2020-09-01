@@ -1,8 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
 
-import TrafficMapper 1.0  // TODO: Remove later
-
 MenuBar {
     height: 25
     background: Rectangle {
@@ -30,6 +28,16 @@ MenuBar {
             text: "Open cache..."
             enabled: videoPlayer.isVideoLoaded
             onTriggered: dlgOpenCache.open()
+        }
+
+        MenuSeparator {}
+
+        MenuItem {
+            text: "Export video..."
+            // enabled: videoPlayer.isVideoLoaded
+            onTriggered: {
+                dlgExportVideo.open()
+            }
         }
 
 //        MenuItem {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <bitset>
+
 #include <QVideoFilterRunnable>
 #include <QPainter>
 
@@ -14,6 +16,7 @@ class VideoFilter : public QObject, public QVideoFilterRunnable
 	QPainter m_painter;
 	QPen m_pen_trajectory, m_pen_position, m_pen_detection, m_pen_label;
 	QFont m_painterFont;
+	std::bitset<4> m_playbackSettings;
 
 public:
 
@@ -21,6 +24,8 @@ public:
 
 	// Inherited via QVideoFilterRunnable
 	virtual QVideoFrame run(QVideoFrame * input, const QVideoSurfaceFormat & surfaceFormat, RunFlags flags) override;
+
+	void onPlaybackOptionsSet(bool det, bool path, bool label, bool pos);
 
 signals:
 

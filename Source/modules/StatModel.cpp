@@ -4,7 +4,7 @@
 
 #include <TrafficMapper/Modules/VehicleModel>
 #include <TrafficMapper/Modules/GateModel>
-#include <TrafficMapper/Complementary/FrameProvider>
+#include <TrafficMapper/Media/MediaPlayer>
 #include <TrafficMapper/Types/Vehicle>
 #include <TrafficMapper/Types/Gate>
 
@@ -58,9 +58,9 @@ QVariant StatModel::headerData(int section, Qt::Orientation orientation, int rol
 
 void StatModel::updateStat(Gate * gate, const uint & intervalSize)
 {
-	m_intervalNr = std::ceil(FrameProvider::m_videoMeta.LENGTH / intervalSize * 0.001f);
+	m_intervalNr = std::ceil(MediaPlayer::m_videoMeta.LENGTH / intervalSize * 0.001f);
 
-	const uint intSize = FrameProvider::m_videoMeta.FPS * intervalSize;
+	const uint intSize = MediaPlayer::m_videoMeta.FPS * intervalSize;
 
 	m_displayedData.clear();
 	m_displayedData.resize(m_intervalNr);
@@ -68,7 +68,7 @@ void StatModel::updateStat(Gate * gate, const uint & intervalSize)
 		dataRow.resize(5, 0);
 
 	const auto & gateData = m_data.at(gate);
-	for (size_t frameIdx(0); frameIdx < FrameProvider::m_videoMeta.FRAMECOUNT; ++frameIdx)
+	for (size_t frameIdx(0); frameIdx < MediaPlayer::m_videoMeta.FRAMECOUNT; ++frameIdx)
 		for (uint vClass(0); vClass < 5; ++vClass)
 			m_displayedData[frameIdx / intSize][vClass] += gateData[vClass][frameIdx];
 
@@ -165,7 +165,7 @@ inline void StatModel::statPostProcess(std::tuple<Vehicle *, Gate *, uint> data)
 		m_data[gate_ptr].resize(5);
 		for (int i(0); i < 5; ++i)
 		{
-			m_data[gate_ptr][i].resize(FrameProvider::m_videoMeta.FRAMECOUNT, 0);
+			m_data[gate_ptr][i].resize(MediaPlayer::m_videoMeta.FRAMECOUNT, 0);
 		}
 	}
 

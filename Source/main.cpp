@@ -5,8 +5,8 @@
 #include <QQMLContext>
 
 #include <TrafficMapper/Complementary/CameraCalibration>
-#include <TrafficMapper/Complementary/FrameProvider>
-#include <TrafficMapper/Complementary/VideoOverlay>
+#include <TrafficMapper/Media/MediaPlayer>
+#include <TrafficMapper/Media/VideoOverlay>
 #include <TrafficMapper/Modules/Tracker>
 #include <TrafficMapper/Modules/VehicleModel>
 #include <TrafficMapper/Modules/GateModel>
@@ -32,26 +32,31 @@ int main(int argc, char * argv[])
     QSplashScreen splashScreen(QPixmap(QStringLiteral(":/img/splash.png")).scaledToHeight(540));
     splashScreen.show();
 
+    qRegisterMetaType<size_t>("size_t");
+    qRegisterMetaType<uint>("uint");
     qRegisterMetaType<VideoMeta>("VideoMeta");
+    qRegisterMetaType<VideoOverlay>("VideoOverlay");
 
-    qmlRegisterType<FrameProvider>("TrafficMapper", 1, 0, "FrameProvider");
+    qmlRegisterType<MediaPlayer>("TrafficMapper", 1, 0, "MediaPlayer");
     qmlRegisterType<VideoOverlay>("TrafficMapper", 1, 0, "VideoOverlay");
     qmlRegisterType<CameraCalibration>("TrafficMapper", 1, 0, "CameraCalibration");
     qmlRegisterType<GateModel>("TrafficMapper", 1, 0, "GateModel");
     qmlRegisterType<Tracker>("TrafficMapper", 1, 0, "Tracker");
     qmlRegisterType<Gate>("TrafficMapper", 1, 0, "Gate");
 
-    FrameProvider frameProvider;
+    MediaPlayer mediaPlayer;
+    VideoOverlay videoOverlay;
+
     Tracker tracker;
     VehicleModel vehicleModel;
     GateModel gateModel;
     StatModel statModel;
 
-    VideoOverlay videoOverlay;
-
-    tracker.setFrameProvider(&frameProvider);
+    tracker.setFrameProvider(&mediaPlayer);
     videoOverlay.setVehicleModel(&vehicleModel);
     videoOverlay.setGateModel(&gateModel);
+    mediaPlayer.setVehicleModel(&vehicleModel);
+    mediaPlayer.setGateModel(&gateModel);
 
     // PIPELINE CONNECTIONS
     {
@@ -99,7 +104,7 @@ int main(int argc, char * argv[])
     }
 
     QQmlApplicationEngine engine;
-    engine.rootContext()->setContextProperty(QStringLiteral("frameProvider"), &frameProvider);
+    engine.rootContext()->setContextProperty(QStringLiteral("mediaPlayer"), &mediaPlayer);
     engine.rootContext()->setContextProperty(QStringLiteral("videoOverlay"), &videoOverlay);
     engine.rootContext()->setContextProperty(QStringLiteral("tracker"), &tracker);
     engine.rootContext()->setContextProperty(QStringLiteral("vehicleModel"), &vehicleModel);

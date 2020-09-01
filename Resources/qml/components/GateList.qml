@@ -57,7 +57,7 @@ Item {
                 Label {
                     x: 5
                     y: 20
-                    text: "Counter: " + counter
+                    text: "Passed vehicles: " + sumVehicleNr
                 }
 
                 MouseArea {

@@ -2,7 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.14
 import QtQuick.Controls.Styles 1.4
 
-import com.elte.t3ss3r4ct 1.0
+import TrafficMapper 1.0
 
 Item {
     height: cbWrapper.height + title.font.pixelSize + 35
@@ -40,48 +40,41 @@ Item {
             y: title.font.pixelSize + 20
             
             Switch {
+                id: swDetections
                 text: "Detections"
-                checked: GlobalMeta.PLAYER_SHOW_DETECTIONS ? Qt.Checked : Qt.Unchecked
-                onClicked: {
-                    if (checked)
-                        GlobalMeta.PLAYER_SHOW_DETECTIONS = true
-                    else
-                        GlobalMeta.PLAYER_SHOW_DETECTIONS = false
-                }
+                checked: true
+                onClicked: changePlaybackOptions()
             }
             
             Switch {
+                id: swPaths
                 text: "Paths"
-                checked: GlobalMeta.PLAYER_SHOW_PATHS ? Qt.Checked : Qt.Unchecked
-                onClicked: {
-                    if (checked)
-                        GlobalMeta.PLAYER_SHOW_PATHS = true
-                    else
-                        GlobalMeta.PLAYER_SHOW_PATHS = false
-                }
+                checked: true
+                onClicked: changePlaybackOptions()
             }
             
             Switch {
+                id: swLabels
                 text: "Labels"
-                checked: GlobalMeta.PLAYER_SHOW_LABELS ? Qt.Checked : Qt.Unchecked
-                onClicked: {
-                    if (checked)
-                        GlobalMeta.PLAYER_SHOW_LABELS = true
-                    else
-                        GlobalMeta.PLAYER_SHOW_LABELS = false
-                }
+                checked: true
+                onClicked: changePlaybackOptions()
             }
             
             Switch {
+                id: swPositions
                 text: "Positions"
-                checked: GlobalMeta.PLAYER_SHOW_POSITIONS ? Qt.Checked : Qt.Unchecked
-                onClicked: {
-                    if (checked)
-                        GlobalMeta.PLAYER_SHOW_POSITIONS = true
-                    else
-                        GlobalMeta.PLAYER_SHOW_POSITIONS = false
-                }
+                checked: true
+                onClicked: changePlaybackOptions()
             }
         }
+    }
+
+    function changePlaybackOptions() {
+        videoOverlay.setPlaybackOptions(
+            swDetections.checked,
+            swPaths.checked,
+            swLabels.checked,
+            swPositions.checked
+        );
     }
 }

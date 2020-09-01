@@ -8,11 +8,14 @@
 
 #include <TrafficMapper/Modules/VehicleModel>
 #include <TrafficMapper/Complementary/CameraCalibration>
-#include <TrafficMapper/Complementary/FrameProvider>
+#include <TrafficMapper/Media/MediaPlayer>
 #include <TrafficMapper/Types/Detection>
 
 #include <HungarianAlgorithm.hpp>
 #include <cppitertools/enumerate.hpp>
+
+
+#define IOU_TRESHOLD -0.3f
 
 
 using namespace iter;
@@ -25,14 +28,14 @@ Tracker::Tracker(QObject * parent)
 
 
 
-void Tracker::setFrameProvider(FrameProvider * frameProvider_ptr)
+void Tracker::setFrameProvider(MediaPlayer * frameProvider_ptr)
 {
-	m_frameProvider_ptr = frameProvider_ptr;
+	m_media_ptr = frameProvider_ptr;
 
 	connect(this, &Tracker::analysisStarted,
-		m_frameProvider_ptr, &FrameProvider::onAnalysisStarted);
+		m_media_ptr, &MediaPlayer::onAnalysisStarted);
 	connect(this, &Tracker::analysisEnded,
-		m_frameProvider_ptr, &FrameProvider::onAnalysisEnded);
+		m_media_ptr, &MediaPlayer::onAnalysisEnded);
 
 	connect(frameProvider_ptr, &QMediaPlayer::mediaStatusChanged,
 		this, &Tracker::onVideoLoading);
@@ -59,7 +62,9 @@ void Tracker::openCacheFile(QUrl fileUrl)
 		{
 			Detection detection;
 			ifs >> detection;
-			frameDetections.push_back(detection);
+
+			if (detection.isValid())
+				frameDetections.push_back(detection);
 		}
 
 	//	filterFrameDetections(frameDetections);
@@ -67,7 +72,7 @@ void Tracker::openCacheFile(QUrl fileUrl)
 		m_detections[frameIdx] = frameDetections;
 	}
 
-	emit cacheLoaded();
+	emit cacheSizeChanged();
 
 	ifs.close();
 }
@@ -88,12 +93,135 @@ void Tracker::analizeVideo(bool useGPU)
 
 		cv::dnn::Net net = initYOLO(useGPU);
 
-		for (size_t frameIdx(0); frameIdx < m_frameProvider_ptr->m_videoMeta.FRAMECOUNT && m_isRunning; ++frameIdx)
+		for (size_t frameIdx(0); frameIdx < m_media_ptr->m_videoMeta.FRAMECOUNT && m_isRunning; ++frameIdx)
 		{
 			// Update the "Progress Window".
-			emit progressUpdated(frameIdx, m_frameProvider_ptr->m_videoMeta.FRAMECOUNT);
+			emit progressUpdated(frameIdx, m_media_ptr->m_videoMeta.FRAMECOUNT);
 
-			m_frameProvider_ptr->getNextFrame(frame);
+			m_media_ptr->getNextFrame(frame);
+
+			std::vector<Detection> frameDetections;
+			// Trying to read the cached detection data of the frame.
+			// If cannot, use DNN to get vehicle detections.
+			try
+			{
+				frameDetections = m_detections.at(frameIdx);
+			}
+			catch (std::out_of_range & ex)
+			{
+				frameDetections = getRawFrameDetections(frame, net);
+				filterFrameDetections(frameDetections);
+				m_detections[frameIdx] = frameDetections;
+				emit cacheSizeChanged();
+			}
+
+			const int trackingNumber = activeTrackings.size();
+			const int detectionNumber = frameDetections.size();
+
+			std::vector<int> assignment;
+			std::vector<std::vector<double>> iouMatrix;
+
+			// If we have vehicles that are tracked (trackingNumber > 0)
+			// and there are detections on the current frame (detectionNumber > 0)
+			// then match them.
+			if (trackingNumber && detectionNumber)
+			{
+				std::vector<Detection> prevDetections;
+
+				for (auto vehicle : activeTrackings)
+					prevDetections.push_back(vehicle->getDetection(frameIdx - 1));
+
+				// Preparing IOU matrix
+				prepIOUmatrix(iouMatrix, prevDetections, frameDetections);
+
+				// Running "Hungarian algorithm" on IOU matrix
+				HungarianAlgorithm::Solve(iouMatrix, assignment);
+			}
+
+			// Handling the currently tracked vehicles.
+			for (auto && [i, vehicle_ptr] : enumerate(activeTrackings))
+			{
+				if (detectionNumber && assignment[i] != -1 && iouMatrix[i][assignment[i]] <= IOU_TRESHOLD)
+				//if (detectionNumber && assignment[i] != -1)
+				{
+					// Add matched detections to vehicle.
+					vehicle_ptr->updatePosition(frameIdx, frameDetections[assignment[i]]);
+				}
+				else
+				{
+					// If there is no matched detection for a vehicle, then
+					// try to track its position using an optical tracker.
+					vehicle_ptr->trackPosition(frame, prevFrame, frameIdx);
+				}
+			}
+
+			// Creating new vehicles from the unmatched detections.
+			for (auto && [i, detection] : enumerate(frameDetections))
+			{
+				if (std::find(std::begin(assignment), std::end(assignment), i) == std::end(assignment))
+				{
+					Vehicle * newVehicle = new Vehicle(frameIdx, detection);
+					activeTrackings.push_back(newVehicle);
+				}
+			}
+
+			// Remove finished trackings from the 'activeTrackings' list,
+			// and forward them in the pipeline.
+			activeTrackings.erase(
+				std::remove_if(
+					std::begin(activeTrackings),
+					std::end(activeTrackings),
+					[this](Vehicle * vehicle_ptr) {
+						if (!vehicle_ptr->isTracked())
+						{
+							emit pipelineOutput(vehicle_ptr);
+							return true;
+						}
+						return false;
+					}
+				),
+				std::end(activeTrackings)
+			);
+
+			prevFrame = frame.clone();
+		}
+
+		for (auto vehicle_ptr : activeTrackings)
+			emit pipelineOutput(vehicle_ptr);
+
+		emit analysisEnded();
+
+		qDebug() << "Tracker worker finished!";
+	});
+}
+
+void Tracker::analizeVideo_v2(bool useGPU)
+{
+	m_isRunning = true;
+
+	QtConcurrent::run([this, useGPU]()
+	{
+		qDebug() << "Tracker worker started!";
+
+		emit analysisStarted();
+
+		cv::Mat frame, prevFrame, frameGray, prevFrameGray;
+		std::vector<cv::Point2f> optFlowPoints, prevOptFlowPoints;
+
+		std::vector<Vehicle *> activeTrackings;
+
+		cv::dnn::Net net = initYOLO(useGPU);
+
+		m_media_ptr->getNextFrame(prevFrame);
+		cv::cvtColor(prevFrame, prevFrameGray, cv::COLOR_BGR2GRAY);
+
+		for (size_t frameIdx(1); frameIdx < m_media_ptr->m_videoMeta.FRAMECOUNT && m_isRunning; ++frameIdx)
+		{
+			// Update the "Progress Window".
+			emit progressUpdated(frameIdx, m_media_ptr->m_videoMeta.FRAMECOUNT);
+
+			m_media_ptr->getNextFrame(frame);
+			cv::cvtColor(frame, frameGray, cv::COLOR_BGR2GRAY);
 
 			// Trying to read the cached detection data of the frame.
 			// If cannot, use DNN to get vehicle detections.
@@ -106,6 +234,8 @@ void Tracker::analizeVideo(bool useGPU)
 			{
 				frameDetections = getRawFrameDetections(frame, net);
 				filterFrameDetections(frameDetections);
+				m_detections[frameIdx] = frameDetections;
+				emit cacheSizeChanged();
 			}
 
 			const int trackingNumber = activeTrackings.size();
@@ -209,8 +339,7 @@ size_t Tracker::getCacheSize() const
 
 inline cv::dnn::Net Tracker::initYOLO(bool useGPU)
 {
-	//cv::dnn::Net net = cv::dnn::readNet(Settings::DETECTOR_WEIGHTS_PATH, Settings::DETECTOR_CONFIG_PATH);
-	cv::dnn::Net net = cv::dnn::readNet("models/yolov3_TM.weights", "models/yolov3_TM.cfg");
+	cv::dnn::Net net = cv::dnn::readNet("models/yolov4.weights", "models/yolov4.cfg");
 
 	net.setPreferableBackend(cv::dnn::Backend::DNN_BACKEND_DEFAULT);
 	if (useGPU)
@@ -230,7 +359,8 @@ inline std::vector<Detection> Tracker::getRawFrameDetections(const cv::Mat & fra
 	std::vector<cv::Mat> outs;
 	std::vector<Detection> frameDetections;
 
-	cv::dnn::blobFromImage(frame, blob, 1 / 255.0, cv::Size(608, 608), cv::Scalar(), false, false, CV_32F);
+	cv::dnn::blobFromImage(frame, blob, 1 / 255.0, cv::Size(416, 416), cv::Scalar(), false, false, CV_32F);
+	//cv::dnn::blobFromImage(frame, blob, 1 / 255.0, cv::Size(608, 608), cv::Scalar(), false, false, CV_32F);
 
 	net.setInput(blob);
 	net.forward(outs, net.getUnconnectedOutLayersNames());
@@ -321,7 +451,8 @@ inline void Tracker::prepIOUmatrix(
 		for (int detectionIdx(0); detectionIdx < dNum; ++detectionIdx)
 		{
 			float iou = -1 * Detection::iou(prevDetections[vehicleIdx], frameDetections[detectionIdx]);
-			iouMatrix[vehicleIdx][detectionIdx] = iou;
+			//iouMatrix[vehicleIdx][detectionIdx] = iou;
+			iouMatrix[vehicleIdx][detectionIdx] = iou < IOU_TRESHOLD ? iou : 0;
 		}
 	}
 }

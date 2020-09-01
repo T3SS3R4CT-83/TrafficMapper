@@ -19,7 +19,7 @@ Item {
     Connections {
         target: dlgOpenVideo
         function onVideoFileOpened(fileUrl) {
-            frameProvider.loadVideo(fileUrl)
+            mediaPlayer.loadVideo(fileUrl)
         }
     }
 //    Connections {
@@ -30,10 +30,10 @@ Item {
 //    }
 
 //    Keys.onLeftPressed: {
-//        frameProvider.pause()
+//        mediaPlayer.pause()
 //        var frameTime = 1000 / GlobalMeta.VIDEO_FPS
-//        if (frameProvider.position > 0)
-//            frameProvider.setPosition(frameProvider.position - frameTime)
+//        if (mediaPlayer.position > 0)
+//            mediaPlayer.setPosition(mediaPlayer.position - frameTime)
 //        console.log(mediaPlayer.position / frameTime)
 //    }
 //    Keys.onRightPressed: {
@@ -63,12 +63,12 @@ Item {
 
         VideoOutput {
             id: videoOutput
-            source: frameProvider
+            source: mediaPlayer
             anchors.fill: parent
             filters: [videoOverlay]
 
             Connections {
-                target: frameProvider
+                target: mediaPlayer
                 function onMediaStatusChanged(status) {
                     if (status === MediaPlayer.InvalidMedia) {
                         dlgVideoLoadingError.visible = true
@@ -129,7 +129,7 @@ Item {
         checkable: true
         background: CustomItemBackground {}
 
-        onClicked: frameProvider.muted = checked
+        onClicked: mediaPlayer.muted = checked
     }
 
     Button {
@@ -153,8 +153,8 @@ Item {
         anchors.leftMargin: 90
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 10
-        to: frameProvider.duration
-        value: frameProvider.position
+        to: mediaPlayer.duration
+        value: mediaPlayer.position
         background: CustomItemBackground {
             anchors.fill: parent
             Rectangle {
@@ -179,11 +179,11 @@ Item {
 
             onPressed: {
                 isSeeking = true
-                frameProvider.setPosition(frameProvider.duration * mouseX / width)
+                mediaPlayer.setPosition(mediaPlayer.duration * mouseX / width)
             }
             onPositionChanged: {
-                if (isSeeking && frameProvider.seekable)
-                    frameProvider.setPosition(frameProvider.duration * mouseX / width)
+                if (isSeeking && mediaPlayer.seekable)
+                    mediaPlayer.setPosition(mediaPlayer.duration * mouseX / width)
             }
             onReleased: {
                 isSeeking = false
@@ -196,7 +196,7 @@ Item {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         verticalAlignment: Text.AlignVCenter
-        text: frameProvider.positionLabel
+        text: mediaPlayer.positionLabel
         font.pixelSize: 12
     }
 
@@ -211,9 +211,9 @@ Item {
     }
 
     function switchPlayState() {
-        if (frameProvider.state === MediaPlayer.PlayingState)
-            frameProvider.pause()
+        if (mediaPlayer.state === MediaPlayer.PlayingState)
+            mediaPlayer.pause()
         else
-            frameProvider.play()
+            mediaPlayer.play()
     }
 }

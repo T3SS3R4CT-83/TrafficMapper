@@ -33,6 +33,7 @@ public:
 	
 	void markToDelete();
 	bool isDeletable() const;
+	bool isValid() const;
 	
 	static float iou(const QRectF & rect_1, const QRectF & rect_2);
 };

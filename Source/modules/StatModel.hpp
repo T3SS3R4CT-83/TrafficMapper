@@ -1,15 +1,14 @@
 #pragma once
 
-class GateModel;
-class VehicleModel;
-
 #include <QAbstractItemModel>
 #include <QQueue>
 #include <QMutex>
 #include <QWaitCondition>
 
 class Gate;
+class GateModel;
 class Vehicle;
+class VehicleModel;
 
 class StatModel : public QAbstractItemModel
 {

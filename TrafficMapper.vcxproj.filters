@@ -52,21 +52,18 @@
     <Filter Include="Source Files\3rd Party">
       <UniqueIdentifier>{4b65a1f4-d3e9-4cdb-b928-06dd1567c569}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Media">
+      <UniqueIdentifier>{f417590e-dadd-4ae1-820e-97458c10db51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Media">
+      <UniqueIdentifier>{539aa394-accc-4266-b7ba-40b4030545cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="source\includes\TrafficMapper\Complementary\AcceleratedModel">
       <Filter>Header Files\Complementary</Filter>
     </None>
     <None Include="source\includes\TrafficMapper\Complementary\CameraCalibration">
-      <Filter>Header Files\Complementary</Filter>
-    </None>
-    <None Include="source\includes\TrafficMapper\Complementary\FrameProvider">
-      <Filter>Header Files\Complementary</Filter>
-    </None>
-    <None Include="source\includes\TrafficMapper\Complementary\VideoFilter">
-      <Filter>Header Files\Complementary</Filter>
-    </None>
-    <None Include="source\includes\TrafficMapper\Complementary\VideoOverlay">
       <Filter>Header Files\Complementary</Filter>
     </None>
     <None Include="source\includes\TrafficMapper\Modules\GateModel">
@@ -157,6 +154,18 @@
       <Filter>Resource Files\SVGs</Filter>
     </None>
     <None Include="cpp.hint" />
+    <None Include="resources\qml\dialogs\DlgExportVideo.qml">
+      <Filter>QMLs\Dialogs</Filter>
+    </None>
+    <None Include="source\includes\TrafficMapper\Media\VideoFilter">
+      <Filter>Header Files\Media</Filter>
+    </None>
+    <None Include="source\includes\TrafficMapper\Media\VideoOverlay">
+      <Filter>Header Files\Media</Filter>
+    </None>
+    <None Include="source\includes\TrafficMapper\Media\MediaPlayer">
+      <Filter>Header Files\Media</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\img\placeholder.png">
@@ -177,15 +186,6 @@
       <Filter>Source Files\Complementary</Filter>
     </ClCompile>
     <ClCompile Include="source\complementary\CameraCalibration.cpp">
-      <Filter>Source Files\Complementary</Filter>
-    </ClCompile>
-    <ClCompile Include="source\complementary\FrameProvider.cpp">
-      <Filter>Source Files\Complementary</Filter>
-    </ClCompile>
-    <ClCompile Include="source\complementary\VideoFilter.cpp">
-      <Filter>Source Files\Complementary</Filter>
-    </ClCompile>
-    <ClCompile Include="source\complementary\VideoOverlay.cpp">
       <Filter>Source Files\Complementary</Filter>
     </ClCompile>
     <ClCompile Include="source\modules\GateModel.cpp">
@@ -211,6 +211,15 @@
     </ClCompile>
     <ClCompile Include="source\types\Vehicle.cpp">
       <Filter>Source Files\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="source\media\VideoFilter.cpp">
+      <Filter>Source Files\Media</Filter>
+    </ClCompile>
+    <ClCompile Include="source\media\VideoOverlay.cpp">
+      <Filter>Source Files\Media</Filter>
+    </ClCompile>
+    <ClCompile Include="source\media\MediaPlayer.cpp">
+      <Filter>Source Files\Media</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -254,14 +263,14 @@
     <QtMoc Include="source\complementary\CameraCalibration.hpp">
       <Filter>Source Files\Complementary</Filter>
     </QtMoc>
-    <QtMoc Include="source\complementary\FrameProvider.hpp">
-      <Filter>Source Files\Complementary</Filter>
+    <QtMoc Include="source\media\MediaPlayer.hpp">
+      <Filter>Source Files\Media</Filter>
     </QtMoc>
-    <QtMoc Include="source\complementary\VideoFilter.hpp">
-      <Filter>Source Files\Complementary</Filter>
+    <QtMoc Include="source\media\VideoFilter.hpp">
+      <Filter>Source Files\Media</Filter>
     </QtMoc>
-    <QtMoc Include="source\complementary\VideoOverlay.hpp">
-      <Filter>Source Files\Complementary</Filter>
+    <QtMoc Include="source\media\VideoOverlay.hpp">
+      <Filter>Source Files\Media</Filter>
     </QtMoc>
   </ItemGroup>
 </Project>

@@ -12,7 +12,7 @@
 class Vehicle;
 class VehicleModelWorker;
 class CameraCalibration;
-class FrameProvider;
+class MediaPlayer;
 class Tracker;
 
 class VehicleModel : public QObject
@@ -43,6 +43,7 @@ public:
 	Q_INVOKABLE void loadHomographyMatrix(CameraCalibration * calibrationModule);
 
 	friend class VideoFilter;
+	friend class MediaPlayer;
 
 public slots:
 

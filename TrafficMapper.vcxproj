@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <BuildDirectory>$(SolutionDir)build\</BuildDirectory>
@@ -104,7 +104,7 @@
       </SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
     </ClCompile>
@@ -131,7 +131,7 @@
       </SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
@@ -160,6 +160,7 @@
     <None Include="resources\qml\custom-items\CustomItemBackground.qml" />
     <None Include="resources\qml\dialogs\DlgAnalyzerSettings.qml" />
     <None Include="resources\qml\dialogs\DlgCameraCalibration.qml" />
+    <None Include="resources\qml\dialogs\DlgExportVideo.qml" />
     <None Include="resources\qml\dialogs\DlgGateProperties.qml" />
     <None Include="resources\qml\dialogs\DlgOpenCache.qml" />
     <None Include="resources\qml\dialogs\DlgOpenVideo.qml" />
@@ -176,9 +177,9 @@
     <None Include="resources\svg\sound-on.svg" />
     <None Include="source\includes\TrafficMapper\Complementary\AcceleratedModel" />
     <None Include="source\includes\TrafficMapper\Complementary\CameraCalibration" />
-    <None Include="source\includes\TrafficMapper\Complementary\FrameProvider" />
-    <None Include="source\includes\TrafficMapper\Complementary\VideoFilter" />
-    <None Include="source\includes\TrafficMapper\Complementary\VideoOverlay" />
+    <None Include="source\includes\TrafficMapper\Media\MediaPlayer" />
+    <None Include="source\includes\TrafficMapper\Media\VideoFilter" />
+    <None Include="source\includes\TrafficMapper\Media\VideoOverlay" />
     <None Include="source\includes\TrafficMapper\Modules\GateModel" />
     <None Include="source\includes\TrafficMapper\Modules\StatModel" />
     <None Include="source\includes\TrafficMapper\Modules\Tracker" />
@@ -200,9 +201,9 @@
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\complementary\AcceleratedModel.cpp" />
     <ClCompile Include="source\complementary\CameraCalibration.cpp" />
-    <ClCompile Include="source\complementary\FrameProvider.cpp" />
-    <ClCompile Include="source\complementary\VideoFilter.cpp" />
-    <ClCompile Include="source\complementary\VideoOverlay.cpp" />
+    <ClCompile Include="source\media\MediaPlayer.cpp" />
+    <ClCompile Include="source\media\VideoFilter.cpp" />
+    <ClCompile Include="source\media\VideoOverlay.cpp" />
     <ClCompile Include="source\modules\GateModel.cpp" />
     <ClCompile Include="source\modules\StatModel.cpp" />
     <ClCompile Include="source\modules\Tracker.cpp" />
@@ -218,10 +219,10 @@
     <ClInclude Include="source\types\Detection.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="source\media\VideoFilter.hpp" />
+    <QtMoc Include="source\media\VideoOverlay.hpp" />
+    <QtMoc Include="source\media\MediaPlayer.hpp" />
     <QtMoc Include="source\complementary\CameraCalibration.hpp" />
-    <QtMoc Include="source\complementary\FrameProvider.hpp" />
-    <QtMoc Include="source\complementary\VideoFilter.hpp" />
-    <QtMoc Include="source\complementary\VideoOverlay.hpp" />
     <QtMoc Include="source\modules\GateModel.hpp" />
     <QtMoc Include="source\modules\StatModel.hpp" />
     <QtMoc Include="source\modules\Tracker.hpp" />

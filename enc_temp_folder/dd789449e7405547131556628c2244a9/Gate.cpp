@@ -8,7 +8,7 @@
 
 
 Gate::Gate(QQuickItem * parent)
-	: QQuickPaintedItem(parent), m_counter(0), m_sumVehicleNr(0)
+	: QQuickPaintedItem(parent), m_counter(0)
 {
 }
 
