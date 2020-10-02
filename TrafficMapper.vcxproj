@@ -171,8 +171,10 @@
     <None Include="resources\qml\Footer.qml" />
     <None Include="resources\qml\MainMenu.qml" />
     <None Include="resources\qml\MainWindow.qml" />
+    <None Include="resources\svg\fullscreen.svg" />
     <None Include="resources\svg\media-pause.svg" />
     <None Include="resources\svg\media-play.svg" />
+    <None Include="resources\svg\minimize.svg" />
     <None Include="resources\svg\sound-mute.svg" />
     <None Include="resources\svg\sound-on.svg" />
     <None Include="source\includes\TrafficMapper\Complementary\AcceleratedModel" />

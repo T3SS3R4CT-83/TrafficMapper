@@ -1,5 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Dialogs 1.3
+
 
 MenuBar {
     height: 25
@@ -39,24 +41,21 @@ MenuBar {
                 dlgExportVideo.open()
             }
         }
-
-//        MenuItem {
-//            text: "Export video..."
-//            enabled: videoPlayer.isVideoLoaded
-//            onTriggered: {
-//                progressWindow.initAndOpen("Exporting frames", "Processing frames:")
-//                tracker.exportFrames()
-//            }
-//        }
     }
 
     Menu {
         title: "Traffic analysis"
 
         MenuItem {
-            text: "Calibrate camera"
+            text: "Calibrate camera..."
             enabled: videoPlayer.isVideoLoaded
             onTriggered: dlgCameraCalibration.initAndOpen()
+        }
+
+        MenuItem {
+            text: "Recalculate vehicle speeds"
+            enabled: vehicleModel.isCameraCalibrated
+            onTriggered: dlgRecalculateSpeed.open()
         }
 
         MenuSeparator {}
@@ -79,5 +78,14 @@ MenuBar {
             text: "Open stat window"
             onTriggered: statWindow.open()
         }
+    }
+
+    MessageDialog {
+        id: dlgRecalculateSpeed
+        title: "Recalculate vehicle speeds"
+        text: "Are you sure you want to recalculate all vehicle speeds?"
+        icon: StandardIcon.Question
+        standardButtons: StandardButton.Yes | StandardButton.No
+        onAccepted: vehicleModel.recalculateSpeeds()
     }
 }

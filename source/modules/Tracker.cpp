@@ -1,8 +1,10 @@
 #include "Tracker.hpp"
 
 
-
 #include <fstream>
+
+#include <opencv2/core.hpp>
+#include <opencv2/core/types.hpp>
 
 #include <QtConcurrent/QtConcurrent>
 
@@ -10,6 +12,7 @@
 #include <TrafficMapper/Complementary/CameraCalibration>
 #include <TrafficMapper/Media/MediaPlayer>
 #include <TrafficMapper/Types/Detection>
+#include <TrafficMapper/Types/Types>
 
 #include <HungarianAlgorithm.hpp>
 #include <cppitertools/enumerate.hpp>
@@ -77,6 +80,13 @@ void Tracker::openCacheFile(QUrl fileUrl)
 	ifs.close();
 }
 
+void Tracker::clearCache()
+{
+	m_detections.clear();
+
+	emit cacheSizeChanged();
+}
+
 void Tracker::analizeVideo(bool useGPU)
 {
 	m_isRunning = true;
@@ -110,7 +120,7 @@ void Tracker::analizeVideo(bool useGPU)
 			catch (std::out_of_range & ex)
 			{
 				frameDetections = getRawFrameDetections(frame, net);
-				filterFrameDetections(frameDetections);
+				//filterFrameDetections(frameDetections);
 				m_detections[frameIdx] = frameDetections;
 				emit cacheSizeChanged();
 			}
@@ -195,128 +205,6 @@ void Tracker::analizeVideo(bool useGPU)
 	});
 }
 
-void Tracker::analizeVideo_v2(bool useGPU)
-{
-	m_isRunning = true;
-
-	QtConcurrent::run([this, useGPU]()
-	{
-		qDebug() << "Tracker worker started!";
-
-		emit analysisStarted();
-
-		cv::Mat frame, prevFrame, frameGray, prevFrameGray;
-		std::vector<cv::Point2f> optFlowPoints, prevOptFlowPoints;
-
-		std::vector<Vehicle *> activeTrackings;
-
-		cv::dnn::Net net = initYOLO(useGPU);
-
-		m_media_ptr->getNextFrame(prevFrame);
-		cv::cvtColor(prevFrame, prevFrameGray, cv::COLOR_BGR2GRAY);
-
-		for (size_t frameIdx(1); frameIdx < m_media_ptr->m_videoMeta.FRAMECOUNT && m_isRunning; ++frameIdx)
-		{
-			// Update the "Progress Window".
-			emit progressUpdated(frameIdx, m_media_ptr->m_videoMeta.FRAMECOUNT);
-
-			m_media_ptr->getNextFrame(frame);
-			cv::cvtColor(frame, frameGray, cv::COLOR_BGR2GRAY);
-
-			// Trying to read the cached detection data of the frame.
-			// If cannot, use DNN to get vehicle detections.
-			std::vector<Detection> frameDetections;
-			try
-			{
-				frameDetections = m_detections.at(frameIdx);
-			}
-			catch (std::out_of_range & ex)
-			{
-				frameDetections = getRawFrameDetections(frame, net);
-				filterFrameDetections(frameDetections);
-				m_detections[frameIdx] = frameDetections;
-				emit cacheSizeChanged();
-			}
-
-			const int trackingNumber = activeTrackings.size();
-			const int detectionNumber = frameDetections.size();
-
-			std::vector<int> assignment;
-			std::vector<std::vector<double>> iouMatrix;
-
-			// If we have vehicles that are tracked (trackingNumber > 0)
-			// and there are detections on the current frame (detectionNumber > 0)
-			// then match them.
-			if (trackingNumber && detectionNumber)
-			{
-				std::vector<Detection> prevDetections;
-
-				for (auto vehicle : activeTrackings)
-					prevDetections.push_back(vehicle->getDetection(frameIdx - 1));
-
-				// Preparing IOU matrix
-				prepIOUmatrix(iouMatrix, prevDetections, frameDetections);
-
-				// Running "Hungarian algorithm" on IOU matrix
-				HungarianAlgorithm::Solve(iouMatrix, assignment);
-			}
-
-			// Handling the currently tracked vehicles.
-			for (auto && [i, vehicle_ptr] : enumerate(activeTrackings))
-			{
-				if (assignment[i] != -1 && iouMatrix[i][assignment[i]] <= -0.5f)
-				{
-					// Add matched detections to vehicle.
-					vehicle_ptr->updatePosition(frameIdx, frameDetections[assignment[i]]);
-				}
-				else
-				{
-					// If there is no matched detection for a vehicle, then
-					// try to track its position using an optical tracker.
-					vehicle_ptr->trackPosition(frame, prevFrame, frameIdx);
-				}
-			}
-
-			// Creating new vehicles from the unmatched detections.
-			for (auto && [i, detection] : enumerate(frameDetections))
-			{
-				if (std::find(std::begin(assignment), std::end(assignment), i) == std::end(assignment))
-				{
-					Vehicle * newVehicle = new Vehicle(frameIdx, detection);
-					activeTrackings.push_back(newVehicle);
-				}
-			}
-
-			// Remove finished trackings from the 'activeTrackings' list,
-			// and forward them in the pipeline.
-			activeTrackings.erase(
-				std::remove_if(
-					std::begin(activeTrackings),
-					std::end(activeTrackings),
-					[this](Vehicle * vehicle_ptr) {
-						if (!vehicle_ptr->isTracked())
-						{
-							emit pipelineOutput(vehicle_ptr);
-							return true;
-						}
-						return false;
-					}
-				),
-				std::end(activeTrackings)
-			);
-
-			prevFrame = frame;
-		}
-
-		for (auto vehicle_ptr : activeTrackings)
-			emit pipelineOutput(vehicle_ptr);
-
-		emit analysisEnded();
-
-		qDebug() << "Tracker worker finished!";
-	});
-}
-
 void Tracker::stop()
 {
 	m_isRunning = false;
@@ -357,7 +245,6 @@ inline std::vector<Detection> Tracker::getRawFrameDetections(const cv::Mat & fra
 
 	cv::Mat blob;
 	std::vector<cv::Mat> outs;
-	std::vector<Detection> frameDetections;
 
 	cv::dnn::blobFromImage(frame, blob, 1 / 255.0, cv::Size(416, 416), cv::Scalar(), false, false, CV_32F);
 	//cv::dnn::blobFromImage(frame, blob, 1 / 255.0, cv::Size(608, 608), cv::Scalar(), false, false, CV_32F);
@@ -365,30 +252,77 @@ inline std::vector<Detection> Tracker::getRawFrameDetections(const cv::Mat & fra
 	net.setInput(blob);
 	net.forward(outs, net.getUnconnectedOutLayersNames());
 
+	std::vector<Detection> rawDetections;
+	std::vector<cv::Rect2i> boxes;
+	std::vector<float> scores;
+	std::vector<int> indices;
+
 	for (auto layer : outs)
 	{
-		float * data = (float *)layer.data;
-		for (int detIdx = 0; detIdx < layer.rows; ++detIdx, data += layer.cols)
+		for (int detIdx(0); detIdx < layer.rows; ++detIdx)
 		{
-			cv::Mat scores = layer.row(detIdx).colRange(5, layer.cols);
-			cv::Point classIdPoint;
-			double confidence;
-			cv::minMaxLoc(scores, 0, &confidence, 0, &classIdPoint);
-			if (confidence > 0.5f)
-			{
-				const float centerX = static_cast<int>(data[0] * videoWidth);
-				const float centerY = static_cast<int>(data[1] * videoHeight);
-				const float width = static_cast<int>(data[2] * videoWidth);
-				const float height = static_cast<int>(data[3] * videoHeight);
-				const float x = static_cast<int>(centerX - width * 0.5f);
-				const float y = static_cast<int>(centerY - height * 0.5f);
+			const float score = layer.at<float>(detIdx, 4);
 
-				frameDetections.push_back(Detection(x, y, width, height, VehicleType(classIdPoint.x), confidence));
+			if (score > 0.01)
+			{
+				cv::Mat det = layer.row(detIdx);
+
+				const float width = det.at<float>(2);
+				const float height = det.at<float>(3);
+				//const float x = det.at<float>(0) - width * 0.5f;
+				//const float y = det.at<float>(1) - height * 0.5f;
+				const float x = det.at<float>(0);
+				const float y = det.at<float>(1);
+				cv::Point classIdPoint;
+
+				cv::minMaxLoc(det.colRange(5, 10), 0, 0, 0, &classIdPoint);
+
+				rawDetections.push_back(Detection(
+					x, y, width, height, TrafficMapper::getVTypeByID(classIdPoint.x), score
+				));
+				boxes.push_back(cv::Rect2f(
+					x * MediaPlayer::m_videoMeta.WIDTH,
+					y * MediaPlayer::m_videoMeta.HEIGHT,
+					width * MediaPlayer::m_videoMeta.WIDTH,
+					height * MediaPlayer::m_videoMeta.HEIGHT
+				));
+				scores.push_back(score);
 			}
 		}
 	}
 
+	cv::dnn::NMSBoxes(boxes, scores, 0.5f, 0.6f, indices);
+
+	std::vector<Detection> frameDetections;
+	for (int i : indices)
+	{
+		frameDetections.push_back(rawDetections[i]);
+	}
+
 	return frameDetections;
+
+	//for (auto layer : outs)
+	//{
+	//	float * data = (float *)layer.data;
+	//	for (int detIdx = 0; detIdx < layer.rows; ++detIdx, data += layer.cols)
+	//	{
+	//		cv::Mat scores = layer.row(detIdx).colRange(5, layer.cols);
+	//		cv::Point classIdPoint;
+	//		double confidence;
+	//		cv::minMaxLoc(scores, 0, &confidence, 0, &classIdPoint);
+	//		if (confidence > 0.5f)
+	//		{
+	//			const float centerX = static_cast<int>(data[0] * videoWidth);
+	//			const float centerY = static_cast<int>(data[1] * videoHeight);
+	//			const float width = static_cast<int>(data[2] * videoWidth);
+	//			const float height = static_cast<int>(data[3] * videoHeight);
+	//			const float x = static_cast<int>(centerX - width * 0.5f);
+	//			const float y = static_cast<int>(centerY - height * 0.5f);
+
+	//			frameDetections.push_back(Detection(x, y, width, height, VehicleType(classIdPoint.x), confidence));
+	//		}
+	//	}
+	//}
 }
 
 inline void Tracker::filterFrameDetections(std::vector<Detection> & frameDetections)

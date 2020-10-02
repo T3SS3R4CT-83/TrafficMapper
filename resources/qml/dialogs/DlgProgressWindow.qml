@@ -25,7 +25,6 @@ Dialog {
             progressMessage.text = internal.message + " [" + (currentFrameIdx + 1) + " / " + allFrameNr + "]"
             progressBar.value = currentFrameIdx / allFrameNr * 100
         }
-        function onAnalysisEnded() { close() }
     }
 
     QtObject {

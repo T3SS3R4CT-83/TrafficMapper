@@ -20,10 +20,10 @@ class Vehicle : public QObject
 {
 	Q_OBJECT
 
-	std::unordered_map<int, Detection> m_detections;
-	std::unordered_map<int, QPointF> m_positions;
+	std::map<int, Detection> m_detections;
+	std::map<int, QPointF> m_positions;
 	std::vector<std::pair<uint, QLineF>> m_trajectory;
-	std::unordered_map<int, int> m_speed;
+	std::map<int, int> m_speed;
 	VehicleType m_vehicleClass;
 
 	cv::Ptr<cv::Tracker> m_tracker;

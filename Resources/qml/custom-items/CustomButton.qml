@@ -13,17 +13,17 @@ Button {
     property bool fontBold: false
 
     background: CustomItemBackground {}
-    contentItem: Text {
-        text: customButton.text
-        font.pointSize: fontSize
-        font.bold: fontBold
-        color: "#222222"
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
-        // elide: Text.ElideRight
-        // renderType: Text.NativeRendering
-        smooth: true
-    }
+    // contentItem: Text {
+    //     text: customButton.text
+    //     font.pointSize: fontSize
+    //     font.bold: fontBold
+    //     color: "#222222"
+    //     horizontalAlignment: Text.AlignHCenter
+    //     verticalAlignment: Text.AlignVCenter
+    //     // elide: Text.ElideRight
+    //     // renderType: Text.NativeRendering
+    //     smooth: true
+    // }
     states: [
         State {
             name: "hovered"; when: customButton.hovered && !customButton.checked && customButton.enabled

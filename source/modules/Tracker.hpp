@@ -31,8 +31,8 @@ public:
 	void setFrameProvider(MediaPlayer * frameProvider_ptr);
 
 	Q_INVOKABLE void openCacheFile(QUrl fileUrl);
+	Q_INVOKABLE void clearCache();
 	Q_INVOKABLE void analizeVideo(bool useGPU);
-	Q_INVOKABLE void analizeVideo_v2(bool useGPU);
 	Q_INVOKABLE void stop();
 
 public slots:

@@ -19,6 +19,8 @@ class VehicleModel : public QObject
 {
 	Q_OBJECT
 
+	Q_PROPERTY(int isCameraCalibrated READ isCameraCalibrated NOTIFY cameraCalibrationStateChanged)
+
 	//VehicleModelWorker * m_worker_ptr;
 
 	std::vector<Vehicle *> m_vehicles;
@@ -41,6 +43,7 @@ public:
 	~VehicleModel();
 
 	Q_INVOKABLE void loadHomographyMatrix(CameraCalibration * calibrationModule);
+	Q_INVOKABLE void recalculateSpeeds();
 
 	friend class VideoFilter;
 	friend class MediaPlayer;
@@ -54,6 +57,8 @@ public slots:
 
 private:
 
+	bool isCameraCalibrated() const;
+
 	inline void vehiclePostProcess(Vehicle * vehicle_ptr);
 	inline void deleteVehicles();
 
@@ -61,4 +66,6 @@ signals:
 
 	void pipelineOutput(Vehicle *);
 	void analysisEnded();
+
+	void cameraCalibrationStateChanged();
 };

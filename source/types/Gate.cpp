@@ -148,7 +148,11 @@ void Gate::paint(QPainter * painter)
 
 void Gate::onFrameDisplayed(int frameIdx)
 {
-	m_counter = m_timelineCounter[frameIdx];
+	try
+	{
+		m_counter = m_timelineCounter.at(frameIdx);
+	}
+	catch (std::out_of_range) { };
 
 	update();
 }

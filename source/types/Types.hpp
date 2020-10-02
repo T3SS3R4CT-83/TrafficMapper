@@ -49,3 +49,11 @@ enum class VehicleType
 
 std::istream & operator>>(std::istream & iStream, VehicleType & vType);
 std::ostream & operator<<(std::ostream & oStream, const VehicleType & vType);
+
+
+
+namespace TrafficMapper
+{
+	VehicleType getVTypeByID(const int & i);
+	QString getVNameByType(const VehicleType & type);
+}

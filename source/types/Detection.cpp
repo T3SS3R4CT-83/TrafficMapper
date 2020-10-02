@@ -1,6 +1,6 @@
 #include "Detection.hpp"
 
-//#include <QPoint>
+#include <TrafficMapper/Media/MediaPlayer>
 //#include <TrafficMapper/Classes/Vehicle>
 
 
@@ -43,6 +43,11 @@ std::istream & operator>>(std::istream & iStream, Detection & det)
 
 	iStream >> det.m_vehicleType >> det.m_confidence >> x >> y >> width >> height;
 
+	x *= MediaPlayer::m_videoMeta.WIDTH;
+	y *= MediaPlayer::m_videoMeta.HEIGHT;
+	width *= MediaPlayer::m_videoMeta.WIDTH;
+	height *= MediaPlayer::m_videoMeta.HEIGHT;
+
 	det.setX(x);
 	det.setY(y);
 	det.setWidth(width);
@@ -79,7 +84,12 @@ bool Detection::isDeletable() const
 
 bool Detection::isValid() const
 {
-	return x() > 0.05 && x() + width() < 0.95 && y() > 0.05 && y() + height() < 0.95;
+	const float treshold = 20;
+
+	return x() > treshold
+		&& x() + width() < MediaPlayer::m_videoMeta.WIDTH - treshold
+		&& y() > treshold
+		&& y() + height() < MediaPlayer::m_videoMeta.HEIGHT - treshold;
 }
 
 

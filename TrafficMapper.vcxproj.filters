@@ -166,6 +166,12 @@
     <None Include="source\includes\TrafficMapper\Media\MediaPlayer">
       <Filter>Header Files\Media</Filter>
     </None>
+    <None Include="resources\svg\fullscreen.svg">
+      <Filter>Resource Files\SVGs</Filter>
+    </None>
+    <None Include="resources\svg\minimize.svg">
+      <Filter>Resource Files\SVGs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\img\placeholder.png">

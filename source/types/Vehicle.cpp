@@ -73,17 +73,15 @@ void Vehicle::trackPosition(const cv::Mat & frame, const cv::Mat & prevFrame, co
 
 	if (m_tracker->update(frame, newTrack))
 	{
-		const float x = newTrack.x / frame.cols;
-		const float y = newTrack.y / frame.rows;
-		const float width = newTrack.width / frame.cols;
-		const float height = newTrack.height / frame.rows;
-
-		addDetection(frameIdx, Detection(x, y, width, height));
+		addDetection(frameIdx, Detection(
+			newTrack.x,
+			newTrack.y,
+			newTrack.width,
+			newTrack.height
+		));
 
 		if (++m_timeSinceLastHit == 30)
-		{
 			stopTracking();
-		}
 	}
 	else
 	{
@@ -122,24 +120,19 @@ void Vehicle::calcVehicleType()
 
 void Vehicle::calcPositions()
 {
-	const uint vWidth = MediaPlayer::m_videoMeta.WIDTH;
-	const uint vHeight = MediaPlayer::m_videoMeta.HEIGHT;
-
 	m_positions[m_firstFrame] = QPointF(
-		std::round(m_detections[m_firstFrame].center().x() * vWidth),
-		std::round(m_detections[m_firstFrame].center().y() * vHeight)
+		m_detections[m_firstFrame].center().x(),
+		m_detections[m_firstFrame].center().y()
 	);
 
-	//cv::Ptr<cv::tracking::UnscentedKalmanFilter> kalmanFilter;
-	//initKalmanFilter_unscented(kalmanFilter);
 	cv::KalmanFilter kalmanFilter(6, 2, 0);
 	initKalmanFilter(kalmanFilter);
 
 	for (int frameIdx(m_firstFrame + 1); frameIdx <= m_lastFrame; ++frameIdx)
 	{
 		cv::Mat measurement(2, 1, CV_32F);
-		measurement.at<float>(0) = std::round(m_detections[frameIdx].center().x() * vWidth);
-		measurement.at<float>(1) = std::round(m_detections[frameIdx].center().y() * vHeight);
+		measurement.at<float>(0) = m_detections[frameIdx].center().x();
+		measurement.at<float>(1) = m_detections[frameIdx].center().y();
 
 		auto state_pre = kalmanFilter.predict();
 		auto state_post = kalmanFilter.correct(measurement);
@@ -155,18 +148,16 @@ void Vehicle::calcPositions()
 		m_trajectory.push_back(std::make_pair(frameIdx, QLineF(m_positions[frameIdx - 1], m_positions[frameIdx])));
 	}
 
-	//kalmanFilter.release();
-
 	m_firstFrame += 0;
 
 	std::erase_if(m_positions, [this](const auto & item) {
 		auto const & [key, value] = item;
 		return key < this->m_firstFrame;
-	});
+		});
 	std::erase_if(m_detections, [this](const auto & item) {
 		auto const & [key, value] = item;
 		return key < this->m_firstFrame;
-	});
+		});
 
 	m_trajectory.reserve(m_positions.size() - 1);
 	for (int frameIdx(m_firstFrame + 1); frameIdx <= m_lastFrame; ++frameIdx)
@@ -182,7 +173,7 @@ void Vehicle::calcVehicleSpeed(const cv::Mat & homographyMatrix)
 	imgPoints.reserve(m_positions.size());
 	planePoints.reserve(m_positions.size());
 
-	for (auto position : m_positions)
+	for (auto & position : m_positions)
 	{
 		imgPoints.push_back(cv::Point2f(
 			(float)position.second.x(),
@@ -218,7 +209,7 @@ void Vehicle::calcVehicleSpeed(const cv::Mat & homographyMatrix)
 
 bool Vehicle::weaksFallFirst()
 {
-	return m_lastFrame - m_firstFrame < 40;
+	return m_lastFrame - m_firstFrame < 30;
 }
 
 
@@ -227,13 +218,11 @@ bool Vehicle::weaksFallFirst()
 
 void Vehicle::drawOnFrame(QPainter & painter, const size_t & frameIdx, const std::bitset<4> & options)
 {
-
-
 	static QPen pen;
-	static QFont painterFont("Arial", MediaPlayer::m_videoMeta.HEIGHT / 46, 700);
+	static QFont painterFont("Arial", MediaPlayer::m_videoMeta.HEIGHT / 55, 700);
 	static QFontMetrics fm(painterFont);
 	static int marginSize = MediaPlayer::m_videoMeta.HEIGHT * 0.005f;
-	static QMargins margin(marginSize, marginSize, marginSize, marginSize);
+	static QMargins margin(marginSize, 0, marginSize, 0);
 
 	if (options[1])  // TRAJECTORY
 	{
@@ -245,35 +234,25 @@ void Vehicle::drawOnFrame(QPainter & painter, const size_t & frameIdx, const std
 			painter.drawLine(line.second);
 	}
 
-	if (options[3])  // POSITION
-	{
-		pen.setColor(QColor("#CD5555"));
-		pen.setWidth(5);
-		painter.setPen(pen);
-
-		painter.drawPoint(m_positions[frameIdx]);
-	}
-
-	if (options[2])  // LABELS
+	if (options[2] || options[3])  // LABELS (Type and Speed)
 	{
 		pen.setColor("#FFFFFF");
 		painter.setPen(pen);
 		painter.setFont(painterFont);
 
-		//QRect labelBackground = fm.tightBoundingRect(vehicle_ptr->className());
-		QRectF labelBackground(0, 0, 100, 20);
-		labelBackground += margin;
+		QString labelText;
+		if (options[2])
+			labelText.append(TrafficMapper::getVNameByType(m_vehicleClass));
+		if (options[2] && options[3])
+			labelText.append("\n");
+		if (options[3])
+			labelText.append(QString::number(m_speed[frameIdx]) + QString(" km/h"));
+
+		QRectF labelBackground = fm.boundingRect(QRect(0, 0, 1000, 1000), Qt::AlignLeft, labelText);
 		labelBackground.translate(m_positions[frameIdx]);
 
-		painter.fillRect(labelBackground, QColor("#CD2222"));
-		painter.drawText(
-			m_positions[frameIdx].x() + 5,
-			m_positions[frameIdx].y() + 20,
-			QString::number(m_speed[frameIdx]));
-		//m_painter.drawText(
-		//	labelTranslate.x(),
-		//	labelTranslate.y(),
-		//	vehicle_ptr->className());
+		painter.fillRect(labelBackground + margin, QColor("#CD4444"));
+		painter.drawText(labelBackground, labelText);
 	}
 
 	if (options[0])  // DETECTIONS
@@ -302,12 +281,7 @@ void Vehicle::drawOnFrame(QPainter & painter, const size_t & frameIdx, const std
 		pen.setWidth(3);
 		painter.setPen(pen);
 
-		painter.drawRect(
-			m_detections[frameIdx].x() * MediaPlayer::m_videoMeta.WIDTH,
-			m_detections[frameIdx].y() * MediaPlayer::m_videoMeta.HEIGHT,
-			m_detections[frameIdx].width() * MediaPlayer::m_videoMeta.WIDTH,
-			m_detections[frameIdx].height() * MediaPlayer::m_videoMeta.HEIGHT
-		);
+		painter.drawRect(m_detections[frameIdx]);
 	}
 }
 
@@ -315,12 +289,12 @@ void Vehicle::drawOnFrame(QPainter & painter, const size_t & frameIdx, const std
 
 inline void Vehicle::initTracker(const cv::Mat & frame, const QRectF & detection)
 {
-	const int x = detection.x() * frame.cols;
-	const int y = detection.y() * frame.rows;
-	const int width = detection.width() * frame.cols;
-	const int height = detection.height() * frame.rows;
-
-	const cv::Rect2i det(x, y, width, height);
+	const cv::Rect2i det(
+		detection.x(),
+		detection.y(),
+		detection.width(),
+		detection.height()
+	);
 	
 	m_tracker.release();
 	//m_tracker = cv::TrackerKCF::create();
@@ -332,9 +306,9 @@ inline void Vehicle::initTracker(const cv::Mat & frame, const QRectF & detection
 inline void Vehicle::initKalmanFilter(cv::KalmanFilter & kalmanFilter)
 {
 	const int vMaxIndex = std::min(50, static_cast<int>(m_lastFrame - m_firstFrame));
-	const QPointF velocity = (m_detections[m_firstFrame + vMaxIndex].center() - m_detections[m_firstFrame].center()) / 50;
-	const float pos_X = m_detections[m_firstFrame].center().x() * MediaPlayer::m_videoMeta.WIDTH;
-	const float pos_Y = m_detections[m_firstFrame].center().y() * MediaPlayer::m_videoMeta.HEIGHT;
+	const QPointF velocity = (m_detections[m_firstFrame + vMaxIndex].center() - m_detections[m_firstFrame].center()) / (vMaxIndex + 1);
+	const float pos_X = m_detections[m_firstFrame].center().x();
+	const float pos_Y = m_detections[m_firstFrame].center().y();
 
 	kalmanFilter.statePost.at<float>(0, 0) = pos_X;				// center X
 	kalmanFilter.statePost.at<float>(1, 0) = pos_Y;				// center Y
@@ -345,7 +319,6 @@ inline void Vehicle::initKalmanFilter(cv::KalmanFilter & kalmanFilter)
 
 
 	// A (State Transition Matrix)
-	//kalmanFilter.transitionMatrix = (cv::Mat_<float>(4, 4) << 1, 0, 1, 0,  0, 1, 0, 1,  0, 0, 1, 0,  0, 0, 0, 1);
 	cv::setIdentity(kalmanFilter.transitionMatrix);
 	kalmanFilter.transitionMatrix.at<float>(0, 2) = 1.f;
 	kalmanFilter.transitionMatrix.at<float>(1, 3) = 1.f;
@@ -369,23 +342,6 @@ inline void Vehicle::initKalmanFilter(cv::KalmanFilter & kalmanFilter)
 	kalmanFilter.errorCovPost.at<float>(3, 3) = 1;
 	kalmanFilter.errorCovPost.at<float>(4, 4) = 1;
 	kalmanFilter.errorCovPost.at<float>(5, 5) = 1;
-
-
-
-
-	//cv::Ptr<AcceleratedModel> model(new AcceleratedModel());
-	//cv::tracking::UnscentedKalmanFilterParams params(DP, MP, CP, 0, 0, model);
-	//params.dataType = CV_32FC1;
-	//params.stateInit = initState.clone();
-	//params.errorCovInit = errorCov.clone();
-	//params.measurementNoiseCov = measurementNoiseCov.clone();
-	//params.processNoiseCov = processNoiseCov.clone();
-
-	//params.alpha = 1;
-	//params.beta = 2.0;
-	//params.k = -2.0;
-
-	//kalmanFilter = cv::tracking::createUnscentedKalmanFilter(params);
 }
 
 inline void Vehicle::addDetection(const uint & frameIdx, const Detection & detection)

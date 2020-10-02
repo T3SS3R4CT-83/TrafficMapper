@@ -38,8 +38,15 @@ void VehicleModel::pipelineInput(Vehicle * vehicle_ptr)
 	m_bufferMutex.unlock();
 }
 
+bool VehicleModel::isCameraCalibrated() const
+{
+	return m_isCameraCalibrated;
+}
+
 inline void VehicleModel::vehiclePostProcess(Vehicle * vehicle_ptr)
 {
+	m_vehicles.push_back(vehicle_ptr);
+
 	vehicle_ptr->calcVehicleType();
 	vehicle_ptr->calcPositions();
 	if (m_isCameraCalibrated)
@@ -63,8 +70,25 @@ void VehicleModel::loadHomographyMatrix(CameraCalibration * calibrationModule)
 {
 	if (calibrationModule->m_pointSet == 4)
 	{
-		m_isCameraCalibrated = true;
 		m_Homography = calibrationModule->m_homography_i2p.clone();
+		m_isCameraCalibrated = true;
+		emit cameraCalibrationStateChanged();
+
+		//qDebug() << m_Homography.at<float>(0, 0) << m_Homography.at<float>(0, 1) << m_Homography.at<float>(0, 2) << m_Homography.at<float>(0, 3);
+		//qDebug() << m_Homography.at<float>(1, 0) << m_Homography.at<float>(1, 1) << m_Homography.at<float>(1, 2) << m_Homography.at<float>(1, 3);
+		//qDebug() << m_Homography.at<float>(2, 0) << m_Homography.at<float>(2, 1) << m_Homography.at<float>(2, 2) << m_Homography.at<float>(2, 3);
+		//qDebug() << m_Homography.at<float>(3, 0) << m_Homography.at<float>(3, 1) << m_Homography.at<float>(3, 2) << m_Homography.at<float>(3, 3);
+	}
+}
+
+void VehicleModel::recalculateSpeeds()
+{
+	if (m_isCameraCalibrated)
+	{
+		for (auto vehicle_ptr : m_vehicles)
+		{
+			vehicle_ptr->calcVehicleSpeed(m_Homography);
+		}
 	}
 }
 

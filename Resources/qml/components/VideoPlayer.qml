@@ -8,10 +8,37 @@ import TrafficMapper 1.0
 import "../custom-items"
 
 Item {
-//    id: videoPlayer
+    id: videoPlayer
 //    width: 16 * height / 9
 //    height: Math.min(parent.width / 16 * 9, parent.height)
 
+    state: "embedded"
+    states: [
+        State {
+            name: "fullscreen"
+            ParentChange { target: videoOutput; parent: videoWindowWrapper }
+            ParentChange { target: playerControls; parent: videoWindowWrapper; width: parent.width; height: 100 }
+            PropertyChanges { target: btnMute; anchors.bottomMargin: 20; anchors.leftMargin: 20 }
+            PropertyChanges { target: btnPlay; anchors.bottomMargin: 20; anchors.leftMargin: 60 }
+            PropertyChanges { target: slider; anchors.bottomMargin: 30; anchors.leftMargin: 110; width: parent.width - 260 }
+            PropertyChanges { target: positionLabel; anchors.bottomMargin: 20; anchors.rightMargin: 60; color: "white" }
+            PropertyChanges { target: btnFullScreen; anchors.bottomMargin: 20; anchors.rightMargin: 20; icon.source: "qrc:/svg/minimize.svg" }
+            PropertyChanges { target: controlGradient1; color: "#cc000000" }
+            PropertyChanges { target: controlGradient2; color: "black" }
+        },
+        State {
+            name: "embedded"
+            ParentChange { target: videoOutput; parent: videoWrapper }
+            ParentChange { target: playerControls; parent: videoPlayer; width: videoWrapper.width; height: 30 }
+            PropertyChanges { target: btnMute; anchors.bottomMargin: 0; anchors.leftMargin: 0 }
+            PropertyChanges { target: btnPlay; anchors.bottomMargin: 0; anchors.leftMargin: 40 }
+            PropertyChanges { target: slider; anchors.bottomMargin: 10; anchors.leftMargin: 90; width: parent.width - 220 }
+            PropertyChanges { target: positionLabel; anchors.bottomMargin: 0; anchors.rightMargin: 40; color: "black" }
+            PropertyChanges { target: btnFullScreen; anchors.bottomMargin: 0; anchors.rightMargin: 0; icon.source: "qrc:/svg/fullscreen.svg" }
+            PropertyChanges { target: controlGradient1; color: "transparent" }
+            PropertyChanges { target: controlGradient2; color: "transparent" }
+        }
+    ]
 
     property bool isVideoLoaded: false
     property Gate currentGateItem: null
@@ -48,13 +75,11 @@ Item {
 
 
     Item {
-//        id: videoWrapper
-//        objectName: "videoWrapper"
+        id: videoWrapper
         x: 0
         y: 0
         width: parent.width
         height: parent.width * 9 / 16  
-//       // color: "#222222"
 
         Image {
             anchors.fill: parent
@@ -84,7 +109,6 @@ Item {
                         btnPlay.icon.source = "qrc:/svg/media-play.svg"
                 }
             }
-
         }
     
         Item {
@@ -119,85 +143,122 @@ Item {
         }
     }
 
-    Button {
-        id: btnMute
-        width: 30
+    Rectangle {
+        id: playerControls
+        width: videoWrapper.width
         height: 30
         anchors.left: parent.left
         anchors.bottom: parent.bottom
-        icon.source: checked ? "qrc:/svg/sound-mute.svg" : "qrc:/svg/sound-on.svg"
-        checkable: true
-        background: CustomItemBackground {}
-
-        onClicked: mediaPlayer.muted = checked
-    }
-
-    Button {
-        id: btnPlay
-        width: 30
-        height: 30
-        anchors.left: parent.left
-        anchors.leftMargin: 40
-        anchors.bottom: parent.bottom
-        icon.source: "qrc:/svg/media-play.svg"
-        background: CustomItemBackground {}
-
-        onClicked: switchPlayState()
-    }
-
-    ProgressBar {
-        id: slider
-        width: parent.width - 180
-        height: 10
-        anchors.left: parent.left
-        anchors.leftMargin: 90
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 10
-        to: mediaPlayer.duration
-        value: mediaPlayer.position
-        background: CustomItemBackground {
-            anchors.fill: parent
-            Rectangle {
-                x: 1; y: 1
-                height: parent.height - 2
-                color: "#B0CEFF"
-            }
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: "transparent" }
+            GradientStop { position: 0.6; id: controlGradient1 }
+            GradientStop { position: 1.0; id: controlGradient2 }
         }
-        contentItem: Rectangle {
+
+        CustomButton {
+            id: btnMute
+            width: 30
+            height: 30
             anchors.left: parent.left
-            width: parent.visualPosition * parent.width
-            height: parent.height
-            radius: 2
-            color: "#CD5555"
-            z: 2
+            anchors.bottom: parent.bottom
+            icon.source: checked ? "qrc:/svg/sound-mute.svg" : "qrc:/svg/sound-on.svg"
+            checkable: true
+            enabled: videoPlayer.isVideoLoaded
+            background: CustomItemBackground {}
+
+            onClicked: mediaPlayer.muted = checked
         }
 
-        MouseArea {
-            anchors.fill: parent
+        CustomButton {
+            id: btnPlay
+            width: 30
+            height: 30
+            anchors.left: parent.left
+            anchors.leftMargin: 40
+            anchors.bottom: parent.bottom
+            icon.source: "qrc:/svg/media-play.svg"
+            enabled: videoPlayer.isVideoLoaded
+            background: CustomItemBackground {}
 
-            property bool isSeeking: false
+            onClicked: switchPlayState()
+        }
 
-            onPressed: {
-                isSeeking = true
-                mediaPlayer.setPosition(mediaPlayer.duration * mouseX / width)
+        ProgressBar {
+            id: slider
+            width: parent.width - 220
+            height: 10
+            anchors.left: parent.left
+            anchors.leftMargin: 90
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 10
+            to: mediaPlayer.duration
+            value: mediaPlayer.position
+            background: CustomItemBackground {
+                anchors.fill: parent
+                Rectangle {
+                    x: 1; y: 1
+                    height: parent.height - 2
+                    color: "#B0CEFF"
+                }
             }
-            onPositionChanged: {
-                if (isSeeking && mediaPlayer.seekable)
+            contentItem: Rectangle {
+                anchors.left: parent.left
+                width: parent.visualPosition * parent.width
+                height: parent.height
+                radius: 2
+                color: "#CD5555"
+                z: 2
+            }
+
+            MouseArea {
+                anchors.fill: parent
+
+                property bool isSeeking: false
+
+                onPressed: {
+                    isSeeking = true
                     mediaPlayer.setPosition(mediaPlayer.duration * mouseX / width)
-            }
-            onReleased: {
-                isSeeking = false
+                }
+                onPositionChanged: {
+                    if (isSeeking && mediaPlayer.seekable)
+                        mediaPlayer.setPosition(mediaPlayer.duration * mouseX / width)
+                }
+                onReleased: {
+                    isSeeking = false
+                }
             }
         }
-    }
 
-    Text {
-        height: 30
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        verticalAlignment: Text.AlignVCenter
-        text: mediaPlayer.positionLabel
-        font.pixelSize: 12
+        Text {
+            id: positionLabel
+            height: 30
+            anchors.right: parent.right
+            anchors.rightMargin: 40
+            anchors.bottom: parent.bottom
+            verticalAlignment: Text.AlignVCenter
+            text: mediaPlayer.positionLabel
+            font.pixelSize: 12
+        }
+
+        CustomButton {
+            id: btnFullScreen
+            width: 30
+            height: 30
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            enabled: videoPlayer.isVideoLoaded
+            // background: CustomItemBackground {}
+
+            onClicked: {
+                if (videoPlayer.state == "fullscreen") {
+                    videoWindow.close()
+                    videoPlayer.state = "embedded"
+                } else {
+                    videoWindow.showFullScreen()
+                    videoPlayer.state = "fullscreen"
+                }
+            }
+        }
     }
 
 
@@ -215,5 +276,8 @@ Item {
             mediaPlayer.pause()
         else
             mediaPlayer.play()
+    }
+
+    function switchFullScreen() {
     }
 }

@@ -5,6 +5,12 @@ AcceleratedModel::AcceleratedModel()
 {
 }
 
+/*
+* x_k : previous state vector
+* u_k : control vector
+* v_k : noise vector
+* x_kplus1 : next state vector. 
+*/
 void AcceleratedModel::stateConversionFunction(const cv::Mat & x_k, const cv::Mat & u_k, const cv::Mat & v_k, cv::Mat & x_kplus1)
 {
 	const float x0 = x_k.at<float>(0, 0);
@@ -31,6 +37,11 @@ void AcceleratedModel::stateConversionFunction(const cv::Mat & x_k, const cv::Ma
 	}
 }
 
+/*
+* x_k : state vector
+* n_k : noise vector
+* z_k : measurement vector
+*/
 void AcceleratedModel::measurementFunction(const cv::Mat & x_k, const cv::Mat & n_k, cv::Mat & z_k)
 {
 	float x0 = x_k.at<float>(0, 0);

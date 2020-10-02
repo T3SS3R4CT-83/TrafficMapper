@@ -103,8 +103,11 @@ Gate * GateModel::getData(const uint & index)
 
 void GateModel::onAnalysisStarted()
 {
-	for (auto & gate_ptr : m_gateList)
-		gate_ptr->initGate();
+	for (auto && [idx, gate] : iter::enumerate(m_gateList))
+	{
+		gate->initGate();
+		emit dataChanged(createIndex(idx, 0), createIndex(idx, 0), QVector<int>() << SumRole << CounterRole);
+	}
 
 	m_threadRunning = true;
 
@@ -163,13 +166,11 @@ void GateModel::onFrameDisplayed(int frameIdx)
 inline void GateModel::vehiclePostProcess(Vehicle * vehicle_ptr)
 {
 	for (auto && [idx, gate] : iter::enumerate(m_gateList))
-	//for (auto & gate : m_gateList)
 	{
 		uint frameIdx = gate->checkVehiclePass(vehicle_ptr);
 
 		if (frameIdx > 0)
 		{
-			// dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>())
 			emit dataChanged(createIndex(idx, 0), createIndex(idx, 0), QVector<int>() << SumRole);
 			emit pipelineOutput(vehicle_ptr, gate, frameIdx);
 			return;

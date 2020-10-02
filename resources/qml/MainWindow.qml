@@ -1,10 +1,10 @@
 //import QtQuick 2.13
-//import QtQuick.Window 2.15
+import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Styles 1.4
 
 import QtQuick.Layouts 1.15 // TODO: Remove
-import QtQuick 2.12 // TODO: Remove
+import QtQuick 2.15
 
 import "./components"
 import "./dialogs"
@@ -76,5 +76,21 @@ ApplicationWindow {
 
     DlgExportVideo {
         id: dlgExportVideo
+    }
+
+    Window{
+        id: videoWindow
+        flags: Qt.FramelessWindowHint
+        color: "black"
+
+        Item {
+            id: videoWindowWrapper
+            anchors.fill: parent
+
+            Keys.onEscapePressed: {
+                videoWindow.close()
+                videoPlayer.state = "embedded"
+            }
+        }
     }
 }

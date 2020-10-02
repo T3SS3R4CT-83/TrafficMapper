@@ -25,7 +25,9 @@
         <file>svg/media-play.svg</file>
         <file>svg/sound-mute.svg</file>
         <file>svg/sound-on.svg</file>
-        
+        <file>svg/fullscreen.svg</file>
+        <file>svg/minimize.svg</file>
+
         <file>img/placeholder.png</file>
         <file>img/splash.png</file>
     </qresource>

@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import QtQuick.Dialogs 1.3
 
 import TrafficMapper 1.0
 
@@ -28,21 +29,25 @@ ToolBar {
         anchors.bottom: parent.bottom
         spacing: 15
 
-        ToolButton {
-            text: "Open cache file..."
-            onClicked: dlgOpenCache.open()
-        }
-
         Label {
             text: "Cached frames: <b>" + tracker.cacheSize + "</b> / <b>" + mediaPlayer.videoMeta.framecount + "</b>"
         }
 
+        ToolSeparator {}
+
         ToolButton {
-            text: "LOAD ALL SHIT"
-            onClicked: {
-                dlgOpenVideo.videoFileOpened(Qt.resolvedUrl("D:/Szakdolgozat/Videos/video_03.mp4"))
-                tracker.openCacheFile("file:///D:/Szakdolgozat/Videos/video_03.nms.bin")
-            }
+            text: "Clear cache"
+            enabled: tracker.cacheSize > 0
+            onClicked: dlgClearCache.open()
         }
+    }
+
+    MessageDialog {
+        id: dlgClearCache
+        title: "Cache delete warning"
+        text: "Are you sure you want to delete all cached detection data?"
+        icon: StandardIcon.Warning
+        standardButtons: StandardButton.Yes | StandardButton.No
+        onAccepted: tracker.clearCache()
     }
 }

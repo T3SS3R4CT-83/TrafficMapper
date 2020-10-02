@@ -76,3 +76,41 @@ std::ostream & operator<<(std::ostream & oStream, const VehicleType & vType)
 
 	return oStream;
 }
+
+VehicleType TrafficMapper::getVTypeByID(const int & i)
+{
+	switch (i)
+	{
+	case 0:
+		return VehicleType::CAR;
+	case 1:
+		return VehicleType::BUS;
+	case 2:
+		return VehicleType::TRUCK;
+	case 3:
+		return VehicleType::MOTORCYCLE;
+	case 4:
+		return VehicleType::BICYCLE;
+	default:
+		return VehicleType::undefined;
+	}
+}
+
+QString TrafficMapper::getVNameByType(const VehicleType & type)
+{
+	switch (type)
+	{
+	case VehicleType::BICYCLE:
+		return QStringLiteral("Bicycle");
+	case VehicleType::BUS:
+		return QStringLiteral("Bus");
+	case VehicleType::CAR:
+		return QStringLiteral("Car");
+	case VehicleType::MOTORCYCLE:
+		return QStringLiteral("Motorcycle");
+	case VehicleType::TRUCK:
+		return QStringLiteral("Truck");
+	default:
+		return QStringLiteral("unidentified");
+	}
+}
